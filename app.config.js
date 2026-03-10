@@ -55,5 +55,10 @@ export default {
       enabled: false,
       fallbackToCacheTimeout: 0,
     },
+    extra: {
+      eas: {
+        projectId: 'cbd0bc91-5bf0-4448-a086-d0979a9f7564',
+      },
+    },
   },
 };
