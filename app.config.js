@@ -43,6 +43,14 @@ export default {
             'Allow Diving Spots to access your location',
         },
       ],
+      [
+        'expo-build-properties',
+        {
+          android: {
+            kotlinVersion: '1.9.25',
+          },
+        },
+      ],
     ],
     scheme: 'divingspots',
     userInterfaceStyle: 'light',
