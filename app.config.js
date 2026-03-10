@@ -36,6 +36,8 @@ export default {
       favicon: './assets/favicon.png',
     },
     plugins: [
+      'expo-font',
+      'expo-localization',
       [
         'expo-location',
         {
