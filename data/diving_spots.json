@@ -1,0 +1,473 @@
+{
+  "default_photo": "https://atelierdelamer.com/img/leoblog/b/1/32/lg-b-sardine.jpg",
+  "default_photos_fond_marin": [
+    "https://atelierdelamer.com/img/leoblog/b/1/32/lg-b-sardine.jpg"
+  ],
+  "spots": [
+    {
+      "id": 1,
+      "nom": "Parc National des Calanques - Frioul",
+      "description": "Archipel spectaculaire avec une faune riche et des tombants verticaux impressionnants",
+      "localite": "Marseille",
+      "code_postal": "13008",
+      "latitude": 43.2138,
+      "longitude": 5.3364,
+      "profondeur_max": 45,
+      "profondeur_min": 5,
+      "difficulte": "Intermediate",
+      "type_site": "Îlot / Archipel",
+      "faune": [
+        "Barracuda",
+        "Grouper",
+        "Murène",
+        "Poulpe",
+        "Daurade"
+      ],
+      "flore": [
+        "Gorgones rouges",
+        "Anémones",
+        "Corail noir",
+        "Algues coralligènes"
+      ],
+      "courant": "Modéré",
+      "visibilite": 35,
+      "meilleure_saison": "Mai à Octobre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Calanques_de_Marseille_3.jpg/1280px-Calanques_de_Marseille_3.jpg",
+      "conditions_acces": "Accès par bateau depuis Marseille",
+      "capacite_plongeurs": 12,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+      ]
+    },
+    {
+      "id": 2,
+      "nom": "Grotte de Morgiou",
+      "description": "Grotte sous-marine fascinante avec formations géologiques uniques",
+      "localite": "Marseille",
+      "code_postal": "13008",
+      "latitude": 43.1842,
+      "longitude": 5.2748,
+      "profondeur_max": 40,
+      "profondeur_min": 12,
+      "difficulte": "Intermediate",
+      "type_site": "Grotte",
+      "faune": [
+        "Poulpe",
+        "Murène jaune",
+        "Sériole",
+        "Castagnole",
+        "Labridés"
+      ],
+      "flore": [
+        "Éponges",
+        "Gorgones",
+        "Anémones",
+        "Algues coralligènes"
+      ],
+      "courant": "Faible",
+      "visibilite": 40,
+      "meilleure_saison": "Juin à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Marseille_Port.jpg/1280px-Marseille_Port.jpg",
+      "conditions_acces": "Accès depuis la calanque de Morgiou",
+      "capacite_plongeurs": 8,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+      ]
+    },
+    {
+      "id": 3,
+      "nom": "Îles d'Hyères - Parc de Porquerolles",
+      "description": "Parc naturel avec épaves, tombants et récifs coralliens bien préservés",
+      "localite": "Hyères",
+      "code_postal": "83400",
+      "latitude": 43.0009,
+      "longitude": 6.1959,
+      "profondeur_max": 50,
+      "profondeur_min": 8,
+      "difficulte": "Intermediate",
+      "type_site": "Parc naturel / Îlot",
+      "faune": [
+        "Mérou brun",
+        "Dentex",
+        "Sériole",
+        "Badèche",
+        "Poulpe"
+      ],
+      "flore": [
+        "Posidonie",
+        "Gorgones rouges",
+        "Corail noir",
+        "Algues"
+      ],
+      "courant": "Modéré",
+      "visibilite": 38,
+      "meilleure_saison": "Avril à Novembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Porquerolles_2007.jpg/1280px-Porquerolles_2007.jpg",
+      "conditions_acces": "Accès par ferry depuis Hyères",
+      "capacite_plongeurs": 15,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ]
+    },
+    {
+      "id": 4,
+      "nom": "Épave du Rubis",
+      "description": "Sous-marin coulé en 1940, site historique et archéologique fascinant",
+      "localite": "Toulon",
+      "code_postal": "83000",
+      "latitude": 43.0889,
+      "longitude": 5.9297,
+      "profondeur_max": 68,
+      "profondeur_min": 40,
+      "difficulte": "Advanced",
+      "type_site": "Épave",
+      "faune": [
+        "Congre",
+        "Sériole",
+        "Labridés",
+        "Poissons de roche"
+      ],
+      "flore": [
+        "Anémones",
+        "Éponges",
+        "Coraux"
+      ],
+      "courant": "Modéré à fort",
+      "visibilite": 32,
+      "meilleure_saison": "Juillet à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/French_submarine_Rubis.jpg/1280px-French_submarine_Rubis.jpg",
+      "conditions_acces": "Réservé aux plongeurs brevetés Advanced",
+      "capacite_plongeurs": 6,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+      ]
+    },
+    {
+      "id": 5,
+      "nom": "Tombant de la Madrague",
+      "description": "Tombant spectaculaire avec une faune variée et une belle formation géologique",
+      "localite": "La Seyne-sur-Mer",
+      "code_postal": "83500",
+      "latitude": 43.0978,
+      "longitude": 5.8714,
+      "profondeur_max": 55,
+      "profondeur_min": 15,
+      "difficulte": "Intermediate",
+      "type_site": "Tombant",
+      "faune": [
+        "Mérou",
+        "Dentex",
+        "Pageot rouge",
+        "Sériole",
+        "Murène"
+      ],
+      "flore": [
+        "Gorgones jaunes",
+        "Gorgones rouges",
+        "Corail noir",
+        "Anémones"
+      ],
+      "courant": "Modéré",
+      "visibilite": 36,
+      "meilleure_saison": "Mai à Octobre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Gorgona_sea.jpg/1280px-Gorgona_sea.jpg",
+      "conditions_acces": "Accès depuis Toulon ou La Seyne-sur-Mer",
+      "capacite_plongeurs": 10,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+      ]
+    },
+    {
+      "id": 6,
+      "nom": "Île de Bendor",
+      "description": "Petite île avec récifs artificiels et une riche biodiversité",
+      "localite": "Bandol",
+      "code_postal": "83150",
+      "latitude": 43.1489,
+      "longitude": 5.7455,
+      "profondeur_max": 42,
+      "profondeur_min": 6,
+      "difficulte": "Beginner",
+      "type_site": "Îlot / Récif artificiel",
+      "faune": [
+        "Daurade royale",
+        "Loup",
+        "Sar",
+        "Labridés",
+        "Poulpe"
+      ],
+      "flore": [
+        "Posidonie",
+        "Gorgones",
+        "Anémones",
+        "Algues"
+      ],
+      "courant": "Faible",
+      "visibilite": 35,
+      "meilleure_saison": "Avril à Novembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bandol_areal.jpg/1280px-Bandol_areal.jpg",
+      "conditions_acces": "Accessible aux débutants, accès par bateau",
+      "capacite_plongeurs": 12,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ]
+    },
+    {
+      "id": 7,
+      "nom": "Îles des Embiez",
+      "description": "Archipel avec plusieurs sites de plongée et un musée sous-marin",
+      "localite": "Saint-Cyr-sur-Mer",
+      "code_postal": "83270",
+      "latitude": 43.1681,
+      "longitude": 5.6856,
+      "profondeur_max": 48,
+      "profondeur_min": 8,
+      "difficulte": "Intermediate",
+      "type_site": "Archipel",
+      "faune": [
+        "Sériole",
+        "Dentex",
+        "Loup",
+        "Sar",
+        "Poulpe"
+      ],
+      "flore": [
+        "Posidonie",
+        "Gorgones jaunes et rouges",
+        "Corail noir",
+        "Algues"
+      ],
+      "courant": "Faible à modéré",
+      "visibilite": 37,
+      "meilleure_saison": "Avril à Octobre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Saint_cyr_sur_Mer_02.jpg/1280px-Saint_cyr_sur_Mer_02.jpg",
+      "conditions_acces": "Proche de Saint-Cyr, accès facile",
+      "capacite_plongeurs": 14,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+      ]
+    },
+    {
+      "id": 8,
+      "nom": "Récifs du Levant",
+      "description": "Plate-forme rocheuse avec formations coralligènes remarquables",
+      "localite": "Îles d'Hyères",
+      "code_postal": "83400",
+      "latitude": 42.9867,
+      "longitude": 6.3545,
+      "profondeur_max": 52,
+      "profondeur_min": 20,
+      "difficulte": "Intermediate",
+      "type_site": "Plate-forme rocheuse",
+      "faune": [
+        "Badèche",
+        "Sériole",
+        "Dentex",
+        "Labridés",
+        "Congre"
+      ],
+      "flore": [
+        "Gorgones",
+        "Corail noir",
+        "Algues coralligènes",
+        "Anémones"
+      ],
+      "courant": "Modéré à fort",
+      "visibilite": 34,
+      "meilleure_saison": "Juin à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Levant_Francais.jpg/1280px-Levant_Francais.jpg",
+      "conditions_acces": "Conditions variables, nécessite expérience",
+      "capacite_plongeurs": 10,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+      ]
+    },
+    {
+      "id": 9,
+      "nom": "Cap Lardier",
+      "description": "Tombant rocheux avec faune riche et eaux claires",
+      "localite": "Rayol-Canadel-sur-Mer",
+      "code_postal": "83820",
+      "latitude": 43.1789,
+      "longitude": 6.5156,
+      "profondeur_max": 40,
+      "profondeur_min": 10,
+      "difficulte": "Beginner",
+      "type_site": "Tombant rocheux",
+      "faune": [
+        "Loup",
+        "Sar",
+        "Damoiselle",
+        "Labridés",
+        "Girelle"
+      ],
+      "flore": [
+        "Posidonie",
+        "Gorgones",
+        "Algues",
+        "Anémones"
+      ],
+      "courant": "Faible",
+      "visibilite": 39,
+      "meilleure_saison": "Avril à Novembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Cap_Lardier.jpg/1280px-Cap_Lardier.jpg",
+      "conditions_acces": "Idéal pour débutants, eaux calmes",
+      "capacite_plongeurs": 12,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ]
+    },
+    {
+      "id": 10,
+      "nom": "Grotte du Dramont",
+      "description": "Cavité sous-marine avec jeux de lumière spectaculaires",
+      "localite": "Saint-Raphaël",
+      "code_postal": "83700",
+      "latitude": 43.4256,
+      "longitude": 6.8234,
+      "profondeur_max": 38,
+      "profondeur_min": 8,
+      "difficulte": "Intermediate",
+      "type_site": "Grotte",
+      "faune": [
+        "Poulpe",
+        "Murène jaune",
+        "Castagnole",
+        "Labridés",
+        "Crustacés"
+      ],
+      "flore": [
+        "Anémones",
+        "Éponges",
+        "Algues coralligènes",
+        "Gorgones"
+      ],
+      "courant": "Faible",
+      "visibilite": 42,
+      "meilleure_saison": "Avril à Octobre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Saint_Raphael_vue_mer.jpg/1280px-Saint_Raphael_vue_mer.jpg",
+      "conditions_acces": "Accessible, photographie idéale",
+      "capacite_plongeurs": 8,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+      ]
+    },
+    {
+      "id": 11,
+      "nom": "Îlot de Bénéjean",
+      "description": "Petit îlot isolé avec riche biodiversité et eaux cristallines",
+      "localite": "Saint-Tropez",
+      "code_postal": "83990",
+      "latitude": 43.2687,
+      "longitude": 6.6312,
+      "profondeur_max": 45,
+      "profondeur_min": 12,
+      "difficulte": "Intermediate",
+      "type_site": "Îlot",
+      "faune": [
+        "Mérou brun",
+        "Dentex",
+        "Sériole",
+        "Badèche",
+        "Poulpe"
+      ],
+      "flore": [
+        "Gorgones rouges",
+        "Corail noir",
+        "Posidonie",
+        "Algues"
+      ],
+      "courant": "Modéré",
+      "visibilite": 38,
+      "meilleure_saison": "Mai à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Saint_Tropez_beach.jpg/1280px-Saint_Tropez_beach.jpg",
+      "conditions_acces": "Accès par bateau privé ou charter",
+      "capacite_plongeurs": 10,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+      ]
+    },
+    {
+      "id": 12,
+      "nom": "Épave du Lérins",
+      "description": "Épave d'un cargo coulé en 1942, exploration historique",
+      "localite": "Cannes",
+      "code_postal": "06400",
+      "latitude": 43.5277,
+      "longitude": 7.0153,
+      "profondeur_max": 65,
+      "profondeur_min": 35,
+      "difficulte": "Advanced",
+      "type_site": "Épave",
+      "faune": [
+        "Congre",
+        "Murène",
+        "Sériole",
+        "Labridés",
+        "Crustacés"
+      ],
+      "flore": [
+        "Anémones",
+        "Éponges",
+        "Algues coralligènes"
+      ],
+      "courant": "Modéré",
+      "visibilite": 30,
+      "meilleure_saison": "Juillet à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Cannes_harbour.jpg/1280px-Cannes_harbour.jpg",
+      "conditions_acces": "Réservé aux plongeurs Advanced avec brevet Nitrox",
+      "capacite_plongeurs": 6,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ]
+    },
+    {
+      "id": 13,
+      "nom": "Mont de la Grande Tête",
+      "description": "Montagne sous-marine avec faune pélagique variée",
+      "localite": "Antibes",
+      "code_postal": "06600",
+      "latitude": 43.5789,
+      "longitude": 7.1234,
+      "profondeur_max": 58,
+      "profondeur_min": 25,
+      "difficulte": "Advanced",
+      "type_site": "Montagne sous-marine",
+      "faune": [
+        "Sériole",
+        "Barracuda",
+        "Poulpe",
+        "Dentex",
+        "Pélagiques"
+      ],
+      "flore": [
+        "Gorgones",
+        "Anémones",
+        "Corail noir",
+        "Algues"
+      ],
+      "courant": "Fort",
+      "visibilite": 40,
+      "meilleure_saison": "Juin à Septembre",
+      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg",
+      "conditions_acces": "Nécessite expérience, courants importants",
+      "capacite_plongeurs": 8,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+      ]
+    }
+  ]
+}
