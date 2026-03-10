@@ -47,9 +47,7 @@ export default {
     scheme: 'divingspots',
     userInterfaceStyle: 'light',
     platforms: ['ios', 'android', 'web'],
-    runtimeVersion: {
-      policy: 'appVersion',
-    },
+    runtimeVersion: '1.0.0',
     updates: {
       url: 'https://u.expo.dev/update',
       enabled: false,
