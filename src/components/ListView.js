@@ -1,8 +1,8 @@
 /**
- * Composant ListView - Affiche les spots sous forme de liste
+ * ListView 2026 – Cards immersives Ocean Deep
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -11,107 +11,69 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  ActivityIndicator,
 } from 'react-native';
 import { orderByDistance } from 'geolib';
+import { useTheme } from '../context/ThemeContext';
+import { radius, shadows } from '../theme';
 
 const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
-  const [sortedSpots, setSortedSpots] = useState([]);
+  const { colors, difficultyMeta } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  // Trier les spots par distance ou ordre par défaut
-  React.useEffect(() => {
-    if (!spots || spots.length === 0) {
-      setSortedSpots([]);
-      return;
-    }
-
+  const sortedSpots = useMemo(() => {
+    if (!spots?.length) return [];
     if (userLocation?.latitude && userLocation?.longitude) {
-      // Trier par distance depuis la position actuelle
-      const validSpots = spots.filter(s => s && s.latitude && s.longitude);
-      const sorted = orderByDistance(userLocation, validSpots);
-      setSortedSpots(sorted);
-    } else {
-      // Ordre par défaut
-      setSortedSpots(spots);
+      const valid = spots.filter(s => s?.latitude && s?.longitude);
+      return orderByDistance(userLocation, valid);
     }
+    return spots;
   }, [spots, userLocation]);
 
-  const renderSpotItem = ({ item, index }) => {
-    // Calculer la distance si la position est disponible
+  const renderSpotItem = useCallback(({ item }) => {
+    const diff = difficultyMeta[item.difficulte] || difficultyMeta.Intermediate;
     let distanceText = '';
-    if (userLocation?.latitude && userLocation?.longitude && item.distance) {
-      const km = (item.distance / 1000).toFixed(1);
-      distanceText = `${km} km`;
+    if (userLocation?.latitude && item.distance) {
+      distanceText = `${(item.distance / 1000).toFixed(1)} km`;
     }
 
     return (
-      <TouchableOpacity
-        style={styles.spotItem}
-        onPress={() => onSpotPress?.(item)}
-        activeOpacity={0.7}
-      >
-        {/* Image du spot */}
-        <Image
-          source={{ uri: item.photo }}
-          style={styles.spotImage}
-          resizeMode="cover"
-        />
+      <TouchableOpacity style={styles.card} onPress={() => onSpotPress?.(item)} activeOpacity={0.85}>
+        <Image source={{ uri: item.photo }} style={styles.cardImage} resizeMode="cover" />
+        <View style={styles.cardOverlay} />
 
-        {/* Contenu */}
-        <View style={styles.spotContent}>
-          <View style={styles.spotHeader}>
-            <Text style={styles.spotTitle} numberOfLines={1}>
-              {item.nom}
-            </Text>
-            <View style={styles.difficultyBadge}>
-              <Text style={styles.difficultyText}>{item.difficulte}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.spotLocation}>
-            {item.localite} • {item.code_postal}
-          </Text>
-
-          <View style={styles.spotMetrics}>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Type:</Text>
-              <Text style={styles.metricValue}>{item.type_site}</Text>
-            </View>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Profondeur:</Text>
-              <Text style={styles.metricValue}>
-                {item.profondeur_min}-{item.profondeur_max}m
-              </Text>
-            </View>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>Visibilité:</Text>
-              <Text style={styles.metricValue}>{item.visibilite}m</Text>
-            </View>
-          </View>
-
-          {distanceText && (
-            <Text style={styles.distanceText}>📍 {distanceText}</Text>
-          )}
-
-          <Text style={styles.spotDescription} numberOfLines={2}>
-            {item.description}
-          </Text>
+        <View style={[styles.diffPill, { backgroundColor: diff.bg }]}>
+          <View style={[styles.diffDot, { backgroundColor: diff.color }]} />
+          <Text style={[styles.diffText, { color: diff.color }]}>{diff.label}</Text>
         </View>
 
-        {/* Flèche */}
-        <View style={styles.arrowContainer}>
-          <Text style={styles.arrow}>›</Text>
+        {distanceText !== '' && (
+          <View style={styles.distanceBadge}>
+            <Text style={styles.distanceText}>{distanceText}</Text>
+          </View>
+        )}
+
+        <View style={styles.cardBottom}>
+          <Text style={styles.cardTitle} numberOfLines={1}>{item.nom}</Text>
+          <Text style={styles.cardLocation}>📍 {item.localite}</Text>
+          <View style={styles.metricsRow}>
+            <MetricPill icon="↕" value={`${item.profondeur_min}–${item.profondeur_max}m`} />
+            <MetricPill icon="👁" value={`${item.visibilite}m`} />
+            <MetricPill icon="⚓" value={item.type_site} />
+          </View>
         </View>
       </TouchableOpacity>
     );
-  };
+  }, [userLocation, onSpotPress, styles, difficultyMeta]);
 
-  const renderEmptyList = () => (
-    <View style={styles.emptyContainer}>
-      <Text style={styles.emptyTitle}>Aucun spot trouvé</Text>
-      <Text style={styles.emptySubtitle}>Ajustez vos filtres ou recherchez dans une autre région</Text>
-    </View>
-  );
+  if (!sortedSpots.length) {
+    return (
+      <View style={styles.emptyState}>
+        <Text style={styles.emptyIcon}>🤿</Text>
+        <Text style={styles.emptyTitle}>Aucun spot trouvé</Text>
+        <Text style={styles.emptySub}>Ajustez vos filtres</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -119,147 +81,91 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
         data={sortedSpots}
         renderItem={renderSpotItem}
         keyExtractor={(item) => item.id.toString()}
-        ListEmptyComponent={renderEmptyList}
-        contentContainerStyle={sortedSpots.length === 0 ? styles.emptyListContent : null}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        removeClippedSubviews
+        windowSize={7}
       />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
+const MetricPill = React.memo(({ icon, value }) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return (
+    <View style={styles.metricPill}>
+      <Text style={styles.metricIcon}>{icon}</Text>
+      <Text style={styles.metricVal} numberOfLines={1}>{value}</Text>
+    </View>
+  );
+});
+
+const makeStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
+  list: {
+    paddingTop: 72,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+    gap: 14,
   },
-  emptyListContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
+
+  card: {
+    borderRadius: radius.lg, overflow: 'hidden',
+    backgroundColor: colors.bgCard,
+    borderWidth: 1, borderColor: colors.border,
+    ...shadows.card,
   },
-  emptyContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
+  cardImage: { width: '100%', height: 180, backgroundColor: colors.bgElevated },
+  cardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    top: 0, height: 180,
+    backgroundColor: 'transparent',
   },
-  emptyTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#13131D',
-    marginBottom: 8,
+
+  diffPill: {
+    position: 'absolute', top: 12, left: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 5,
+    paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill,
   },
-  emptySubtitle: {
-    fontSize: 14,
-    color: '#6C7383',
-    textAlign: 'center',
+  diffDot: { width: 6, height: 6, borderRadius: 3 },
+  diffText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
+
+  distanceBadge: {
+    position: 'absolute', top: 12, right: 12,
+    backgroundColor: colors.bgGlass,
+    borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5,
+    borderWidth: 1, borderColor: colors.borderMid,
   },
-  spotItem: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 12,
-    marginVertical: 8,
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+  distanceText: { fontSize: 11, fontWeight: '700', color: colors.primary },
+
+  cardBottom: { padding: 14, gap: 4 },
+  cardTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary, letterSpacing: 0.1 },
+  cardLocation: { fontSize: 12, color: colors.textSecondary, marginBottom: 8 },
+
+  metricsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  metricPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: colors.bgGlassLight, borderRadius: radius.pill,
+    paddingHorizontal: 10, paddingVertical: 5,
+    borderWidth: 1, borderColor: colors.border,
   },
-  spotImage: {
-    width: 100,
-    height: 120,
-    backgroundColor: '#E8E8E8',
+  metricIcon: { fontSize: 11, color: colors.primary },
+  metricVal: { fontSize: 11, fontWeight: '600', color: colors.textSecondary, maxWidth: 90 },
+
+  emptyState: {
+    flex: 1, backgroundColor: colors.bg,
+    justifyContent: 'center', alignItems: 'center', gap: 8,
   },
-  spotContent: {
-    flex: 1,
-    padding: 12,
-  },
-  spotHeader: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  spotTitle: {
-    flex: 1,
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#13131D',
-    marginRight: 8,
-  },
-  difficultyBadge: {
-    backgroundColor: '#FFE8E8',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    alignSelf: 'flex-start',
-  },
-  difficultyText: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#C92A2A',
-  },
-  spotLocation: {
-    fontSize: 12,
-    color: '#6C7383',
-    marginBottom: 6,
-  },
-  spotMetrics: {
-    flexDirection: 'row',
-    marginBottom: 6,
-    gap: 8,
-  },
-  metric: {
-    flex: 1,
-  },
-  metricLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginBottom: 2,
-  },
-  metricValue: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#13131D',
-  },
-  distanceText: {
-    fontSize: 11,
-    color: '#4A90E2',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  spotDescription: {
-    fontSize: 11,
-    color: '#666',
-    lineHeight: 15,
-  },
-  arrowContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingRight: 12,
-  },
-  arrow: {
-    fontSize: 24,
-    color: '#CCC',
-    fontWeight: 'bold',
-  },
-  separator: {
-    height: 0.5,
-    backgroundColor: '#E8E8E8',
-    marginHorizontal: 12,
-  },
+  emptyIcon:  { fontSize: 48 },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: colors.textPrimary },
+  emptySub:   { fontSize: 14, color: colors.textMuted },
 });
 
 ListView.propTypes = {
   spots: PropTypes.array,
   userLocation: PropTypes.object,
   onSpotPress: PropTypes.func,
-};
-
-ListView.defaultProps = {
-  spots: [],
-  userLocation: null,
-  onSpotPress: () => {},
 };
 
 export default ListView;

@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "_splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/logo-atelier.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

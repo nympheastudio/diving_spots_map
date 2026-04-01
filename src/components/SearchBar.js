@@ -1,8 +1,8 @@
 /**
- * Composant SearchBar avec moteur de recherche
+ * SearchBar 2026 – Glass pill avec dropdown premium
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -13,236 +13,191 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import DivingDataService from '../services/DivingDataService';
+import { useTheme } from '../context/ThemeContext';
+import { radius, shadows } from '../theme';
 
-const SearchBar = ({ onSpotSelect, onClose }) => {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
+const SearchBar = ({ onSpotSelect }) => {
+  const { colors, difficultyMeta } = useTheme();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [query,     setQuery]     = useState('');
+  const [results,   setResults]   = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isOpen,    setIsOpen]    = useState(false);
+  const debounceRef = useRef(null);
+  const dropAnim    = useRef(new Animated.Value(0)).current;
 
-  // Effectuer une recherche
-  const handleSearch = useCallback(async (text) => {
+  const handleSearch = useCallback((text) => {
     setQuery(text);
-
-    if (text.trim().length === 0) {
-      setResults([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const searchResults = await DivingDataService.searchDivingSpots(text);
-      setResults(searchResults);
-      setIsVisible(true);
-    } catch (error) {
-      console.log('Search error:', error);
-      setResults([]);
-    } finally {
-      setIsLoading(false);
-    }
+    clearTimeout(debounceRef.current);
+    if (!text.trim()) { setResults([]); setIsOpen(false); return; }
+    debounceRef.current = setTimeout(async () => {
+      setIsLoading(true);
+      try {
+        const res = await DivingDataService.searchDivingSpots(text);
+        setResults(res);
+        setIsOpen(true);
+      } catch { setResults([]); }
+      finally { setIsLoading(false); }
+    }, 280);
   }, []);
 
-  const handleSpotPress = useCallback((spot) => {
+  useEffect(() => {
+    Animated.spring(dropAnim, {
+      toValue: isOpen ? 1 : 0,
+      useNativeDriver: true,
+      tension: 80,
+      friction: 12,
+    }).start();
+  }, [isOpen]);
+
+  const handleSelect = useCallback((spot) => {
     onSpotSelect?.(spot);
-    setQuery('');
-    setResults([]);
-    setIsVisible(false);
+    setQuery(''); setResults([]); setIsOpen(false);
   }, [onSpotSelect]);
 
-  const renderResultItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.resultItem}
-      onPress={() => handleSpotPress(item)}
-      activeOpacity={0.7}
-    >
-      <Image
-        source={{ uri: item.photo }}
-        style={styles.resultThumb}
-        resizeMode="cover"
-      />
-      <View style={styles.resultTextBlock}>
-        <Text style={styles.resultName} numberOfLines={1}>{item.nom}</Text>
-        <Text style={styles.resultSubtitle}>{item.localite} • {item.difficulte}</Text>
-      </View>
-      <Text style={styles.resultType}>{item.type_site}</Text>
-    </TouchableOpacity>
-  );
+  const handleClear = useCallback(() => {
+    setQuery(''); setResults([]); setIsOpen(false);
+  }, []);
+
+  const dropStyle = {
+    opacity: dropAnim,
+    transform: [{ translateY: dropAnim.interpolate({ inputRange: [0, 1], outputRange: [-8, 0] }) }],
+  };
+
+  const renderItem = useCallback(({ item }) => {
+    const diff = difficultyMeta[item.difficulte] || difficultyMeta.Intermediate;
+    return (
+      <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item)} activeOpacity={0.75}>
+        <Image source={{ uri: item.photo }} style={styles.thumb} resizeMode="cover" />
+        <View style={styles.resultBody}>
+          <Text style={styles.resultName} numberOfLines={1}>{item.nom}</Text>
+          <Text style={styles.resultSub}>{item.localite}</Text>
+        </View>
+        <View style={[styles.diffPill, { backgroundColor: diff.bg }]}>
+          <Text style={[styles.diffPillText, { color: diff.color }]}>{diff.label}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }, [handleSelect, styles, difficultyMeta]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.searchInputContainer}>
+    <View style={styles.wrapper}>
+      <View style={styles.pill}>
+        <Text style={styles.searchIcon}>⌕</Text>
         <TextInput
-          style={styles.searchInput}
-          placeholder="Rechercher un spot..."
-          placeholderTextColor="#999"
+          style={styles.input}
+          placeholder="Spot, ville, type…"
+          placeholderTextColor={colors.textMuted}
           value={query}
           onChangeText={handleSearch}
-          onFocus={() => setIsVisible(query.length > 0)}
+          returnKeyType="search"
+          selectionColor={colors.primary}
         />
-
-        {query.length > 0 && (
-          <TouchableOpacity
-            onPress={() => {
-              setQuery('');
-              setResults([]);
-              setIsVisible(false);
-            }}
-            style={styles.clearButton}
-          >
-            <Text style={styles.clearButtonText}>✕</Text>
-          </TouchableOpacity>
-        )}
+        {isLoading
+          ? <ActivityIndicator size="small" color={colors.primary} style={styles.right} />
+          : query.length > 0 && (
+            <TouchableOpacity onPress={handleClear} style={styles.right} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <View style={styles.clearBtn}><Text style={styles.clearIcon}>✕</Text></View>
+            </TouchableOpacity>
+          )
+        }
       </View>
 
-      {isVisible && (
-        <View style={styles.resultsContainer}>
-          {isLoading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#4A90E2" />
-            </View>
-          )}
-
-          {!isLoading && results.length === 0 && query.length > 0 && (
-            <View style={styles.emptyContainer}>
+      {isOpen && (
+        <Animated.View style={[styles.dropdown, dropStyle]}>
+          {results.length === 0 ? (
+            <View style={styles.emptyRow}>
               <Text style={styles.emptyText}>Aucun spot trouvé</Text>
             </View>
-          )}
-
-          {results.length > 0 && (
+          ) : (
             <FlatList
               data={results}
-              renderItem={renderResultItem}
+              renderItem={renderItem}
               keyExtractor={(item) => item.id.toString()}
-              scrollEnabled={false}
-              style={styles.resultsList}
+              scrollEnabled={results.length > 4}
+              style={{ maxHeight: 340 }}
+              showsVerticalScrollIndicator={false}
             />
           )}
-        </View>
+        </Animated.View>
       )}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
+const makeStyles = (colors) => StyleSheet.create({
+  wrapper: {
     paddingHorizontal: 16,
-    paddingTop: 0,
-    paddingBottom: 0,
-    zIndex: 100,
-    position: 'relative',
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    paddingHorizontal: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  searchInput: {
-    flex: 1,
-    height: 44,
-    fontSize: 16,
-    color: '#13131D',
-  },
-  clearButton: {
-    padding: 8,
-  },
-  clearButtonText: {
-    fontSize: 20,
-    color: '#999',
-  },
-  resultsContainer: {
-    position: 'absolute',
-    top: 68,
-    left: 16,
-    right: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    maxHeight: 380,
     zIndex: 200,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 10,
-    overflow: 'hidden',
   },
-  loadingContainer: {
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resultsList: {
-    maxHeight: 380,
-  },
-  resultItem: {
+
+  pill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    gap: 10,
+    backgroundColor: colors.bgGlass,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.borderMid,
+    paddingHorizontal: 14,
+    height: 48,
+    gap: 8,
+    ...shadows.card,
   },
-  resultThumb: {
-    width: 46,
-    height: 46,
-    borderRadius: 8,
-    backgroundColor: '#E8F4F8',
-    flexShrink: 0,
+  searchIcon: {
+    fontSize: 20,
+    color: colors.primary,
+    marginTop: -2,
   },
-  resultTextBlock: {
+  input: {
     flex: 1,
+    fontSize: 15,
+    color: colors.textPrimary,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
-  resultName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#13131D',
-    marginBottom: 4,
+  right: { marginLeft: 4 },
+  clearBtn: {
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: colors.bgGlassLight,
+    alignItems: 'center', justifyContent: 'center',
   },
-  resultSubtitle: {
-    fontSize: 12,
-    color: '#6C7383',
+  clearIcon: { fontSize: 11, color: colors.textSecondary, fontWeight: '700' },
+
+  dropdown: {
+    marginTop: 8,
+    backgroundColor: colors.bgElevated,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    ...shadows.card,
   },
-  resultType: {
-    fontSize: 11,
-    color: '#4A90E2',
-    fontWeight: '600',
-    backgroundColor: '#EBF2FF',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+
+  resultItem: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 10, paddingHorizontal: 14, gap: 12,
+    borderBottomWidth: 1, borderBottomColor: colors.border,
   },
-  emptyContainer: {
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
+  thumb: {
+    width: 44, height: 44, borderRadius: radius.sm,
+    backgroundColor: colors.bgCard,
   },
-  emptyText: {
-    fontSize: 14,
-    color: '#999',
-  },
+  resultBody: { flex: 1 },
+  resultName: { fontSize: 14, fontWeight: '600', color: colors.textPrimary, marginBottom: 3 },
+  resultSub:  { fontSize: 12, color: colors.textSecondary },
+  diffPill: { paddingHorizontal: 9, paddingVertical: 4, borderRadius: radius.pill },
+  diffPillText: { fontSize: 10, fontWeight: '700', letterSpacing: 0.3 },
+
+  emptyRow: { paddingVertical: 28, alignItems: 'center' },
+  emptyText: { color: colors.textMuted, fontSize: 14 },
 });
 
 SearchBar.propTypes = {
   onSpotSelect: PropTypes.func,
   onClose: PropTypes.func,
-};
-
-SearchBar.defaultProps = {
-  onSpotSelect: () => {},
-  onClose: () => {},
 };
 
 export default SearchBar;

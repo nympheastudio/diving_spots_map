@@ -1,186 +1,194 @@
 /**
- * Composant Map Simple avec OpenStreetMap via WebView + Leaflet
- * Carte libre sans clé API nécessaire
+ * DivingMapSimple 2026 – Leaflet dark theme + marqueurs premium
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-const DivingMapSimple = ({
-  spots = [],
-  markerSelected = null,
-  onSpotPress,
-  region,
-  location,
-}) => {
+const DivingMapSimple = ({ spots = [], markerSelected = null, onSpotPress, region, location }) => {
   const webViewRef = useRef(null);
 
-  if (!spots || spots.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ textAlign: "center", marginTop: 50, color: "#666" }}>
-          Chargement de la carte...
-        </Text>
-      </View>
-    );
-  }
+  // HTML généré une seule fois (spots ne changent pas en runtime)
+  const html = useCallback(() => {
+    const markers = spots
+      .filter(s => s?.latitude && s?.longitude)
+      .map(s => ({
+        id: s.id, lat: s.latitude, lng: s.longitude,
+        nom: s.nom, localite: s.localite || '',
+        profondeur: `${s.profondeur_min || 0}–${s.profondeur_max || 0} m`,
+        difficulte: s.difficulte || '', visibilite: s.visibilite || '',
+        type: s.type_site || '',
+      }));
 
-  // Générer le HTML avec Leaflet embarqué
-  const generateMapHTML = () => {
-    const markers = spots.filter(s => s && s.latitude && s.longitude).map((spot) => ({
-      id: spot.id,
-      lat: spot.latitude,
-      lng: spot.longitude,
-      nom: spot.nom,
-      localite: spot.localite || '',
-      profondeur: `${spot.profondeur_min || 0}-${spot.profondeur_max || 0}m`,
-      difficulte: spot.difficulte || '',
-      visibilite: spot.visibilite || '',
-    }));
+    const clat = region?.latitude  || 43.2965;
+    const clng = region?.longitude || 5.3698;
 
-    const centerLat = region?.latitude || 43.2965;
-    const centerLng = region?.longitude || 5.3698;
-
-    return `
-<!DOCTYPE html>
+    return `<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <style>
-    body { margin: 0; padding: 0; }
-    #map { width: 100%; height: 100vh; }
-    .popup-title { 
-      font-size: 16px; 
-      font-weight: bold; 
-      color: #4A90E2; 
-      margin-bottom: 8px; 
-    }
-    .popup-info { 
-      font-size: 13px; 
-      color: #666; 
-      margin: 4px 0; 
-    }
-    .popup-button {
-      margin-top: 10px;
-      padding: 8px 16px;
-      background: #4A90E2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      width: 100%;
-    }
-  </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#080C14;}
+  #map{width:100%;height:100vh;}
+
+  /* Tile sombre – inversion CSS */
+  .leaflet-tile{filter:invert(1) hue-rotate(200deg) brightness(0.78) saturate(0.85);}
+  .leaflet-container{background:#080C14;}
+
+  /* Popup */
+  .leaflet-popup-content-wrapper{
+    background:rgba(13,22,38,0.92);
+    border:1px solid rgba(0,212,255,0.22);
+    border-radius:16px;
+    color:#F0F4FF;
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    box-shadow:0 8px 32px rgba(0,0,0,0.6);
+    padding:0;overflow:hidden;
+  }
+  .leaflet-popup-tip{background:rgba(13,22,38,0.92);}
+  .leaflet-popup-close-button{color:rgba(240,244,255,0.5)!important;font-size:16px!important;top:10px!important;right:12px!important;}
+
+  /* Popup inner */
+  .popup{padding:16px 16px 14px;}
+  .popup-nom{font-size:15px;font-weight:700;color:#F0F4FF;margin-bottom:4px;letter-spacing:-.1px;}
+  .popup-loc{font-size:12px;color:rgba(240,244,255,0.5);margin-bottom:10px;}
+  .popup-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+  .pill{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;}
+  .pill-blue{background:rgba(0,212,255,0.15);color:#00D4FF;border:1px solid rgba(0,212,255,0.3);}
+  .pill-green{background:rgba(0,229,160,0.15);color:#00E5A0;border:1px solid rgba(0,229,160,0.3);}
+  .popup-btn{
+    width:100%;padding:10px;background:#00D4FF;border:none;border-radius:10px;
+    color:#080C14;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;
+  }
+  .popup-btn:active{opacity:.85;}
+
+  /* Marker custom */
+  .mk{
+    width:32px;height:32px;border-radius:50%;
+    border:2.5px solid rgba(255,255,255,0.85);
+    box-shadow:0 0 0 4px rgba(0,212,255,0.25),0 4px 12px rgba(0,0,0,0.5);
+    transition:transform .15s ease;
+    cursor:pointer;
+  }
+  .mk-default{background:radial-gradient(circle at 35% 35%,#1ee8ff,#0098c8);}
+  .mk-selected{
+    background:radial-gradient(circle at 35% 35%,#ff7a82,#e0333f);
+    box-shadow:0 0 0 6px rgba(255,92,106,0.35),0 4px 16px rgba(0,0,0,0.6);
+    transform:scale(1.18);
+  }
+  .mk-inner{
+    width:10px;height:10px;border-radius:50%;
+    background:rgba(255,255,255,0.9);
+    position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);
+  }
+</style>
 </head>
 <body>
-  <div id="map"></div>
-  <script>
-    const map = L.map('map', { zoomControl: false }).setView([${centerLat}, ${centerLng}], 9);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
-      maxZoom: 18,
-    }).addTo(map);
-    
-    const markers = ${JSON.stringify(markers)};
-    const markerObjects = {};
-    
-    markers.forEach(spot => {
-      const marker = L.marker([spot.lat, spot.lng], {
-        icon: L.divIcon({
-          className: 'custom-marker',
-          html: '<div style="background: #4A90E2; width: 30px; height: 30px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
-          iconSize: [30, 30],
-          iconAnchor: [15, 15],
-        })
-      }).addTo(map);
-      
-      const popupContent = \`
-        <div style="min-width: 200px;">
-          <div class="popup-title">\${spot.nom}</div>
-          <div class="popup-info">\${spot.localite}</div>
-          <div class="popup-info"><strong>Profondeur:</strong> \${spot.profondeur}</div>
-          <div class="popup-info"><strong>Difficulté:</strong> \${spot.difficulte}</div>
-          <div class="popup-info"><strong>Visibilité:</strong> \${spot.visibilite}</div>
-          <button class="popup-button" onclick="window.ReactNativeWebView.postMessage('\${spot.id}')">
-            Voir les détails
-          </button>
-        </div>
-      \`;
-      
-      marker.bindPopup(popupContent);
-      markerObjects[spot.id] = marker;
+<div id="map"></div>
+<script>
+  const map = L.map('map',{zoomControl:false,attributionControl:false}).setView([${clat},${clng}],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+
+  const spots = ${JSON.stringify(markers)};
+  const objs  = {};
+
+  function mkIcon(selected){
+    return L.divIcon({
+      className:'',
+      html:'<div class="mk '+(selected?'mk-selected':'mk-default')+'"><div class="mk-inner"></div></div>',
+      iconSize:[32,32],iconAnchor:[16,16],popupAnchor:[0,-18],
     });
-    
-    window.addEventListener('message', (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'centerOnMarker' && data.spotId) {
-          const marker = markerObjects[data.spotId];
-          if (marker) {
-            map.setView(marker.getLatLng(), 13);
-            marker.openPopup();
-          }
-        } else if (data.type === 'centerOnLocation' && data.lat && data.lng) {
-          map.setView([data.lat, data.lng], 11);
-          L.circleMarker([data.lat, data.lng], {
-            radius: 8,
-            color: '#FF6B6B',
-            fillColor: '#FF6B6B',
-            fillOpacity: 0.8,
-          }).addTo(map);
+  }
+
+  spots.forEach(s=>{
+    const m=L.marker([s.lat,s.lng],{icon:mkIcon(false)}).addTo(map);
+    const popupHtml=\`<div class="popup">
+      <div class="popup-nom">\${s.nom}</div>
+      <div class="popup-loc">\${s.localite}</div>
+      <div class="popup-pills">
+        <span class="pill pill-blue">⬇ \${s.profondeur}</span>
+        <span class="pill pill-green">👁 \${s.visibilite}m</span>
+      </div>
+      <button class="popup-btn" onclick="window.ReactNativeWebView.postMessage(String(\${s.id}))">
+        Voir les détails →
+      </button>
+    </div>\`;
+    m.bindPopup(popupHtml,{minWidth:220,maxWidth:260,className:'clean-popup'});
+    objs[s.id]=m;
+  });
+
+  // Messages depuis RN
+  document.addEventListener('message',handle);
+  window.addEventListener('message',handle);
+  function handle(e){
+    try{
+      const d=JSON.parse(e.data);
+      if(d.type==='centerOnMarker'&&d.spotId){
+        const m=objs[d.spotId];
+        if(m){
+          // Reset tous les markers
+          Object.values(objs).forEach(x=>x.setIcon(mkIcon(false)));
+          m.setIcon(mkIcon(true));
+          map.setView(m.getLatLng(),13,{animate:true});
+          setTimeout(()=>m.openPopup(),400);
         }
-      } catch (e) {}
-    });
-  </script>
+      } else if(d.type==='centerOnLocation'&&d.lat&&d.lng){
+        map.setView([d.lat,d.lng],11,{animate:true});
+        L.circleMarker([d.lat,d.lng],{
+          radius:9,color:'#FF5C6A',fillColor:'#FF5C6A',
+          fillOpacity:0.9,weight:3,
+        }).addTo(map);
+      }
+    }catch(err){}
+  }
+</script>
 </body>
-</html>
-    `;
-  };
+</html>`;
+  }, [spots, region]);
 
   useEffect(() => {
     if (markerSelected && webViewRef.current) {
-      webViewRef.current.postMessage(JSON.stringify({
-        type: 'centerOnMarker',
-        spotId: markerSelected.id,
-      }));
+      webViewRef.current.postMessage(JSON.stringify({ type: 'centerOnMarker', spotId: markerSelected.id }));
     }
   }, [markerSelected]);
 
   useEffect(() => {
-    if (location && location.coords && webViewRef.current) {
-      webViewRef.current.postMessage(JSON.stringify({
-        type: 'centerOnLocation',
-        lat: location.coords.latitude,
-        lng: location.coords.longitude,
-      }));
+    if (location && webViewRef.current) {
+      const lat = location.coords?.latitude ?? location.latitude;
+      const lng = location.coords?.longitude ?? location.longitude;
+      if (lat && lng) {
+        webViewRef.current.postMessage(JSON.stringify({ type: 'centerOnLocation', lat, lng }));
+      }
     }
   }, [location]);
 
-  const handleMessage = (event) => {
-    const spotId = parseInt(event.nativeEvent.data, 10);
-    const spot = spots.find((s) => s.id === spotId);
-    if (spot && onSpotPress) {
-      onSpotPress(spot);
-    }
-  };
+  const handleMessage = useCallback((e) => {
+    const spotId = parseInt(e.nativeEvent.data, 10);
+    const spot = spots.find(s => s.id === spotId);
+    if (spot && onSpotPress) onSpotPress(spot);
+  }, [spots, onSpotPress]);
 
   return (
     <View style={styles.container}>
       <WebView
         ref={webViewRef}
-        source={{ html: generateMapHTML() }}
+        source={{ html: html() }}
         style={styles.webview}
         onMessage={handleMessage}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={true}
+        javaScriptEnabled
+        domStorageEnabled
+        startInLoadingState={false}
+        scrollEnabled={false}
+        bounces={false}
+        overScrollMode="never"
       />
     </View>
   );
@@ -195,12 +203,8 @@ DivingMapSimple.propTypes = {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  webview: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: '#080C14' },
+  webview:   { flex: 1, backgroundColor: '#080C14' },
 });
 
 export default DivingMapSimple;
