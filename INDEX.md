@@ -138,7 +138,7 @@ EXAMPLES.js                ← Code prêt à utiliser
 ### 📍 "Je veux connecter une vraie API"
 → Modifier **src/services/DivingDataService.js**
 
-### 📍 "Je veux intégrer à France Passion"
+### 📍 "Je veux intégrer à ADM"
 → Lire **INTEGRATION_GUIDE.md** section "7. Intégration"
 
 ---

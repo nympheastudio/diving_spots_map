@@ -2,7 +2,7 @@
 
 ## 🎯 Mission Accomplie
 
-Duplication complète du système de cartographie **France Passion** pour afficher les **spots de plongée en Méditerranée** avec données JSON locales (déconnectées de l'API).
+Duplication complète du système de cartographie **ADM** pour afficher les **spots de plongée en Méditerranée** avec données JSON locales (déconnectées de l'API).
 
 ## 📂 Structure du Projet
 
@@ -197,9 +197,9 @@ DetailSheet (3 onglets)
 Actions: Localiser | Réserver
 ```
 
-## 📦 Intégration dans France Passion
+## 📦 Intégration dans ADM
 
-Pour intégrer ce système au projet France Passion existant:
+Pour intégrer ce système au projet ADM existant:
 
 1. **Copier le dossier** `/diving_spots_map` dans `/app_ios/`
 2. **Adapter les styles** aux ThemeStyles de FP
@@ -224,7 +224,7 @@ Pour intégrer ce système au projet France Passion existant:
 
 ## ✅ Checklist Validation
 
-- ✓ Architecture dupliquée depuis France Passion
+- ✓ Architecture dupliquée depuis ADM
 - ✓ Système cartographie avec clustering
 - ✓ Marqueurs et preview popups
 - ✓ Fiche détaillée 3-onglets

@@ -1,7 +1,7 @@
 {
   "name": "diving_spots_map",
   "version": "1.0.0",
-  "description": "Système de cartographie spots de plongée en Méditerranée - Duplication France Passion",
+  "description": "Système de cartographie spots de plongée en Méditerranée - Duplication ADM",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

@@ -1,6 +1,6 @@
 /**
  * Composant Map principal - Gestion de la carte avec clustering
- * Adapté du système France Passion pour les spots de plongée
+ * Adapté du système ADM pour les spots de plongée
  */
 
 import React, {

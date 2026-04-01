@@ -2,7 +2,7 @@
 
 ## 📋 Vue d'ensemble
 
-Ce projet est une **duplication du système de cartographie** de France Passion adapté pour les **spots de plongée en Méditerranée près de Marseille**. Le système fonctionne de manière **entièrement déconnectée de l'API** avec des données JSON locales.
+Ce projet est une **duplication du système de cartographie** de ADM adapté pour les **spots de plongée en Méditerranée près de Marseille**. Le système fonctionne de manière **entièrement déconnectée de l'API** avec des données JSON locales.
 
 ## 🗺️ Architecture du Système
 

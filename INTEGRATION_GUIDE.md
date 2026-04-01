@@ -1,12 +1,12 @@
 # GUIDE D'INTÉGRATION - Système de Cartographie Spots de Plongée
 
 ## 🎯 Objectif
-Duplication du système de cartographie France Passion pour afficher les spots de plongée en Méditerranée avec données JSON locales (déconnectées de l'API).
+Duplication du système de cartographie ADM pour afficher les spots de plongée en Méditerranée avec données JSON locales (déconnectées de l'API).
 
 ## ✅ Ce qui a été Implémenté
 
 ### 1. **Système de Cartographie (DivingMap.js)**
-Reproduction exacte de l'architecture France Passion :
+Reproduction exacte de l'architecture ADM :
 
 #### Clustering
 - ✅ Clustering automatique des marqueurs
