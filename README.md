@@ -357,6 +357,6 @@ diving_spots_map/
 
 ---
 
-**Auteur** : Duplication système France Passion  
+**Auteur** : nymphea studio  
 **Date** : Février 2026  
 **Version** : 1.0.0
