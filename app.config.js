@@ -38,6 +38,7 @@ export default {
     plugins: [
       'expo-font',
       'expo-localization',
+      'expo-web-browser',
       [
         'expo-location',
         {
