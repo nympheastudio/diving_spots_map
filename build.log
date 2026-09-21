@@ -1,0 +1,63 @@
+
+> diving_spots_map@1.0.0 ios
+> expo run:ios
+
+› Skipping dev server
+› Planning build
+› Executing react-native Pods/hermes-engine » [CP-User] [Hermes] Replace Hermes for the right configuration, if needed
+› Executing react-native Pods/ReactNativeDependencies » [CP-User] [RNDeps] Replace React Native Dependencies for the right configuration, if needed
+› Executing react-native Pods/React-Core-prebuilt » [CP-User] [RNDeps] Replace React Native Core for the right configuration, if needed
+› Preparing Pods/React-Core-React-Core_privacy » ResourceBundle-React-Core_privacy-React-Core-Info.plist
+› Preparing Pods/React-cxxreact-React-cxxreact_privacy » ResourceBundle-React-cxxreact_privacy-React-cxxreact-Info.plist
+› Executing react-native Pods/React-RCTFBReactNativeSpec » [CP-User] [RN]Check FBReactNativeSpec
+› Compiling diving_spots_map Pods/ReactCodegen » ComponentDescriptors.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » rnasyncstorageJSI-generated.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » rnasyncstorage-generated.mm
+› Compiling diving_spots_map Pods/ReactCodegen » States.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » ShadowNodes.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » RNCWebViewSpecJSI-generated.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » RNCWebViewSpec-generated.mm
+› Compiling diving_spots_map Pods/ReactCodegen » RCTUnstableModulesRequiringMainQueueSetupProvider.mm
+› Compiling diving_spots_map Pods/ReactCodegen » RCTThirdPartyComponentsProvider.mm
+› Compiling diving_spots_map Pods/ReactCodegen » RCTModulesConformingToProtocolsProvider.mm
+› Compiling diving_spots_map Pods/ReactCodegen » RCTModuleProviders.mm
+› Compiling diving_spots_map Pods/ReactCodegen » Props.cpp
+› Compiling diving_spots_map Pods/ReactCodegen » EventEmitters.cpp
+› Packaging diving_spots_map Pods/ReactCodegen » libReactCodegen.a
+› Preparing Pods/EXApplication-ExpoApplication_privacy » ResourceBundle-ExpoApplication_privacy-EXApplication-Info.plist
+› Preparing expo-constants Pods/EXConstants-EXConstants » ResourceBundle-EXConstants-EXConstants-Info.plist
+› Preparing Pods/EXConstants-ExpoConstants_privacy » ResourceBundle-ExpoConstants_privacy-EXConstants-Info.plist
+› Executing expo-constants Pods/EXConstants » [CP-User] Generate app.config for prebuilt Constants.manifest
+› Preparing Pods/EXNotifications-ExpoNotifications_privacy » ResourceBundle-ExpoNotifications_privacy-EXNotifications-Info.plist
+› Preparing expo-updates Pods/EXUpdates-EXUpdates » ResourceBundle-EXUpdates-EXUpdates-Info.plist
+› Preparing expo-updates Pods/ReachabilitySwift-ReachabilitySwift » ResourceBundle-ReachabilitySwift-ReachabilitySwift-Info.plist
+› Executing expo-updates Pods/EXUpdates » [CP-User] Generate updates resources for expo-updates
+› Compiling diving_spots_map Pods/ReactAppDependencyProvider » RCTAppDependencyProvider.mm
+› Packaging diving_spots_map Pods/ReactAppDependencyProvider » libReactAppDependencyProvider.a
+› Preparing Pods/ExpoDevice-ExpoDevice_privacy » ResourceBundle-ExpoDevice_privacy-ExpoDevice-Info.plist
+› Preparing Pods/ExpoFileSystem-ExpoFileSystem_privacy » ResourceBundle-ExpoFileSystem_privacy-ExpoFileSystem-Info.plist
+› Preparing Pods/ExpoLocalization-ExpoLocalization_privacy » ResourceBundle-ExpoLocalization_privacy-ExpoLocalization-Info.plist
+› Preparing Pods/RNCAsyncStorage-RNCAsyncStorage_resources » ResourceBundle-RNCAsyncStorage_resources-RNCAsyncStorage-Info.plist
+⚠️  Pods/react-native-maps-ReactNativeMapsPrivacy: iOS@11.0 deployment version mismatch, expected >= 2.0 <= 18.2.99
+› Preparing Pods/react-native-maps-ReactNativeMapsPrivacy » ResourceBundle-ReactNativeMapsPrivacy-react-native-maps-Info.plist
+› Executing DivingSpotsMap » [Expo] Configure project
+› Linking   DivingSpotsMap » DivingSpotsMap.debug.dylib
+› Linking   DivingSpotsMap » DivingSpotsMap
+› Executing DivingSpotsMap » Bundle React Native code and images
+› Executing DivingSpotsMap » [CP] Copy Pods Resources
+› Executing DivingSpotsMap » [CP] Embed Pods Frameworks
+› Preparing DivingSpotsMap » Info.plist
+› Generating debug DivingSpotsMap » DivingSpotsMap.app.dSYM
+› Generating debug DivingSpotsMap » DivingSpotsMap.app.dSYM
+› Signing   DivingSpotsMap » DivingSpotsMap.debug.dylib
+› Signing   DivingSpotsMap » __preview.dylib
+› Signing   DivingSpotsMap » DivingSpotsMap.app
+› Build Succeeded
+
+› 0 error(s), and 1 warning(s)
+
+Waiting on http://localhost:8081
+› Installing /Users/nicolas/Library/Developer/Xcode/DerivedData/DivingSpotsMap-aasbjfrvwnknvdajptkbefkcbbzp/Build/Products/Debug-iphonesimulator/DivingSpotsMap.app
+› Installing on iPhone 16 Pro
+› Opening on iPhone 16 Pro (com.nicolasdiving.divingspots)
+› Opening com.nicolasdiving.divingspots://expo-development-client/?url=http%3A%2F%2F192.168.1.156%3A8081 on iPhone 16 Pro

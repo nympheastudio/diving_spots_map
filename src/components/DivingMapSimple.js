@@ -38,7 +38,7 @@ const DivingMapSimple = ({ spots = [], markerSelected = null, onSpotPress, regio
   #map{width:100%;height:100vh;}
 
   /* Tile sombre – inversion CSS */
-  .leaflet-tile{filter:invert(1) hue-rotate(200deg) brightness(0.78) saturate(0.85);}
+  .leaflet-tile{filter:invert(1) hue-rotate(200deg) brightness(0.92) saturate(0.95);}
   .leaflet-container{background:#080C14;}
 
   /* Popup */

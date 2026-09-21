@@ -1,7 +1,8 @@
 {
   "default_photo": "https://atelierdelamer.com/img/leoblog/b/1/32/lg-b-sardine.jpg",
   "default_photos_fond_marin": [
-    "https://atelierdelamer.com/img/leoblog/b/1/32/lg-b-sardine.jpg"
+    "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800",
+    "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800"
   ],
   "spots": [
     {
@@ -32,12 +33,14 @@
       "courant": "Modéré",
       "visibilite": 35,
       "meilleure_saison": "Mai à Octobre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Calanques_de_Marseille_3.jpg/1280px-Calanques_de_Marseille_3.jpg",
+      "photo": "https://images.unsplash.com/photo-1514890547357-a9ee288728e0?w=800",
       "conditions_acces": "Accès par bateau depuis Marseille",
       "capacite_plongeurs": 12,
       "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800",
         "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800"
       ]
     },
     {
@@ -68,12 +71,14 @@
       "courant": "Faible",
       "visibilite": 40,
       "meilleure_saison": "Juin à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Marseille_Port.jpg/1280px-Marseille_Port.jpg",
+      "photo": "https://images.unsplash.com/photo-1568792923760-d70635a89fdc?w=800",
       "conditions_acces": "Accès depuis la calanque de Morgiou",
       "capacite_plongeurs": 8,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
-        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+        "https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?w=800",
+        "https://images.unsplash.com/photo-1504253163759-c23fccaebb55?w=800",
+        "https://images.unsplash.com/photo-1542397284385-6010376c5337?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
       ]
     },
     {
@@ -104,12 +109,14 @@
       "courant": "Modéré",
       "visibilite": 38,
       "meilleure_saison": "Avril à Novembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Porquerolles_2007.jpg/1280px-Porquerolles_2007.jpg",
+      "photo": "https://images.unsplash.com/photo-1505118380757-91f5f5632de0?w=800",
       "conditions_acces": "Accès par ferry depuis Hyères",
       "capacite_plongeurs": 15,
       "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
         "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+        "https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=800"
       ]
     },
     {
@@ -138,12 +145,14 @@
       "courant": "Modéré à fort",
       "visibilite": 32,
       "meilleure_saison": "Juillet à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/French_submarine_Rubis.jpg/1280px-French_submarine_Rubis.jpg",
+      "photo": "https://images.unsplash.com/photo-1591017403286-fd8493524e1e?w=800",
       "conditions_acces": "Réservé aux plongeurs brevetés Advanced",
       "capacite_plongeurs": 6,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800",
+        "https://images.unsplash.com/photo-1504253163759-c23fccaebb55?w=800",
+        "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=800"
       ]
     },
     {
@@ -174,12 +183,14 @@
       "courant": "Modéré",
       "visibilite": 36,
       "meilleure_saison": "Mai à Octobre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Gorgona_sea.jpg/1280px-Gorgona_sea.jpg",
+      "photo": "https://images.unsplash.com/photo-1494791368093-85217fbbf8de?w=800",
       "conditions_acces": "Accès depuis Toulon ou La Seyne-sur-Mer",
       "capacite_plongeurs": 10,
       "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800",
         "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
-        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+        "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800"
       ]
     },
     {
@@ -210,12 +221,14 @@
       "courant": "Faible",
       "visibilite": 35,
       "meilleure_saison": "Avril à Novembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bandol_areal.jpg/1280px-Bandol_areal.jpg",
+      "photo": "https://images.unsplash.com/photo-1590523277543-a94d2e4eb00b?w=800",
       "conditions_acces": "Accessible aux débutants, accès par bateau",
       "capacite_plongeurs": 12,
       "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=800",
+        "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800",
         "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+        "https://images.unsplash.com/photo-1542397284385-6010376c5337?w=800"
       ]
     },
     {
@@ -246,12 +259,14 @@
       "courant": "Faible à modéré",
       "visibilite": 37,
       "meilleure_saison": "Avril à Octobre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Saint_cyr_sur_Mer_02.jpg/1280px-Saint_cyr_sur_Mer_02.jpg",
+      "photo": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?w=800",
       "conditions_acces": "Proche de Saint-Cyr, accès facile",
       "capacite_plongeurs": 14,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
+        "https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?w=800",
+        "https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?w=800",
+        "https://images.unsplash.com/photo-1460627390041-532a28402358?w=800"
       ]
     },
     {
@@ -282,12 +297,14 @@
       "courant": "Modéré à fort",
       "visibilite": 34,
       "meilleure_saison": "Juin à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Levant_Francais.jpg/1280px-Levant_Francais.jpg",
+      "photo": "https://images.unsplash.com/photo-1520208422220-d12a3c588e6c?w=800",
       "conditions_acces": "Conditions variables, nécessite expérience",
       "capacite_plongeurs": 10,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
-        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+        "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800",
+        "https://images.unsplash.com/photo-1612892483236-52d32a0e0ac1?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800",
+        "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800"
       ]
     },
     {
@@ -318,12 +335,14 @@
       "courant": "Faible",
       "visibilite": 39,
       "meilleure_saison": "Avril à Novembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Cap_Lardier.jpg/1280px-Cap_Lardier.jpg",
+      "photo": "https://images.unsplash.com/photo-1484821582734-6c6c9f99a672?w=800",
       "conditions_acces": "Idéal pour débutants, eaux calmes",
       "capacite_plongeurs": 12,
       "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800",
         "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+        "https://images.unsplash.com/photo-1560275619-4662e36fa65c?w=800",
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800"
       ]
     },
     {
@@ -354,12 +373,14 @@
       "courant": "Faible",
       "visibilite": 42,
       "meilleure_saison": "Avril à Octobre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Saint_Raphael_vue_mer.jpg/1280px-Saint_Raphael_vue_mer.jpg",
+      "photo": "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800",
       "conditions_acces": "Accessible, photographie idéale",
       "capacite_plongeurs": 8,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+        "https://images.unsplash.com/photo-1504253163759-c23fccaebb55?w=800",
+        "https://images.unsplash.com/photo-1534367610401-9f5ed68180aa?w=800",
+        "https://images.unsplash.com/photo-1542397284385-6010376c5337?w=800",
+        "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=800"
       ]
     },
     {
@@ -390,12 +411,14 @@
       "courant": "Modéré",
       "visibilite": 38,
       "meilleure_saison": "Mai à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Saint_Tropez_beach.jpg/1280px-Saint_Tropez_beach.jpg",
+      "photo": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800",
       "conditions_acces": "Accès par bateau privé ou charter",
       "capacite_plongeurs": 10,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
-        "https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=800"
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+        "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800",
+        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800"
       ]
     },
     {
@@ -425,12 +448,14 @@
       "courant": "Modéré",
       "visibilite": 30,
       "meilleure_saison": "Juillet à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Cannes_harbour.jpg/1280px-Cannes_harbour.jpg",
+      "photo": "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800",
       "conditions_acces": "Réservé aux plongeurs Advanced avec brevet Nitrox",
       "capacite_plongeurs": 6,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+        "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800",
+        "https://images.unsplash.com/photo-1504253163759-c23fccaebb55?w=800",
+        "https://images.unsplash.com/photo-1612892483236-52d32a0e0ac1?w=800",
+        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
       ]
     },
     {
@@ -461,12 +486,258 @@
       "courant": "Fort",
       "visibilite": 40,
       "meilleure_saison": "Juin à Septembre",
-      "photo": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg",
+      "photo": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800",
       "conditions_acces": "Nécessite expérience, courants importants",
       "capacite_plongeurs": 8,
       "photos_fond_marin": [
-        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
-        "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800"
+        "https://images.unsplash.com/photo-1530053969600-caed2596d242?w=800",
+        "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=800",
+        "https://images.unsplash.com/photo-1571752726703-5e7d1f6a986d?w=800",
+        "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800"
+      ]
+    },
+    {
+      "id": 14,
+      "nom": "Spot du Pont d'Avignon",
+      "description": "Plongée test en eau douce au pied du célèbre pont Saint-Bénézet, visibilité variable selon saison",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.9566,
+      "longitude": 4.8034,
+      "profondeur_max": 12,
+      "profondeur_min": 2,
+      "difficulte": "Beginner",
+      "type_site": "Rivière",
+      "faune": [
+        "Brochet",
+        "Silure",
+        "Carpe",
+        "Écrevisse"
+      ],
+      "flore": [
+        "Algues d'eau douce",
+        "Nénuphars",
+        "Herbiers"
+      ],
+      "courant": "Modéré",
+      "visibilite": 8,
+      "meilleure_saison": "Juin à Septembre",
+      "photo": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+      "conditions_acces": "Accès depuis les berges du Rhône, côté Avignon",
+      "capacite_plongeurs": 6,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1565118531796-763e5082d113?w=800",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800"
+      ]
+    },
+    {
+      "id": 15,
+      "nom": "Le Rocher des Doms – Plongée Urbaine",
+      "description": "Spot test au pied du Rocher des Doms avec vue sous-marine sur les fondations historiques",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.952,
+      "longitude": 4.807,
+      "profondeur_max": 8,
+      "profondeur_min": 1,
+      "difficulte": "Beginner",
+      "type_site": "Rivière",
+      "faune": [
+        "Perche",
+        "Gardon",
+        "Ablette",
+        "Écrevisse"
+      ],
+      "flore": [
+        "Algues filamenteuses",
+        "Mousse aquatique"
+      ],
+      "courant": "Faible",
+      "visibilite": 6,
+      "meilleure_saison": "Mai à Octobre",
+      "photo": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+      "conditions_acces": "Accessible facilement depuis le jardin des Doms",
+      "capacite_plongeurs": 4,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+        "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800",
+        "https://images.unsplash.com/photo-1565118531796-763e5082d113?w=800"
+      ]
+    },
+    {
+      "id": 16,
+      "nom": "Île de la Barthelasse – Bras Mort",
+      "description": "Spot calme dans un bras mort du Rhône côté Barthelasse, idéal débutants et formation",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.954,
+      "longitude": 4.796,
+      "profondeur_max": 6,
+      "profondeur_min": 1,
+      "difficulte": "Beginner",
+      "type_site": "Rivière",
+      "faune": [
+        "Sandre",
+        "Brochet",
+        "Anguille",
+        "Tortue cistude"
+      ],
+      "flore": [
+        "Nénuphars",
+        "Potamots",
+        "Herbiers denses"
+      ],
+      "courant": "Faible",
+      "visibilite": 5,
+      "meilleure_saison": "Mai à Septembre",
+      "photo": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800",
+      "conditions_acces": "Accès par le pont Daladier, côté île",
+      "capacite_plongeurs": 8,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+        "https://images.unsplash.com/photo-1565118531796-763e5082d113?w=800",
+        "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800"
+      ]
+    },
+    {
+      "id": 17,
+      "nom": "Canal de Vaucluse – Pont des Deux Eaux",
+      "description": "Petite plongée d'exploration dans le canal au sud d'Avignon, faune locale variée",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.9285,
+      "longitude": 4.826,
+      "profondeur_max": 5,
+      "profondeur_min": 1,
+      "difficulte": "Beginner",
+      "type_site": "Canal",
+      "faune": [
+        "Carpe",
+        "Gardon",
+        "Écrevisse",
+        "Chevesne"
+      ],
+      "flore": [
+        "Potamots",
+        "Algues vertes",
+        "Herbiers"
+      ],
+      "courant": "Faible",
+      "visibilite": 4,
+      "meilleure_saison": "Mai à Octobre",
+      "photo": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+      "conditions_acces": "Accès depuis le quartier Pont des Deux Eaux",
+      "capacite_plongeurs": 4,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800"
+      ]
+    },
+    {
+      "id": 18,
+      "nom": "Durance – Confluent Avignon Sud",
+      "description": "Spot au confluent Durance-Rhône, courant modéré avec belles observations de poissons migrateurs",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.9255,
+      "longitude": 4.819,
+      "profondeur_max": 10,
+      "profondeur_min": 2,
+      "difficulte": "Intermediate",
+      "type_site": "Rivière",
+      "faune": [
+        "Alose",
+        "Barbeau",
+        "Silure",
+        "Brochet"
+      ],
+      "flore": [
+        "Algues brunes",
+        "Mousse aquatique",
+        "Renoncule flottante"
+      ],
+      "courant": "Modéré",
+      "visibilite": 6,
+      "meilleure_saison": "Juin à Septembre",
+      "photo": "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800",
+      "conditions_acces": "Accès par la route de la Durance, parking à proximité",
+      "capacite_plongeurs": 6,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1565118531796-763e5082d113?w=800",
+        "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
+      ]
+    },
+    {
+      "id": 19,
+      "nom": "Bassin Saint-Ruf",
+      "description": "Plan d'eau calme idéal pour la formation, anciens bassins d'irrigation reconvertis",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.931,
+      "longitude": 4.82,
+      "profondeur_max": 4,
+      "profondeur_min": 1,
+      "difficulte": "Beginner",
+      "type_site": "Plan d'eau",
+      "faune": [
+        "Perche soleil",
+        "Gambusie",
+        "Grenouille verte",
+        "Tortue cistude"
+      ],
+      "flore": [
+        "Nénuphars",
+        "Lentilles d'eau",
+        "Iris jaune"
+      ],
+      "courant": "Faible",
+      "visibilite": 5,
+      "meilleure_saison": "Avril à Octobre",
+      "photo": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+      "conditions_acces": "Accessible à pied depuis le quartier Saint-Ruf",
+      "capacite_plongeurs": 6,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800",
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+        "https://images.unsplash.com/photo-1565118531796-763e5082d113?w=800"
+      ]
+    },
+    {
+      "id": 20,
+      "nom": "Roubine de Montfavet",
+      "description": "Canal ombragé dans le parc de Montfavet, ambiance paisible et biodiversité intéressante",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.9268,
+      "longitude": 4.831,
+      "profondeur_max": 3,
+      "profondeur_min": 1,
+      "difficulte": "Beginner",
+      "type_site": "Canal",
+      "faune": [
+        "Ablette",
+        "Tanche",
+        "Libellule (larve)",
+        "Triton palmé"
+      ],
+      "flore": [
+        "Cresson de fontaine",
+        "Myriophylle",
+        "Algues filamenteuses"
+      ],
+      "courant": "Faible",
+      "visibilite": 3,
+      "meilleure_saison": "Mai à Septembre",
+      "photo": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+      "conditions_acces": "Depuis le parc de Montfavet, chemin piéton",
+      "capacite_plongeurs": 4,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800",
+        "https://images.unsplash.com/photo-1500380804539-4e1e8c1e7118?w=800",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800"
       ]
     }
   ]

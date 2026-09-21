@@ -8,10 +8,68 @@ import drivingSpots from '../../data/diving_spots.json';
 const defaultPhoto = drivingSpots.default_photo;
 const defaultGallery = drivingSpots.default_photos_fond_marin;
 
+// Banque d'images fallback pour les spots sans médias dédiés (proto)
+const fallbackSpotPhotos = [
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Calanques_de_Marseille_3.jpg/1280px-Calanques_de_Marseille_3.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Porquerolles_2007.jpg/1280px-Porquerolles_2007.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bandol_areal.jpg/1280px-Bandol_areal.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Levant_Francais.jpg/1280px-Levant_Francais.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Cap_Lardier.jpg/1280px-Cap_Lardier.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Saint_Raphael_vue_mer.jpg/1280px-Saint_Raphael_vue_mer.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Saint_Tropez_beach.jpg/1280px-Saint_Tropez_beach.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Cannes_harbour.jpg/1280px-Cannes_harbour.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg',
+];
+
+const fallbackUnderwaterGallery = [
+  'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200',
+  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200',
+  'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1200',
+  'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200',
+  'https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=1200',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Calanques_de_Marseille_3.jpg/1280px-Calanques_de_Marseille_3.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Porquerolles_2007.jpg/1280px-Porquerolles_2007.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bandol_areal.jpg/1280px-Bandol_areal.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Cap_Lardier.jpg/1280px-Cap_Lardier.jpg',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg',
+];
+
+const createSeededImage = (seed, width = 1200, height = 800) =>
+  `https://picsum.photos/seed/${encodeURIComponent(seed)}/${width}/${height}`;
+
+const uniqUrls = (urls = []) => urls.filter((url, idx, arr) => url && arr.indexOf(url) === idx);
+
+const buildGeneratedGallery = (spotId = 0) => [
+  createSeededImage(`diving-gallery-${spotId}-1`),
+  createSeededImage(`diving-gallery-${spotId}-2`),
+  createSeededImage(`diving-gallery-${spotId}-3`),
+];
+
+const pickFallbackPhoto = (spotId = 0) =>
+  fallbackSpotPhotos[Math.abs(spotId) % fallbackSpotPhotos.length] || defaultPhoto;
+
+const buildFallbackGallery = (spotId = 0) => {
+  const start = Math.abs(spotId) % fallbackUnderwaterGallery.length;
+  return [0, 1, 2].map(
+    (offset) => fallbackUnderwaterGallery[(start + offset) % fallbackUnderwaterGallery.length]
+  );
+};
+
 const applyDefaultPhotos = (spot) => ({
   ...spot,
-  photo: defaultPhoto || spot.photo,
-  photos_fond_marin: defaultGallery || spot.photos_fond_marin,
+  photo:
+    spot.photo ||
+    createSeededImage(`diving-cover-${spot.id}`, 1400, 900) ||
+    pickFallbackPhoto(spot.id) ||
+    defaultPhoto,
+  photos_fond_marin: uniqUrls([
+    ...buildGeneratedGallery(spot.id),
+    ...(spot.photos_fond_marin || []),
+    ...((spot.photos_fond_marin && spot.photos_fond_marin.length > 0
+      ? []
+      : buildFallbackGallery(spot.id)) || []),
+    ...(defaultGallery || []),
+  ]).slice(0, 6),
 });
 
 const getSpotsWithDefaults = () => drivingSpots.spots.map(applyDefaultPhotos);

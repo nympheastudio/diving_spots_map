@@ -25,6 +25,12 @@ import { toggleFavorite, isFavorite } from '../screens/FavoritesScreen';
 const { width: SW, height: SH } = Dimensions.get('window');
 const HERO_H = SH * 0.42;
 
+const withCacheBust = (uri, seed) => {
+  if (!uri) return uri;
+  const sep = uri.includes('?') ? '&' : '?';
+  return `${uri}${sep}v=${seed}`;
+};
+
 const DetailSheet = ({ spot, isVisible, onClose }) => {
   const { colors, difficultyMeta } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -52,9 +58,9 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
 
   if (!spot) return null;
 
-  const allPhotos = [spot.photo, ...(spot.photos_fond_marin || [])].filter(
-    (u, i, a) => u && a.indexOf(u) === i,
-  );
+  const allPhotos = [spot.photo, ...(spot.photos_fond_marin || [])]
+    .filter((u, i, a) => u && a.indexOf(u) === i)
+    .map((uri, idx) => withCacheBust(uri, `detail-${spot.id}-${idx}`));
 
   const diff = difficultyMeta[spot.difficulte] || difficultyMeta.Intermediate;
 
@@ -106,11 +112,14 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
               <>
                 <Text style={[styles.sectionTitle, { marginTop: 24 }]}>📸 Sous-marin</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.galleryScroll}>
-                  {spot.photos_fond_marin.map((uri, i) => (
-                    <TouchableOpacity key={i} onPress={() => { setLightboxIndex(allPhotos.indexOf(uri)); setLightboxVisible(true); }}>
-                      <Image source={{ uri }} style={styles.galleryThumb} resizeMode="cover" />
+                  {spot.photos_fond_marin.map((uri, i) => {
+                    const galleryUri = withCacheBust(uri, `gallery-${spot.id}-${i}`);
+                    return (
+                    <TouchableOpacity key={i} onPress={() => { setLightboxIndex(allPhotos.indexOf(galleryUri)); setLightboxVisible(true); }}>
+                      <Image source={{ uri: galleryUri }} style={styles.galleryThumb} resizeMode="cover" />
                     </TouchableOpacity>
-                  ))}
+                    );
+                  })}
                 </ScrollView>
               </>
             )}

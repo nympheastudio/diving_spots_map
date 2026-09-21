@@ -16,6 +16,12 @@ import { orderByDistance } from 'geolib';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 
+const withCacheBust = (uri, seed) => {
+  if (!uri) return uri;
+  const sep = uri.includes('?') ? '&' : '?';
+  return `${uri}${sep}v=${seed}`;
+};
+
 const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
   const { colors, difficultyMeta } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -38,7 +44,7 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
 
     return (
       <TouchableOpacity style={styles.card} onPress={() => onSpotPress?.(item)} activeOpacity={0.85}>
-        <Image source={{ uri: item.photo }} style={styles.cardImage} resizeMode="cover" />
+        <Image source={{ uri: withCacheBust(item.photo, `list-${item.id}`) }} style={styles.cardImage} resizeMode="cover" />
         <View style={styles.cardOverlay} />
 
         <View style={[styles.diffPill, { backgroundColor: diff.bg }]}>

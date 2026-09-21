@@ -33,10 +33,12 @@ import DetailSheet      from './src/components/DetailSheet';
 import FilterSheet      from './src/components/FilterSheet';
 import OnboardingScreen, { checkOnboardingDone } from './src/components/OnboardingScreen';
 import ProfileNavigator from './src/components/ProfileNavigator';
+import ARScreen from './src/screens/ARScreen';
 
 const TAB_ITEMS = [
   { key: 'map',     icon: '◎', label: 'Explorer'  },
   { key: 'list',    icon: '▤', label: 'Liste'      },
+  { key: 'ar',      icon: '⬡', label: 'AR'         },
   { key: 'filter',  icon: '⧉', label: 'Filtres'   },
   { key: 'profile', icon: '◉', label: 'Profil', isProfile: true },
 ];
@@ -68,13 +70,14 @@ function AppContent() {
   const [profileVisible,     setProfileVisible]     = useState(false);
   const [activeFiltersCount, setActiveFiltersCount] = useState(0);
   const [showOnboarding,     setShowOnboarding]     = useState(false);
+  const [arVisible,           setArVisible]           = useState(false);
 
   const regionRef = useRef({
     latitude: 43.2965, longitude: 5.3698,
     latitudeDelta: 1.5, longitudeDelta: 1.5,
   });
 
-  // Per-tab scale animations (4 tabs)
+  // Per-tab scale animations (5 tabs)
   const tabScales = useRef(TAB_ITEMS.map(() => new Animated.Value(1))).current;
 
   // ── Init ──────────────────────────────────────────────────────────────
@@ -144,6 +147,7 @@ function AppContent() {
       Animated.spring(tabScales[index], { toValue: 1, tension: 130, friction: 7, useNativeDriver: true }),
     ]).start();
 
+    if (key === 'ar')      { setArVisible(true);      return; }
     if (key === 'filter')  { setFilterVisible(true);  return; }
     if (key === 'profile') { setProfileVisible(true); return; }
     setViewMode(key);
@@ -193,10 +197,12 @@ function AppContent() {
           <ListView spots={currentMarkers} userLocation={userLocation} onSpotPress={handleSpotPress} />
         )}
 
-        {/* SearchBar flottante */}
-        <View style={styles.searchOverlay}>
-          <SearchBar onSpotSelect={handleSpotPress} onClose={() => {}} />
-        </View>
+        {/* SearchBar flottante – masquée en mode AR */}
+        {!arVisible && (
+          <View style={styles.searchOverlay}>
+            <SearchBar onSpotSelect={handleSpotPress} onClose={() => {}} />
+          </View>
+        )}
       </View>
 
       {/* ── Premium Bottom Nav ── */}
@@ -214,6 +220,7 @@ function AppContent() {
               active={
                 item.key === 'map'     ? viewMode === 'map'  :
                 item.key === 'list'    ? viewMode === 'list' :
+                item.key === 'ar'      ? arVisible           :
                 item.key === 'filter'  ? filterVisible       :
                 item.key === 'profile' ? profileVisible      : false
               }
@@ -229,6 +236,21 @@ function AppContent() {
       <DetailSheet      spot={selectedSpot} isVisible={detailVisible}  onClose={handleCloseDetail}           />
       <FilterSheet      isVisible={filterVisible}  onClose={() => setFilterVisible(false)}  onApplyFilters={handleApplyFilters} />
       <ProfileNavigator isVisible={profileVisible} onClose={() => setProfileVisible(false)} />
+
+      {/* AR fullscreen overlay */}
+      {arVisible && (
+        <View style={StyleSheet.absoluteFill}>
+          <ARScreen
+            spots={allSpots}
+            userLocation={userLocation}
+            onClose={() => setArVisible(false)}
+            onSpotPress={(spot) => {
+              setArVisible(false);
+              handleSpotPress(spot);
+            }}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

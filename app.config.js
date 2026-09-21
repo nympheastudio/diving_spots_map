@@ -46,6 +46,12 @@ export default {
         },
       ],
       [
+        'expo-camera',
+        {
+          cameraPermission: 'Autorisez Diving Spots à accéder à la caméra pour la vue AR',
+        },
+      ],
+      [
         'expo-build-properties',
         {
           android: {
