@@ -41,7 +41,79 @@
         "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
         "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
         "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800"
-      ]
+      ],
+      "topo": {
+        "titre": "FRIOUL - Île Pomègues",
+        "sous_titre": "Reconstitution d'une épave d'amphores",
+        "coordonnees_gps": "43°16'00\"N - 5°17'86\"E",
+        "plan_image": "topo-frioul-pomegues.jpg",
+        "pois": [
+          {
+            "id": "mouillage",
+            "nom": "Mouillage bateau",
+            "icone": "⚓",
+            "profondeur": 18,
+            "type": "mouillage",
+            "description": "Zone pour jeter l'ancre à 18m de profondeur"
+          },
+          {
+            "id": "amphores",
+            "nom": "Épave d'amphores",
+            "icone": "🏺",
+            "profondeur": 15,
+            "type": "epave",
+            "description": "Champ de reconstitution archéologique sous-marine d'amphores antiques"
+          },
+          {
+            "id": "avion",
+            "nom": "Aile d'avion",
+            "icone": "✈️",
+            "profondeur": 18,
+            "type": "vestige",
+            "description": "Vestige d'une aile d'avion reposant sur le lit sablonneux"
+          },
+          {
+            "id": "filet",
+            "nom": "Filet de pêcheur",
+            "icone": "⚠️",
+            "profondeur": 18,
+            "type": "danger",
+            "description": "Restes de filets accrochés aux rochers, vigilance requise"
+          }
+        ],
+        "parcours": [
+          {
+            "ordre": 1,
+            "profondeur": "18 m",
+            "titre": "Immersion au mouillage",
+            "action": "Descente le long du cordage d'ancre jusqu'au fond de sable"
+          },
+          {
+            "ordre": 2,
+            "profondeur": "15 m",
+            "titre": "Champ d'amphores",
+            "action": "Cap Nord-Est vers la reconstitution du gisement d'amphores"
+          },
+          {
+            "ordre": 3,
+            "profondeur": "18 m",
+            "titre": "Aile d'avion",
+            "action": "Navigation à vue vers le vestige aéronautique sur le plateau sablonneux"
+          },
+          {
+            "ordre": 4,
+            "profondeur": "12 m",
+            "titre": "Tombant rocheux",
+            "action": "Remontée progressive le long du relief rocheux et faune fixée"
+          },
+          {
+            "ordre": 5,
+            "profondeur": "5 m",
+            "titre": "Palier de sécurité",
+            "action": "Palier de sécurité obligatoire de 3 minutes dans la calanque abritée"
+          }
+        ]
+      }
     },
     {
       "id": 2,

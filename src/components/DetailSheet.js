@@ -21,6 +21,8 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import { toggleFavorite, isFavorite } from '../screens/FavoritesScreen';
+import { LinearGradient } from 'expo-linear-gradient';
+import DiveSiteTopoModal from './DiveSiteTopoModal';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const HERO_H = SH * 0.42;
@@ -38,6 +40,7 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
   const [photoIndex,      setPhotoIndex]      = useState(0);
   const [lightboxVisible, setLightboxVisible] = useState(false);
   const [lightboxIndex,   setLightboxIndex]   = useState(0);
+  const [topoVisible,     setTopoVisible]     = useState(false);
   const [fav,             setFav]             = useState(false);
   const favScale = useRef(new Animated.Value(1)).current;
 
@@ -197,6 +200,42 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
           <StatItem icon="🌊" label="Courant" value={spot.courant} color={colors.amber} styles={styles} />
         </View>
 
+        {/* ── Bouton d'action dédié : Plan de plongée & Briefing (uniquement si topo disponible) ── */}
+        {Boolean(spot.topo) && (
+          <View style={styles.topoActionWrap}>
+            <TouchableOpacity
+              style={styles.topoActionBtn}
+              onPress={() => setTopoVisible(true)}
+              activeOpacity={0.88}
+            >
+              <LinearGradient
+                colors={colors.gradPrimary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.topoActionGrad}
+              >
+                <View style={styles.topoActionLeft}>
+                  <View style={styles.topoActionIconBadge}>
+                    <Text style={styles.topoActionIcon}>🗺️</Text>
+                  </View>
+                  <View style={styles.topoActionTexts}>
+                    <View style={styles.topoActionHeaderRow}>
+                      <Text style={styles.topoActionTitle}>Plan de plongée & Briefing</Text>
+                      <View style={styles.topoBadgeAvailable}>
+                        <Text style={styles.topoBadgeAvailableText}>DISPONIBLE</Text>
+                      </View>
+                    </View>
+                    <Text style={styles.topoActionSub}>Topo bathymétrique • Épaves & Parcours</Text>
+                  </View>
+                </View>
+                <View style={styles.topoActionArrow}>
+                  <Text style={styles.topoActionArrowText}>➔</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* ── Tabs ── */}
         <View style={styles.tabsRow}>
           {[['info','Infos'],['faune','Faune & Flore'],['description','Description']].map(([key, label]) => (
@@ -252,6 +291,13 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
           <Text style={styles.lbCounter}>{lightboxIndex + 1} / {allPhotos.length}</Text>
         </View>
       </Modal>
+
+      {/* ── Modal Topo & Briefing ── */}
+      <DiveSiteTopoModal
+        spot={spot}
+        isVisible={topoVisible}
+        onClose={() => setTopoVisible(false)}
+      />
     </Modal>
   );
 };
@@ -413,6 +459,88 @@ const makeStyles = (colors) => StyleSheet.create({
   lbSlide: { width: SW, height: SH, justifyContent: 'center', alignItems: 'center' },
   lbImage: { width: SW, height: SH * 0.75 },
   lbCounter: { position: 'absolute', bottom: 48, alignSelf: 'center', color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: '600' },
+
+  // Bouton d'action dédié : Plan topo & briefing
+  topoActionWrap: {
+    paddingHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  topoActionBtn: {
+    borderRadius: radius.lg || 14,
+    overflow: 'hidden',
+    ...shadows.card,
+  },
+  topoActionGrad: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  topoActionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  topoActionIconBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topoActionIcon: {
+    fontSize: 20,
+  },
+  topoActionTexts: {
+    flex: 1,
+  },
+  topoActionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  topoActionTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  topoBadgeAvailable: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  topoBadgeAvailableText: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  topoActionSub: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 2,
+    fontWeight: '500',
+  },
+  topoActionArrow: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  topoActionArrowText: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    fontWeight: '800',
+  },
 });
 
 DetailSheet.propTypes = {
