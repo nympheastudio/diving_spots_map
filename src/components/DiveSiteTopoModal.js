@@ -14,9 +14,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
-  Linking,
   Platform,
-  Alert,
   Dimensions,
   SafeAreaView,
   StatusBar,
@@ -339,16 +337,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
     ? TOPO_LOCAL_ASSETS[topo.plan_image]
     : (topo.plan_image ? { uri: topo.plan_image } : { uri: spot.photo });
 
-  const handleOpenMaps = () => {
-    const lat = spot.latitude || 43.2667;
-    const lng = spot.longitude || 5.2976;
-    const label = encodeURIComponent(`Mouillage - ${spot.nom}`);
-    const url = Platform.select({
-      ios: `maps:0,0?q=${label}@${lat},${lng}`,
-      android: `geo:0,0?q=${lat},${lng}(${label})`,
-    });
-    Linking.openURL(url).catch(() => Alert.alert('Erreur', "Impossible d'ouvrir la carte"));
-  };
+
 
   return (
     <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose}>
@@ -517,9 +506,6 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
 
         {/* ── Barre d'Action Inférieure ── */}
         <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.btnSecondary} onPress={handleOpenMaps} activeOpacity={0.85}>
-            <Text style={styles.btnSecondaryText}>📍 Mouillage dans Maps</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.btnPrimary} onPress={onClose} activeOpacity={0.85}>
             <LinearGradient colors={colors.gradPrimary} style={styles.btnPrimaryGrad}>
               <Text style={styles.btnPrimaryText}>Terminer le briefing</Text>
@@ -878,21 +864,7 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     borderTopColor: colors.border,
     gap: 12,
   },
-  btnSecondary: {
-    flex: 1,
-    height: 48,
-    borderRadius: radius.lg || 14,
-    borderWidth: 1,
-    borderColor: colors.borderBright || 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.bgCard,
-  },
-  btnSecondaryText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
+
   btnPrimary: {
     flex: 1,
     height: 48,
