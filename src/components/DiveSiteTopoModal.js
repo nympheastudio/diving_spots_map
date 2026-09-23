@@ -103,7 +103,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
             {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
           </View>
           <TouchableOpacity style={styles.shareBtn} onPress={handleShareTopo} activeOpacity={0.8}>
-            <Text style={styles.shareBtnIcon}>📤</Text>
+            <Text style={styles.shareBtnIcon}>🔗</Text>
           </TouchableOpacity>
         </View>
 
@@ -249,7 +249,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
         {/* ── Barre d'Action Inférieure ── */}
         <View style={styles.bottomBar}>
           <TouchableOpacity style={styles.btnSecondary} onPress={handleShareTopo} activeOpacity={0.85}>
-            <Text style={styles.btnSecondaryText}>📤 Partager</Text>
+            <Text style={styles.btnSecondaryText}>🔗 Partager</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnPrimary} onPress={onClose} activeOpacity={0.85}>
             <LinearGradient colors={colors.gradPrimary} style={styles.btnPrimaryGrad}>
