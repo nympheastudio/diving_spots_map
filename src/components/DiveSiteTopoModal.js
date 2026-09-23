@@ -26,6 +26,11 @@ import ZoomableTopoViewer from './ZoomableTopoViewer';
 // Assets locaux disponibles pour les topos
 const TOPO_LOCAL_ASSETS = {
   'topo-frioul-pomegues.jpg': require('../../assets/topo-frioul-pomegues.jpg'),
+  'topo-le-junker-88.jpg': require('../../assets/topo-le-junker-88.jpg'),
+  'topo-pierre-a-corbes.jpg': require('../../assets/topo-pierre-a-corbes.jpg'),
+  'topo-tiboulen-du-frioul.jpg': require('../../assets/topo-tiboulen-du-frioul.jpg'),
+  'topo-cap-caveau.jpg': require('../../assets/topo-cap-caveau.jpg'),
+  'topo-pierre-a-oeil.jpg': require('../../assets/topo-pierre-a-oeil.jpg'),
 };
 
 
@@ -33,16 +38,24 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
+  const [selectedTopoIndex, setSelectedTopoIndex] = useState(0);
   const [selectedPoi, setSelectedPoi] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(false);
 
-  if (!spot || !spot.topo) return null;
+  const topos = useMemo(() => {
+    if (!spot) return [];
+    if (spot.topos && spot.topos.length > 0) return spot.topos;
+    if (spot.topo) return [spot.topo];
+    return [];
+  }, [spot]);
 
-  const topo = spot.topo;
+  if (!spot || topos.length === 0) return null;
+
+  const topo = topos[selectedTopoIndex] || topos[0];
 
   const imageSource = topo.plan_image && TOPO_LOCAL_ASSETS[topo.plan_image]
     ? TOPO_LOCAL_ASSETS[topo.plan_image]
-    : (topo.plan_image ? { uri: topo.plan_image } : { uri: spot.photo });
+    : (topo.plan_image ? { uri: topo.plan_image } : null);
 
   const handleShareTopo = async () => {
     const stepsText = (topo.parcours || [])
@@ -98,6 +111,9 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
               <View style={styles.badgeTopo}>
                 <Text style={styles.badgeTopoText}>TOPO & BRIEFING SOUS-MARIN</Text>
               </View>
+              {topo.coordonnees_gps && (
+                <Text style={styles.gpsText}>📍 {topo.coordonnees_gps}</Text>
+              )}
             </View>
             <Text style={styles.title} numberOfLines={1}>{topo.titre || spot.nom}</Text>
             {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
@@ -107,140 +123,166 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
           </TouchableOpacity>
         </View>
 
+        {/* ── Sélecteur de fiches topos (si plusieurs fiches pour ce spot) ── */}
+        {topos.length > 1 && (
+          <View style={styles.topoSelectorWrap}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topoSelectorScroll}>
+              {topos.map((t, idx) => (
+                <TouchableOpacity
+                  key={t.id || idx}
+                  style={[styles.topoTab, selectedTopoIndex === idx && styles.topoTabActive]}
+                  onPress={() => {
+                    setSelectedTopoIndex(idx);
+                    setSelectedPoi(null);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.topoTabText, selectedTopoIndex === idx && styles.topoTabTextActive]}>
+                    {t.titre}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* ── Carte Topographique / Bathymétrique ── */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <View style={styles.cardHeaderLeft}>
-                <Text style={styles.cardIcon}>🗺️</Text>
-                <Text style={styles.cardTitle}>Plan Bathymétrique & Reliefs</Text>
+          {imageSource && (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardHeaderLeft}>
+                  <Text style={styles.cardIcon}>🗺️</Text>
+                  <Text style={styles.cardTitle}>Plan Bathymétrique & Reliefs</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.zoomButton}
+                  onPress={() => setFullscreenImage(true)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.zoomButtonText}>🔍 Agrandir</Text>
+                </TouchableOpacity>
               </View>
+
               <TouchableOpacity
-                style={styles.zoomButton}
+                activeOpacity={0.95}
                 onPress={() => setFullscreenImage(true)}
-                activeOpacity={0.8}
+                onTouchStart={(e) => {
+                  if (e.nativeEvent.touches && e.nativeEvent.touches.length >= 2) {
+                    setFullscreenImage(true);
+                  }
+                }}
+                style={styles.imageContainer}
               >
-                <Text style={styles.zoomButtonText}>🔍 Agrandir</Text>
+                <Image source={imageSource} style={styles.topoImage} resizeMode="contain" />
+
+                <LinearGradient
+                  colors={['transparent', 'rgba(5,10,16,0.85)']}
+                  style={styles.imageOverlay}
+                >
+                  <View style={styles.overlayInfoRow} />
+                </LinearGradient>
               </TouchableOpacity>
             </View>
+          )}
 
-            <TouchableOpacity
-              activeOpacity={0.95}
-              onPress={() => setFullscreenImage(true)}
-              onTouchStart={(e) => {
-                if (e.nativeEvent.touches && e.nativeEvent.touches.length >= 2) {
-                  setFullscreenImage(true);
-                }
-              }}
-              style={styles.imageContainer}
-            >
-              <Image source={imageSource} style={styles.topoImage} resizeMode="contain" />
 
-              {/* Overlay d'information sur la carte */}
-              <LinearGradient
-                colors={['transparent', 'rgba(5,10,16,0.85)']}
-                style={styles.imageOverlay}
-              >
-                <View style={styles.overlayInfoRow}>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
-
-          </View>
 
           {/* ── Points d'Intérêt Sous-Marins (POIs) ── */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <View style={styles.cardHeaderLeft}>
-                <Text style={styles.cardIcon}>📍</Text>
-                <Text style={styles.cardTitle}>Points d'Intérêt Clés du Site</Text>
-              </View>
-              <Text style={styles.poiCountBadge}>{topo.pois?.length || 0} Points d'Intérêt</Text>
-            </View>
-
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.poiScroll}>
-              {(topo.pois || []).map((poi) => {
-                const isSelected = selectedPoi?.id === poi.id;
-                return (
-                  <TouchableOpacity
-                    key={poi.id || poi.nom}
-                    style={[styles.poiCard, isSelected && styles.poiCardActive]}
-                    onPress={() => setSelectedPoi(isSelected ? null : poi)}
-                    activeOpacity={0.85}
-                  >
-                    <View style={styles.poiTopRow}>
-                      <Text style={styles.poiIcon}>{poi.icone || '📍'}</Text>
-                      <View style={[styles.depthTag, poi.type === 'danger' && styles.depthTagDanger]}>
-                        <Text style={[styles.depthTagText, poi.type === 'danger' && styles.depthTagDangerText]}>
-                          {poi.profondeur} m
-                        </Text>
-                      </View>
-                    </View>
-                    <Text style={styles.poiName} numberOfLines={1}>{poi.nom}</Text>
-                    <Text style={styles.poiType}>{poi.type?.toUpperCase() || 'REPÈRE'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-
-            {/* Détail du POI sélectionné */}
-            {selectedPoi && (
-              <View style={styles.selectedPoiBox}>
-                <View style={styles.selectedPoiHeader}>
-                  <Text style={styles.selectedPoiTitle}>{selectedPoi.icone} {selectedPoi.nom} ({selectedPoi.profondeur} m)</Text>
-                  <TouchableOpacity onPress={() => setSelectedPoi(null)}>
-                    <Text style={styles.selectedPoiClose}>✕</Text>
-                  </TouchableOpacity>
+          {topo.pois && topo.pois.length > 0 && (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardHeaderLeft}>
+                  <Text style={styles.cardIcon}>📍</Text>
+                  <Text style={styles.cardTitle}>Points d'Intérêt Clés du Site</Text>
                 </View>
-                <Text style={styles.selectedPoiDesc}>{selectedPoi.description || "Point remarquable du parcours sous-marin."}</Text>
+                <Text style={styles.poiCountBadge}>{topo.pois.length} Points d'Intérêt</Text>
               </View>
-            )}
-          </View>
 
-          {/* ── Parcours d'Immersion & Briefing Tactique ── */}
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <View style={styles.cardHeaderLeft}>
-                <Text style={styles.cardIcon}>🧭</Text>
-                <Text style={styles.cardTitle}>Parcours d'Immersion Recommandé</Text>
-              </View>
-              <View style={styles.safetyPill}>
-                <Text style={styles.safetyPillText}>SÉCURITÉ</Text>
-              </View>
-            </View>
-
-            <View style={styles.timeline}>
-              {(topo.parcours || []).map((step, idx) => {
-                const isLast = idx === (topo.parcours.length - 1);
-                const isPalier = step.profondeur?.includes('5') || step.titre?.toLowerCase().includes('palier');
-                return (
-                  <View key={idx} style={styles.timelineItem}>
-                    {/* Colonne visuelle : cercle et ligne connectrice */}
-                    <View style={styles.timelineLineCol}>
-                      <View style={[styles.timelineNode, isPalier && styles.timelineNodePalier]}>
-                        <Text style={styles.timelineNodeText}>{step.ordre || (idx + 1)}</Text>
-                      </View>
-                      {!isLast && <View style={styles.timelineLine} />}
-                    </View>
-
-                    {/* Contenu de l'étape */}
-                    <View style={styles.timelineContent}>
-                      <View style={styles.timelineHeader}>
-                        <Text style={styles.timelineTitle}>{step.titre || `Étape ${idx + 1}`}</Text>
-                        <View style={[styles.timelineDepthBadge, isPalier && styles.timelineDepthBadgePalier]}>
-                          <Text style={[styles.timelineDepthText, isPalier && styles.timelineDepthTextPalier]}>
-                            {step.profondeur}
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.poiScroll}>
+                {topo.pois.map((poi) => {
+                  const isSelected = selectedPoi?.id === poi.id;
+                  return (
+                    <TouchableOpacity
+                      key={poi.id || poi.nom}
+                      style={[styles.poiCard, isSelected && styles.poiCardActive]}
+                      onPress={() => setSelectedPoi(isSelected ? null : poi)}
+                      activeOpacity={0.85}
+                    >
+                      <View style={styles.poiTopRow}>
+                        <Text style={styles.poiIcon}>{poi.icone || '📍'}</Text>
+                        <View style={[styles.depthTag, poi.type === 'danger' && styles.depthTagDanger]}>
+                          <Text style={[styles.depthTagText, poi.type === 'danger' && styles.depthTagDangerText]}>
+                            {poi.profondeur} m
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.timelineAction}>{step.action}</Text>
-                    </View>
+                      <Text style={styles.poiName} numberOfLines={1}>{poi.nom}</Text>
+                      <Text style={styles.poiType}>{poi.type?.toUpperCase() || 'REPÈRE'}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Détail du POI sélectionné */}
+              {selectedPoi && (
+                <View style={styles.selectedPoiBox}>
+                  <View style={styles.selectedPoiHeader}>
+                    <Text style={styles.selectedPoiTitle}>{selectedPoi.icone} {selectedPoi.nom} ({selectedPoi.profondeur} m)</Text>
+                    <TouchableOpacity onPress={() => setSelectedPoi(null)}>
+                      <Text style={styles.selectedPoiClose}>✕</Text>
+                    </TouchableOpacity>
                   </View>
-                );
-              })}
+                  <Text style={styles.selectedPoiDesc}>{selectedPoi.description || "Point remarquable du parcours sous-marin."}</Text>
+                </View>
+              )}
             </View>
-          </View>
+          )}
+
+          {/* ── Parcours d'Immersion & Briefing Tactique ── */}
+          {topo.parcours && topo.parcours.length > 0 && (
+            <View style={styles.card}>
+              <View style={styles.cardHeader}>
+                <View style={styles.cardHeaderLeft}>
+                  <Text style={styles.cardIcon}>🧭</Text>
+                  <Text style={styles.cardTitle}>Parcours d'Immersion Recommandé</Text>
+                </View>
+                <View style={styles.safetyPill}>
+                  <Text style={styles.safetyPillText}>SÉCURITÉ</Text>
+                </View>
+              </View>
+
+              <View style={styles.timeline}>
+                {topo.parcours.map((step, idx) => {
+                  const isLast = idx === (topo.parcours.length - 1);
+                  const isPalier = step.profondeur?.includes('5') || step.titre?.toLowerCase().includes('palier');
+                  return (
+                    <View key={idx} style={styles.timelineItem}>
+                      <View style={styles.timelineLineCol}>
+                        <View style={[styles.timelineNode, isPalier && styles.timelineNodePalier]}>
+                          <Text style={styles.timelineNodeText}>{step.ordre || (idx + 1)}</Text>
+                        </View>
+                        {!isLast && <View style={styles.timelineLine} />}
+                      </View>
+
+                      <View style={styles.timelineContent}>
+                        <View style={styles.timelineHeader}>
+                          <Text style={styles.timelineTitle}>{step.titre || `Étape ${idx + 1}`}</Text>
+                          <View style={[styles.timelineDepthBadge, isPalier && styles.timelineDepthBadgePalier]}>
+                            <Text style={[styles.timelineDepthText, isPalier && styles.timelineDepthTextPalier]}>
+                              {step.profondeur}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text style={styles.timelineAction}>{step.action}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
 
 
           <View style={{ height: 30 }} />
@@ -338,6 +380,38 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     color: colors.textSecondary,
     fontWeight: '600',
   },
+  topoSelectorWrap: {
+    backgroundColor: colors.bgElevated,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  topoSelectorScroll: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  topoTab: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: radius.pill || 999,
+    backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  topoTabActive: {
+    backgroundColor: colors.primaryDim || 'rgba(0,229,255,0.15)',
+    borderColor: colors.primary,
+  },
+  topoTabText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.textSecondary,
+  },
+  topoTabTextActive: {
+    color: colors.primary,
+    fontWeight: '800',
+  },
+
   title: {
     fontSize: 18,
     fontWeight: '800',
@@ -653,7 +727,5 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     color: '#FFF',
   },
 });
-
-
 
 export default DiveSiteTopoModal;

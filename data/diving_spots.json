@@ -42,6 +42,175 @@
         "https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=800",
         "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800"
       ],
+      "topos": [
+        {
+          "id": "frioul-pomegues",
+          "titre": "FRIOUL - Île Pomègues",
+          "sous_titre": "Reconstitution d'une épave d'amphores",
+          "coordonnees_gps": "43°16'00\"N - 5°17'86\"E",
+          "plan_image": "topo-frioul-pomegues.jpg",
+          "pois": [
+            {
+              "id": "mouillage",
+              "nom": "Mouillage bateau",
+              "icone": "⚓",
+              "profondeur": 18,
+              "type": "mouillage",
+              "description": "Zone pour jeter l'ancre à 18m de profondeur"
+            },
+            {
+              "id": "amphores",
+              "nom": "Épave d'amphores",
+              "icone": "🏺",
+              "profondeur": 15,
+              "type": "epave",
+              "description": "Champ de reconstitution archéologique sous-marine d'amphores antiques"
+            },
+            {
+              "id": "avion",
+              "nom": "Aile d'avion",
+              "icone": "✈️",
+              "profondeur": 18,
+              "type": "vestige",
+              "description": "Vestige d'une aile d'avion reposant sur le lit sablonneux"
+            },
+            {
+              "id": "filet",
+              "nom": "Filet de pêcheur",
+              "icone": "⚠️",
+              "profondeur": 18,
+              "type": "danger",
+              "description": "Restes de filets accrochés aux rochers, vigilance requise"
+            }
+          ],
+          "parcours": [
+            {
+              "ordre": 1,
+              "profondeur": "18 m",
+              "titre": "Immersion au mouillage",
+              "action": "Descente le long du cordage d'ancre jusqu'au fond de sable"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "15 m",
+              "titre": "Champ d'amphores",
+              "action": "Cap Nord-Est vers la reconstitution du gisement d'amphores"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "18 m",
+              "titre": "Aile d'avion",
+              "action": "Navigation à vue vers le vestige aéronautique sur le plateau sablonneux"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "12 m",
+              "titre": "Tombant rocheux",
+              "action": "Remontée progressive le long du relief rocheux et faune fixée"
+            },
+            {
+              "ordre": 5,
+              "profondeur": "5 m",
+              "titre": "Palier de sécurité",
+              "action": "Palier de sécurité obligatoire de 3 minutes dans la calanque abritée"
+            }
+          ]
+        },
+        {
+          "id": "pierre-a-oeil",
+          "titre": "pierre à oeil",
+          "sous_titre": "FRIOUL - île Ratonneau",
+          "coordonnees_gps": "43°17'976\"N - 5°17'517\"E",
+          "plan_image": "topo-pierre-a-oeil.jpg",
+          "pois": [
+            { "id": "corps-mort", "nom": "Corps mort au fond", "icone": "⚓", "profondeur": 12, "type": "mouillage", "description": "Zone de mouillage sur corps mort au fond à 12m" },
+            { "id": "plateau-sable", "nom": "Plateau de sable", "icone": "🏖️", "profondeur": 18, "type": "relief", "description": "Zone sablonneuse s'étendant entre 18m et 30m" },
+            { "id": "chalan", "nom": "Chalan (Épave)", "icone": "🚢", "profondeur": 32, "type": "epave", "description": "Restes de barge / chalan reposant à 32m de profondeur" },
+            { "id": "tombant-profond", "nom": "Tombant profond", "icone": "🌊", "profondeur": 38, "type": "tombant", "description": "Tombant rocheux s'enfonçant jusqu'à 38m" }
+          ],
+          "parcours": [
+            { "ordre": 1, "profondeur": "12 m", "titre": "Immersion au corps mort", "action": "Descente le long du corps mort au fond à 12m" },
+            { "ordre": 2, "profondeur": "18 m", "titre": "Plateau de sable", "action": "Cap au large sur la zone de sable entre 18m et 30m" },
+            { "ordre": 3, "profondeur": "32 m", "titre": "Exploration du chalan", "action": "Navigation vers l'épave de chalan reposant à 32m" },
+            { "ordre": 4, "profondeur": "38 m", "titre": "Tombant extérieur", "action": "Incursion le long du tombant rocheux jusqu'à 38m" },
+            { "ordre": 5, "profondeur": "5 m", "titre": "Palier de sécurité", "action": "Remontée et palier de sécurité à 5m sous le bateau" }
+          ]
+        },
+        {
+          "id": "tiboulen-du-frioul",
+          "titre": "tiboulen du Frioul",
+          "sous_titre": "tiboulen du FRIOUL",
+          "coordonnees_gps": "43°16'796\"N - 5°17'100\"E",
+          "plan_image": "topo-tiboulen-du-frioul.jpg",
+          "pois": [
+            { "id": "mouillage-crique", "nom": "Mouillage de la crique", "icone": "⚓", "profondeur": 8, "type": "mouillage", "description": "Zone de mouillage abritée dans la crique de Tiboulen (8m - 12m)" },
+            { "id": "sec-sud", "nom": "Plateau sud", "icone": "🪨", "profondeur": 15, "type": "relief", "description": "Plateau rocheux s'étendant au sud de l'îlot à 15m" },
+            { "id": "tombant-ouest", "nom": "Tombant ouest", "icone": "🌊", "profondeur": 25, "type": "tombant", "description": "Tombant rocheux tombant de 20m à 35m vers le large" },
+            { "id": "grand-fond-nord", "nom": "Zone profonde nord", "icone": "📉", "profondeur": 42, "type": "profond", "description": "Grand tombant rocheux atteignant 42m au nord de Tiboulen" }
+          ],
+          "parcours": [
+            { "ordre": 1, "profondeur": "8 m", "titre": "Immersion dans la crique", "action": "Descente à 8m au mouillage dans la calanque abritée" },
+            { "ordre": 2, "profondeur": "15 m", "titre": "Contournement du plateau sud", "action": "Parcours vers le sud de l'îlot le long de la roche (15m-20m)" },
+            { "ordre": 3, "profondeur": "25 m", "titre": "Exploration du tombant ouest", "action": "Progression vers la zone ouest entre 25m et 35m" },
+            { "ordre": 4, "profondeur": "42 m", "titre": "Pointe nord profonde", "action": "Passage au niveau du grand tombant nord (32m à 42m)" },
+            { "ordre": 5, "profondeur": "5 m", "titre": "Palier de sécurité", "action": "Retour dans la crique et palier de sécurité à 5m" }
+          ]
+        },
+        {
+          "id": "cap-caveau",
+          "titre": "cap Caveau",
+          "sous_titre": "FRIOUL île de Pomègues",
+          "coordonnees_gps": "43°15'728\"N - 5°17'383\"E",
+          "plan_image": "topo-cap-caveau.jpg",
+          "pois": [
+            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
+            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
+            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+          ],
+          "parcours": [
+            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
+            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
+            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
+            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+          ]
+        },
+        {
+          "id": "pierre-a-corbes-dome-maya",
+          "titre": "pierre à corbes - le dôme - pierre à Maya",
+          "sous_titre": "FRIOUL Île de Pomègues",
+          "coordonnees_gps": "43°15'862\"N - 5°17'058\"E",
+          "plan_image": "topo-pierre-a-corbes.jpg",
+          "pois": [
+            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
+            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
+            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+          ],
+          "parcours": [
+            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
+            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
+            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
+            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+          ]
+        },
+        {
+          "id": "le-junker-88",
+          "titre": "le Junker 88",
+          "sous_titre": "Épaves - FRIOUL",
+          "coordonnees_gps": "43°16'472\"N - 5°17'161\"E",
+          "plan_image": "topo-le-junker-88.jpg",
+          "pois": [
+            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
+            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
+            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+          ],
+          "parcours": [
+            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
+            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
+            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
+            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+          ]
+        }
+      ],
       "topo": {
         "titre": "FRIOUL - Île Pomègues",
         "sous_titre": "Reconstitution d'une épave d'amphores",
