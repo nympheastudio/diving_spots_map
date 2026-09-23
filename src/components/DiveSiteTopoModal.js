@@ -16,6 +16,7 @@ import {
   Modal,
   SafeAreaView,
   StatusBar,
+  Share,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
@@ -43,6 +44,43 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
     ? TOPO_LOCAL_ASSETS[topo.plan_image]
     : (topo.plan_image ? { uri: topo.plan_image } : { uri: spot.photo });
 
+  const handleShareTopo = async () => {
+    const stepsText = (topo.parcours || [])
+      .map((step, idx) => `${step.ordre || (idx + 1)}. ${step.titre || 'Étape'} (${step.profondeur || ''}) - ${step.action || ''}`)
+      .join('\n');
+
+    const poisText = (topo.pois || [])
+      .map(p => `${p.icone || '📍'} ${p.nom} (${p.profondeur}m)`)
+      .join(', ');
+
+    const message = [
+      `🤿 Briefing Topo : ${topo.titre || spot.nom}`,
+      spot.localite ? `📍 Localité : ${spot.localite}` : null,
+      spot.profondeur_max ? `⬇ Profondeur max : ${spot.profondeur_max}m` : null,
+      '',
+      '📋 Parcours d\'immersion :',
+      stepsText,
+      '',
+      poisText ? `📍 Repères clés : ${poisText}` : null,
+      '',
+      '📱 Retrouvez ce briefing de plongée sur l\'application Diving Spots Map !',
+    ].filter(Boolean).join('\n');
+
+    try {
+      await Share.share(
+        {
+          title: `Briefing Topo - ${spot.nom}`,
+          message,
+        },
+        {
+          dialogTitle: `Partager le briefing de ${spot.nom}`,
+        }
+      );
+    } catch (error) {
+      console.log('Erreur de partage :', error);
+    }
+  };
+
 
 
   return (
@@ -64,6 +102,9 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
             <Text style={styles.title} numberOfLines={1}>{topo.titre || spot.nom}</Text>
             {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
           </View>
+          <TouchableOpacity style={styles.shareBtn} onPress={handleShareTopo} activeOpacity={0.8}>
+            <Text style={styles.shareBtnIcon}>📤</Text>
+          </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -207,6 +248,9 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
 
         {/* ── Barre d'Action Inférieure ── */}
         <View style={styles.bottomBar}>
+          <TouchableOpacity style={styles.btnSecondary} onPress={handleShareTopo} activeOpacity={0.85}>
+            <Text style={styles.btnSecondaryText}>📤 Partager</Text>
+          </TouchableOpacity>
           <TouchableOpacity style={styles.btnPrimary} onPress={onClose} activeOpacity={0.85}>
             <LinearGradient colors={colors.gradPrimary} style={styles.btnPrimaryGrad}>
               <Text style={styles.btnPrimaryText}>Terminer le briefing</Text>
@@ -565,7 +609,33 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     borderTopColor: colors.border,
     gap: 12,
   },
-
+  btnSecondary: {
+    flex: 1,
+    height: 48,
+    borderRadius: radius.lg || 14,
+    borderWidth: 1,
+    borderColor: colors.borderBright || 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.bgCard,
+  },
+  btnSecondaryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  shareBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.bgGlassStrong || 'rgba(255,255,255,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 12,
+  },
+  shareBtnIcon: {
+    fontSize: 16,
+  },
   btnPrimary: {
     flex: 1,
     height: 48,
