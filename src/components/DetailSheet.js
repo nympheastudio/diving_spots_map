@@ -36,24 +36,24 @@ const withCacheBust = (uri, seed) => {
 const DetailSheet = ({ spot, isVisible, onClose }) => {
   const { colors, difficultyMeta } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const [activeTab,       setActiveTab]       = useState('info');
-  const [photoIndex,      setPhotoIndex]      = useState(0);
+  const [activeTab, setActiveTab] = useState('info');
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [lightboxVisible, setLightboxVisible] = useState(false);
-  const [lightboxIndex,   setLightboxIndex]   = useState(0);
-  const [topoVisible,     setTopoVisible]     = useState(false);
-  const [fav,             setFav]             = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [topoVisible, setTopoVisible] = useState(false);
+  const [fav, setFav] = useState(false);
   const favScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (spot?.id) {
-      isFavorite(spot.id).then(setFav).catch(() => {});
+      isFavorite(spot.id).then(setFav).catch(() => { });
     }
   }, [spot?.id]);
 
   const handleToggleFav = useCallback(async () => {
     Animated.sequence([
       Animated.spring(favScale, { toValue: 1.4, tension: 150, friction: 5, useNativeDriver: true }),
-      Animated.spring(favScale, { toValue: 1,   tension: 150, friction: 8, useNativeDriver: true }),
+      Animated.spring(favScale, { toValue: 1, tension: 150, friction: 8, useNativeDriver: true }),
     ]).start();
     const next = await toggleFavorite(spot.id);
     setFav(next);
@@ -88,16 +88,16 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
         return (
           <View>
             <Text style={styles.sectionTitle}>Conditions</Text>
-            <InfoRow label="Profondeur"   value={`${spot.profondeur_min} – ${spot.profondeur_max} m`} />
-            <InfoRow label="Visibilité"   value={`${spot.visibilite} m`} />
-            <InfoRow label="Courant"      value={spot.courant} />
-            <InfoRow label="Difficulté"   value={spot.difficulte} accent={diff.color} />
+            <InfoRow label="Profondeur" value={`${spot.profondeur_min} – ${spot.profondeur_max} m`} />
+            <InfoRow label="Visibilité" value={`${spot.visibilite} m`} />
+            <InfoRow label="Courant" value={spot.courant} />
+            <InfoRow label="Difficulté" value={spot.difficulte} accent={diff.color} />
             <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Infos pratiques</Text>
-            <InfoRow label="Type de site"     value={spot.type_site} />
-            <InfoRow label="Localité"         value={`${spot.localite} ${spot.code_postal}`} />
+            <InfoRow label="Type de site" value={spot.type_site} />
+            <InfoRow label="Localité" value={`${spot.localite} ${spot.code_postal}`} />
             <InfoRow label="Meilleure saison" value={spot.meilleure_saison} />
-            <InfoRow label="Accès"            value={spot.conditions_acces} />
-            <InfoRow label="Capacité"         value={`${spot.capacite_plongeurs} plongeurs max`} />
+            <InfoRow label="Accès" value={spot.conditions_acces} />
+            <InfoRow label="Capacité" value={`${spot.capacite_plongeurs} plongeurs max`} />
           </View>
         );
       case 'faune':
@@ -118,9 +118,9 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
                   {spot.photos_fond_marin.map((uri, i) => {
                     const galleryUri = withCacheBust(uri, `gallery-${spot.id}-${i}`);
                     return (
-                    <TouchableOpacity key={i} onPress={() => { setLightboxIndex(allPhotos.indexOf(galleryUri)); setLightboxVisible(true); }}>
-                      <Image source={{ uri: galleryUri }} style={styles.galleryThumb} resizeMode="cover" />
-                    </TouchableOpacity>
+                      <TouchableOpacity key={i} onPress={() => { setLightboxIndex(allPhotos.indexOf(galleryUri)); setLightboxVisible(true); }}>
+                        <Image source={{ uri: galleryUri }} style={styles.galleryThumb} resizeMode="cover" />
+                      </TouchableOpacity>
                     );
                   })}
                 </ScrollView>
@@ -220,7 +220,7 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
                   </View>
                   <View style={styles.topoActionTexts}>
                     <View style={styles.topoActionHeaderRow}>
-                      <Text style={styles.topoActionTitle}>Plan de plongée & Briefing</Text>
+                      <Text style={styles.topoActionTitle}>Plan de plongée</Text>
                       <View style={styles.topoBadgeAvailable}>
                         <Text style={styles.topoBadgeAvailableText}>DISPONIBLE</Text>
                       </View>
@@ -238,7 +238,7 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
 
         {/* ── Tabs ── */}
         <View style={styles.tabsRow}>
-          {[['info','Infos'],['faune','Faune & Flore'],['description','Description']].map(([key, label]) => (
+          {[['info', 'Infos'], ['faune', 'Faune & Flore'], ['description', 'Description']].map(([key, label]) => (
             <TouchableOpacity key={key} style={styles.tab} onPress={() => setActiveTab(key)} activeOpacity={0.75}>
               <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{label}</Text>
               {activeTab === key && <View style={styles.tabUnderline} />}

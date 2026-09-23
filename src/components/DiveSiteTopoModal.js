@@ -49,7 +49,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
     <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
-        
+
         {/* ── En-tête Navigation ── */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
@@ -60,9 +60,6 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
               <View style={styles.badgeTopo}>
                 <Text style={styles.badgeTopoText}>TOPO & BRIEFING SOUS-MARIN</Text>
               </View>
-              {topo.coordonnees_gps && (
-                <Text style={styles.gpsText}>📍 {topo.coordonnees_gps}</Text>
-              )}
             </View>
             <Text style={styles.title} numberOfLines={1}>{topo.titre || spot.nom}</Text>
             {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
@@ -98,15 +95,13 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
               style={styles.imageContainer}
             >
               <Image source={imageSource} style={styles.topoImage} resizeMode="contain" />
-              
+
               {/* Overlay d'information sur la carte */}
               <LinearGradient
                 colors={['transparent', 'rgba(5,10,16,0.85)']}
                 style={styles.imageOverlay}
               >
                 <View style={styles.overlayInfoRow}>
-                  <Text style={styles.overlayLegend}>Zone balisée • Échelle 50m</Text>
-                  <Text style={styles.overlayHint}>🔍 Appuyez ou pincez pour zoomer</Text>
                 </View>
               </LinearGradient>
             </TouchableOpacity>
@@ -120,7 +115,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
                 <Text style={styles.cardIcon}>📍</Text>
                 <Text style={styles.cardTitle}>Points d'Intérêt Clés du Site</Text>
               </View>
-              <Text style={styles.poiCountBadge}>{topo.pois?.length || 0} repères</Text>
+              <Text style={styles.poiCountBadge}>{topo.pois?.length || 0} Points d'Intérêt</Text>
             </View>
 
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.poiScroll}>
