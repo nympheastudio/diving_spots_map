@@ -111,9 +111,6 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
               <View style={styles.badgeTopo}>
                 <Text style={styles.badgeTopoText}>TOPO & BRIEFING SOUS-MARIN</Text>
               </View>
-              {topo.coordonnees_gps && (
-                <Text style={styles.gpsText}>📍 {topo.coordonnees_gps}</Text>
-              )}
             </View>
             <Text style={styles.title} numberOfLines={1}>{topo.titre || spot.nom}</Text>
             {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
