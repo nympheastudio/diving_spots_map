@@ -170,6 +170,7 @@ const DivingMap = ({
           longitudeDelta: 1.5,
         }}
         showsZoomControls={false}
+        toolbarEnabled={false}
         onPress={handleMapPress}
         onPanDrag={handlePanDrag}
         onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
