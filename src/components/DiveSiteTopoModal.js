@@ -18,6 +18,7 @@ import {
   StatusBar,
   Share,
 } from 'react-native';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
@@ -31,6 +32,35 @@ const TOPO_LOCAL_ASSETS = {
   'topo-tiboulen-du-frioul.jpg': require('../../assets/topo-tiboulen-du-frioul.jpg'),
   'topo-cap-caveau.jpg': require('../../assets/topo-cap-caveau.jpg'),
   'topo-pierre-a-oeil.jpg': require('../../assets/topo-pierre-a-oeil.jpg'),
+};
+
+const parseGpsCoords = (gpsStr, defaultLat, defaultLng) => {
+  if (!gpsStr) return { latitude: defaultLat || 43.27, longitude: defaultLng || 5.28 };
+  try {
+    const parts = gpsStr.split('-');
+    if (parts.length === 2) {
+      const parseDMS = (str) => {
+        const match = str.match(/(\d+)°\s*(\d+)['′\.](\d+)?["″]?\s*([NSEWOU])/i);
+        if (!match) return null;
+        const deg = parseFloat(match[1]);
+        const min = parseFloat(match[2]);
+        const secStr = match[3] ? match[3] : '0';
+        const minFraction = parseFloat(`${min}.${secStr}`);
+        let val = deg + minFraction / 60;
+        const dir = match[4].toUpperCase();
+        if (dir === 'S' || dir === 'W' || dir === 'O') val = -val;
+        return val;
+      };
+      const lat = parseDMS(parts[0]);
+      const lng = parseDMS(parts[1]);
+      if (lat !== null && lng !== null) {
+        return { latitude: lat, longitude: lng };
+      }
+    }
+  } catch (e) {
+    console.log('GPS parse error:', e);
+  }
+  return { latitude: defaultLat || 43.27, longitude: defaultLng || 5.28 };
 };
 
 
@@ -56,6 +86,10 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
   const imageSource = topo.plan_image && TOPO_LOCAL_ASSETS[topo.plan_image]
     ? TOPO_LOCAL_ASSETS[topo.plan_image]
     : (topo.plan_image ? { uri: topo.plan_image } : null);
+
+  const targetCoords = useMemo(() => {
+    return parseGpsCoords(topo?.coordonnees_gps, spot?.latitude, spot?.longitude);
+  }, [topo?.coordonnees_gps, spot?.latitude, spot?.longitude]);
 
   const handleShareTopo = async () => {
     const stepsText = (topo.parcours || [])
@@ -145,44 +179,66 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* ── Carte Topographique / Bathymétrique ── */}
-          {imageSource && (
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <View style={styles.cardHeaderLeft}>
-                  <Text style={styles.cardIcon}>🗺️</Text>
-                  <Text style={styles.cardTitle}>Plan Bathymétrique & Reliefs</Text>
-                </View>
+          {/* ── Carte Topographique / Bathymétrique (Vue Zoomée Carte) ── */}
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.cardHeaderLeft}>
+                <Text style={styles.cardIcon}>🗺️</Text>
+                <Text style={styles.cardTitle}>Localisation & Carte du Site</Text>
+              </View>
+              {imageSource && (
                 <TouchableOpacity
                   style={styles.zoomButton}
                   onPress={() => setFullscreenImage(true)}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.zoomButtonText}>🔍 Agrandir</Text>
+                  <Text style={styles.zoomButtonText}>🖼️ Voir schéma topo</Text>
                 </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                activeOpacity={0.95}
-                onPress={() => setFullscreenImage(true)}
-                onTouchStart={(e) => {
-                  if (e.nativeEvent.touches && e.nativeEvent.touches.length >= 2) {
-                    setFullscreenImage(true);
-                  }
-                }}
-                style={styles.imageContainer}
-              >
-                <Image source={imageSource} style={styles.topoImage} resizeMode="contain" />
-
-                <LinearGradient
-                  colors={['transparent', 'rgba(5,10,16,0.85)']}
-                  style={styles.imageOverlay}
-                >
-                  <View style={styles.overlayInfoRow} />
-                </LinearGradient>
-              </TouchableOpacity>
+              )}
             </View>
-          )}
+
+            <View style={styles.imageContainer}>
+              <MapView
+                provider={PROVIDER_DEFAULT}
+                mapType="satellite"
+                style={styles.topoMap}
+                region={{
+                  latitude: targetCoords.latitude,
+                  longitude: targetCoords.longitude,
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                }}
+                scrollEnabled={true}
+                zoomEnabled={true}
+                pitchEnabled={false}
+                rotateEnabled={false}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: targetCoords.latitude,
+                    longitude: targetCoords.longitude,
+                  }}
+                  title={topo.titre || spot.nom}
+                  description={topo.sous_titre || spot.localite}
+                />
+              </MapView>
+
+              <LinearGradient
+                colors={['transparent', 'rgba(5,10,16,0.85)']}
+                style={styles.imageOverlay}
+                pointerEvents="box-none"
+              >
+                <View style={styles.overlayInfoRow}>
+                  <Text style={styles.overlayLegend}>📍 {topo.titre || spot.nom}</Text>
+                  {imageSource && (
+                    <TouchableOpacity onPress={() => setFullscreenImage(true)}>
+                      <Text style={styles.overlayHint}>🔍 Ouvrir l'image topo</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </LinearGradient>
+            </View>
+          </View>
 
 
 
@@ -472,6 +528,10 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     position: 'relative',
   },
   topoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  topoMap: {
     width: '100%',
     height: '100%',
   },
