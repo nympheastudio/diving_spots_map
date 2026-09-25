@@ -55,7 +55,11 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "mouillage"
+                  "type": "mouillage",
+                  "detail": "",
+                  "icon": "ancre",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -74,7 +78,10 @@
                 "type": "Feature",
                 "properties": {
                   "type": "epave",
-                  "detail": "amphore"
+                  "detail": "amphore",
+                  "icon": "amphore",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -94,7 +101,11 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "grotte"
+                  "type": "grotte",
+                  "detail": "",
+                  "icon": "grotte",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -113,7 +124,10 @@
                 "type": "Feature",
                 "properties": {
                   "type": "entree",
-                  "detail": ""
+                  "detail": "",
+                  "icon": "entree",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -131,7 +145,11 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "grotte"
+                  "type": "grotte",
+                  "detail": "",
+                  "icon": "grotte",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -149,7 +167,11 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "entree"
+                  "type": "entree",
+                  "detail": "",
+                  "icon": "entree",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -169,6 +191,8 @@
                 "properties": {
                   "type": "epave",
                   "detail": "avion",
+                  "icon": "avion",
+                  "color": "",
                   "description": "aile d'avion"
                 },
                 "geometry": {

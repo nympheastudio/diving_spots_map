@@ -4,7 +4,7 @@
  * et le plan en mode réduit (avec affichage des infos sous la carte hors plein écran).
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -15,8 +15,7 @@ import {
   Modal,
   SafeAreaView,
 } from 'react-native';
-import MapView from 'react-native-map-clustering';
-import { Marker, Polygon } from 'react-native-maps';
+import MapView, { Marker, Polygon } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
@@ -32,65 +31,32 @@ const TOPO_LOCAL_ASSETS = {
   'topo-pierre-a-oeil.jpg': require('../../assets/topo-pierre-a-oeil.jpg'),
 };
 
-/**
- * Dictionnaire étendu d'icônes selon les détails / sous-types sous-marins
- */
 const DETAIL_ICONS = {
-  // Épaves maritimes
+  // Navigation & Épaves
   bateau: '🚢',
-  navire: '🚢',
-  cargo: '🚢',
-  chalutier: '🚢',
-  remorqueur: '🚢',
   voilier: '⛵',
-  sous_marin: '⚓',
-  sousmarin: '⚓',
-  peniche: '🚢',
-  // Épaves aériennes
-  avion: '✈️',
-  aeronef: '✈️',
-  bombardier: '✈️',
-  chasseur: '✈️',
-  helicoptere: '🚁',
-  helico: '🚁',
-  // Archéologie, vestiges & cargaisons
-  amphore: '🏺',
-  amphores: '🏺',
-  poterie: '🏺',
-  canon: '💣',
-  artillerie: '💣',
-  vestiges: '🏛️',
-  ruines: '🏛️',
   ancre: '⚓',
-  coffre: '🪙',
-  tresor: '🪙',
+  // Aérien
+  avion: '✈️',
+  helicoptere: '🚁',
+  // Archéologie & Vestiges
+  amphore: '🏺',
+  vestiges: '🏛️',
   statue: '🗿',
-  // Relief sous-marin & formations rocheuses
+  // Relief sous-marin
   grotte: '🕳️',
-  cavite: '🕳️',
-  tunnel: '🕳️',
-  boyau: '🕳️',
+  entree: '🚪',
   arche: '⛩️',
-  faille: '⚡',
   sec: '🪨',
-  pinacle: '🪨',
-  roche: '🪨',
   tombant: '🧱',
-  mur: '🧱',
   plateau: '🌊',
   sable: '🏖️',
-  // Faune & flore marine
-  faune: '🐟',
+  // Faune & Flore
   poisson: '🐟',
-  merou: '🐟',
-  barracuda: '🐟',
   requin: '🦈',
   dauphin: '🐬',
   corail: '🪸',
-  gorgone: '🪸',
   posidonie: '🌿',
-  herbier: '🌿',
-  eponge: '🧽',
 };
 
 /**
@@ -109,7 +75,7 @@ const BASE_TYPE_STYLES = {
 
 /**
  * Détermine le style, la couleur et l'icône de façon extensible :
- * 1. Propriété explicite dans le GeoJSON (`properties.icon` ou `properties.emoji`)
+ * 1. Propriété explicite dans le GeoJSON (`properties.icon` ou `properties.emoji`) : mot-clé ou emoji direct
  * 2. Correspondance détaillée (`properties.detail` ou `properties.sous_type`)
  * 3. Type général (`properties.type`)
  * 4. Repli générique
@@ -130,10 +96,17 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
     label: props.type ? props.type.charAt(0).toUpperCase() + props.type.slice(1) : 'Zone',
   };
 
-  // 1. Icône explicite déclarée dans le GeoJSON (icon ou emoji)
-  // 2. Icône selon le détail / sous-type
-  // 3. Icône par défaut du type
-  const icon = props.icon || props.emoji || DETAIL_ICONS[detail] || base.icon;
+  // 1. Icône explicite déclarée dans le GeoJSON (mot-clé du dictionnaire ou emoji direct)
+  // 2. Sinon icône selon le détail / sous-type
+  // 3. Sinon icône par défaut du type
+  const iconCandidate = (props.icon || props.emoji || '').toLowerCase().trim();
+  const icon =
+    DETAIL_ICONS[iconCandidate] ||
+    BASE_TYPE_STYLES[iconCandidate]?.icon ||
+    props.icon ||
+    props.emoji ||
+    DETAIL_ICONS[detail] ||
+    base.icon;
 
   // Construction du libellé
   let label = base.label;
@@ -204,6 +177,36 @@ const TopoSiteMap = ({ topo, spot }) => {
   // Zone sélectionnée (au clic sur polygone ou marqueur)
   const [selectedZone, setSelectedZone] = useState(null);
 
+  // Références vers les marqueurs pour ouvrir leur bulle de texte (Callout)
+  const cardMarkerRefs = useRef({});
+  const fullscreenMarkerRefs = useRef({});
+  const cardMapRef = useRef(null);
+  const fullscreenMapRef = useRef(null);
+
+  // Gestion de tracksViewChanges pour éviter le scintillement tout en assurant l'affichage des icônes
+  const [cardTracksViewChanges, setCardTracksViewChanges] = useState(true);
+  const [fullscreenTracksViewChanges, setFullscreenTracksViewChanges] = useState(false);
+
+  // Vue carte réduite : autorise le snapshot au montage ou au retour sur la vue carte, puis fige
+  useEffect(() => {
+    if (viewMode === 'map') {
+      setCardTracksViewChanges(true);
+      const timer = setTimeout(() => setCardTracksViewChanges(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [viewMode]);
+
+  // Carte plein écran : déclenche le snapshot dès l'ouverture du modal plein écran, puis fige
+  useEffect(() => {
+    if (fullscreenMap) {
+      setFullscreenTracksViewChanges(true);
+      const timer = setTimeout(() => setFullscreenTracksViewChanges(false), 1200);
+      return () => clearTimeout(timer);
+    } else {
+      setFullscreenTracksViewChanges(false);
+    }
+  }, [fullscreenMap]);
+
   // Conversion des polygones GeoJSON & filtrage des marqueurs
   const geojsonPolygons = useMemo(() => {
     if (!topo?.geojson?.features) return { rawPolygons: [], markers: [] };
@@ -226,9 +229,12 @@ const TopoSiteMap = ({ topo, spot }) => {
         const type = feature.properties?.type;
         const detail = feature.properties?.detail;
         const style = getFeatureStyle(feature.properties);
+        const polyId = `poly-${idx}`;
+        const markerId = `marker-${idx}`;
 
         const polyObj = {
-          id: `poly-${idx}`,
+          id: polyId,
+          markerId,
           type,
           detail,
           coords,
@@ -239,21 +245,26 @@ const TopoSiteMap = ({ topo, spot }) => {
 
         rawPolygons.push(polyObj);
 
-        // Ne créer un marqueur badge QUE si le type n'est PAS 'entree'
-        if (type !== 'entree') {
-          const displayTitle =
-            feature.properties?.titre ||
-            feature.properties?.nom ||
-            feature.properties?.name ||
-            style.label;
-          markers.push({
-            id: `marker-${idx}`,
-            center: { latitude: centerLat, longitude: centerLng },
-            displayIcon: style.icon,
-            displayTitle,
-            displayDesc: getFeatureDescription(feature.properties),
-          });
-        }
+        // Titre brut pour l'encadré du bas, et titre avec icône pour la bulle native
+        const rawTitle =
+          feature.properties?.titre ||
+          feature.properties?.nom ||
+          feature.properties?.name ||
+          style.label;
+        const calloutTitle = style.icon ? `${style.icon} ${rawTitle}` : rawTitle;
+
+        // On associe un marqueur à chaque polygone (badge visible pour les POIs, invisible pour les entrées)
+        markers.push({
+          id: markerId,
+          polyId,
+          type,
+          center: { latitude: centerLat, longitude: centerLng },
+          displayIcon: style.icon,
+          titleText: rawTitle,
+          calloutTitle,
+          displayDesc: getFeatureDescription(feature.properties),
+          hasBadge: type !== 'entree',
+        });
       }
     });
 
@@ -270,6 +281,34 @@ const TopoSiteMap = ({ topo, spot }) => {
 
   const mapDelta = geojsonPolygons.rawPolygons.length > 0 ? 0.0025 : 0.005;
 
+  // Animation fluide de la caméra sans réinitialiser la carte au clic
+  useEffect(() => {
+    if (cardMapRef.current && targetCoords) {
+      try {
+        cardMapRef.current.animateToRegion({
+          latitude: targetCoords.latitude,
+          longitude: targetCoords.longitude,
+          latitudeDelta: mapDelta,
+          longitudeDelta: mapDelta,
+        }, 400);
+      } catch (e) {}
+    }
+  }, [targetCoords?.latitude, targetCoords?.longitude]);
+
+  // Animation fluide de la caméra plein écran à l'ouverture du modal
+  useEffect(() => {
+    if (fullscreenMap && fullscreenMapRef.current && targetCoords) {
+      try {
+        fullscreenMapRef.current.animateToRegion({
+          latitude: targetCoords.latitude,
+          longitude: targetCoords.longitude,
+          latitudeDelta: mapDelta,
+          longitudeDelta: mapDelta,
+        }, 300);
+      } catch (e) {}
+    }
+  }, [fullscreenMap, targetCoords?.latitude, targetCoords?.longitude]);
+
   const imageSource = useMemo(() => {
     if (!topo?.plan_image) return null;
     return TOPO_LOCAL_ASSETS[topo.plan_image]
@@ -282,7 +321,8 @@ const TopoSiteMap = ({ topo, spot }) => {
   const siteTitle = topo?.titre || spot?.nom || 'Site de plongée';
   const siteSubTitle = topo?.sous_titre || spot?.localite || '';
 
-  const handleSelectPoly = (poly) => {
+  // Sélection d'une zone (clic polygone) : met à jour l'état et OUVRE la bulle du marqueur
+  const handleSelectPoly = (poly, isFullscreen = false) => {
     const title =
       poly.properties?.titre ||
       poly.properties?.nom ||
@@ -294,58 +334,126 @@ const TopoSiteMap = ({ topo, spot }) => {
       title,
       description: getFeatureDescription(poly.properties),
     });
+
+    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
+    const markerRef = refMap[poly.id] || refMap[poly.markerId];
+    if (markerRef) {
+      setTimeout(() => {
+        try {
+          markerRef.showCallout();
+        } catch (e) {
+          console.log('Erreur showCallout poly:', e);
+        }
+      }, 50);
+    }
   };
 
-  const renderMapElements = () => (
+  // Sélection d'un marqueur (clic icône) : met à jour l'état et s'assure que la bulle s'ouvre
+  const handleSelectMarker = (marker, isFullscreen = false) => {
+    setSelectedZone({
+      id: marker.polyId,
+      icon: marker.displayIcon,
+      title: marker.titleText,
+      description: marker.displayDesc || '',
+    });
+
+    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
+    const markerRef = refMap[marker.id] || refMap[marker.polyId];
+    if (markerRef) {
+      setTimeout(() => {
+        try {
+          markerRef.showCallout();
+        } catch (e) {
+          console.log('Erreur showCallout marker:', e);
+        }
+      }, 50);
+    }
+  };
+
+  // Fermeture des bulles et désélection au clic sur la carte vide
+  const handleMapPress = (isFullscreen = false) => {
+    setSelectedZone(null);
+    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
+    Object.values(refMap).forEach((ref) => {
+      try {
+        ref?.hideCallout();
+      } catch (e) {}
+    });
+  };
+
+  // Fermeture manuelle de l'encadré d'info
+  const handleCloseZone = () => {
+    setSelectedZone(null);
+    Object.values(cardMarkerRefs.current).forEach((ref) => {
+      try { ref?.hideCallout(); } catch (e) {}
+    });
+    Object.values(fullscreenMarkerRefs.current).forEach((ref) => {
+      try { ref?.hideCallout(); } catch (e) {}
+    });
+  };
+
+  const renderMapElements = (isFullscreen = false) => (
     <>
-      {/* Marqueur du point central du spot */}
-      <Marker
-        coordinate={{
-          latitude: targetCoords.latitude,
-          longitude: targetCoords.longitude,
-        }}
-        title={siteTitle}
-        description={siteSubTitle}
-      />
+      {/* Marqueur du point central du spot si aucun GeoJSON */}
+      {geojsonPolygons.rawPolygons.length === 0 && (
+        <Marker
+          key={isFullscreen ? `fs-center-pin-${fullscreenMap}` : 'card-center-pin'}
+          coordinate={{
+            latitude: targetCoords.latitude,
+            longitude: targetCoords.longitude,
+          }}
+          title={siteTitle}
+          description={siteSubTitle}
+        />
+      )}
 
       {/* Dessin des contours de toutes les zones GeoJSON cliquables */}
       {geojsonPolygons.rawPolygons.map((poly) => {
         const isSelected = selectedZone?.id === poly.id;
         return (
           <Polygon
-            key={poly.id}
+            key={isFullscreen ? `fs-poly-${poly.id}` : `card-poly-${poly.id}`}
             coordinates={poly.coords}
             strokeColor={isSelected ? '#FFFFFF' : poly.style.strokeColor}
             fillColor={isSelected ? poly.style.fillColor.replace('0.25', '0.6').replace('0.4', '0.7') : poly.style.fillColor}
             strokeWidth={isSelected ? 3 : 2}
             lineDashPattern={poly.style.lineDashPattern}
             tappable={true}
-            onPress={() => handleSelectPoly(poly)}
+            onPress={() => handleSelectPoly(poly, isFullscreen)}
           />
         );
       })}
 
-      {/* Rendu des marqueurs (Grotte, Épave, Mouillage - hors entrée) */}
-      {geojsonPolygons.markers.map((marker) => (
-        <Marker
-          key={marker.id}
-          coordinate={marker.center}
-          title={marker.displayTitle}
-          description={marker.displayDesc || undefined}
-          onPress={() =>
-            setSelectedZone({
-              id: marker.id,
-              icon: marker.displayIcon,
-              title: marker.displayTitle,
-              description: marker.displayDesc || '',
-            })
-          }
-        >
-          <View style={styles.poiBadge}>
-            <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
-          </View>
-        </Marker>
-      ))}
+      {/* Rendu des marqueurs avec référence pour pouvoir ouvrir leur bulle */}
+      {geojsonPolygons.markers.map((marker) => {
+        const isSelected = selectedZone?.id === marker.polyId;
+        return (
+          <Marker
+            key={isFullscreen ? `fs-marker-${marker.id}-${fullscreenMap}` : `card-marker-${marker.id}`}
+            tracksViewChanges={isFullscreen ? fullscreenTracksViewChanges : cardTracksViewChanges}
+            zIndex={isSelected ? 30 : 15}
+            ref={(ref) => {
+              if (ref) {
+                const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
+                refMap[marker.polyId] = ref;
+                refMap[marker.id] = ref;
+              }
+            }}
+            coordinate={marker.center}
+            title={marker.calloutTitle}
+            description={marker.displayDesc || undefined}
+            onPress={() => handleSelectMarker(marker, isFullscreen)}
+          >
+            {marker.hasBadge ? (
+              <View style={styles.poiBadge}>
+                <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
+              </View>
+            ) : (
+              <View style={{ width: 1, height: 1, opacity: 0 }} />
+            )}
+          </Marker>
+        );
+      })}
     </>
   );
 
@@ -377,9 +485,10 @@ const TopoSiteMap = ({ topo, spot }) => {
             )}
 
             <MapView
+              ref={cardMapRef}
               mapType="satellite"
               style={styles.topoMap}
-              region={{
+              initialRegion={{
                 latitude: targetCoords.latitude,
                 longitude: targetCoords.longitude,
                 latitudeDelta: mapDelta,
@@ -391,9 +500,9 @@ const TopoSiteMap = ({ topo, spot }) => {
               rotateEnabled={false}
               showsZoomControls={false}
               toolbarEnabled={false}
-              onPress={() => setSelectedZone(null)}
+              onPress={() => handleMapPress(false)}
             >
-              {renderMapElements()}
+              {renderMapElements(false)}
             </MapView>
 
             <LinearGradient
@@ -455,7 +564,7 @@ const TopoSiteMap = ({ topo, spot }) => {
               </Text>
             </View>
             <TouchableOpacity
-              onPress={() => setSelectedZone(null)}
+              onPress={handleCloseZone}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Text style={styles.selectedZoneClose}>✕</Text>
@@ -490,6 +599,7 @@ const TopoSiteMap = ({ topo, spot }) => {
 
           <View style={styles.fullscreenMapBody}>
             <MapView
+              ref={fullscreenMapRef}
               mapType="satellite"
               style={styles.fullscreenMap}
               initialRegion={{
@@ -504,9 +614,9 @@ const TopoSiteMap = ({ topo, spot }) => {
               rotateEnabled={true}
               showsZoomControls={false}
               toolbarEnabled={false}
-              onPress={() => setSelectedZone(null)}
+              onPress={() => handleMapPress(true)}
             >
-              {renderMapElements()}
+              {renderMapElements(true)}
             </MapView>
 
             {/* Bulle d'information flottante en bas de l'écran en mode plein écran */}
@@ -520,7 +630,7 @@ const TopoSiteMap = ({ topo, spot }) => {
                     </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={() => setSelectedZone(null)}
+                    onPress={handleCloseZone}
                     hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                   >
                     <Text style={styles.zoneInfoClose}>✕</Text>
@@ -633,9 +743,12 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   poiBadgeText: {
     fontSize: 15,
+    textAlign: 'center',
   },
   selectedZoneBox: {
     marginTop: 12,
