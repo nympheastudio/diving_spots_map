@@ -127,7 +127,8 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
 
   // Traitement spécifique pour les zones de profondeur bathymétriques
   if (type === 'profondeur') {
-    const depthStyle = getDepthStyle(props.profondeur ?? props.detail);
+    const depthVal = props.profondeur !== undefined && props.profondeur !== '' ? props.profondeur : props.detail;
+    const depthStyle = getDepthStyle(depthVal);
     let strokeColor = depthStyle.strokeColor;
     let fillColor = depthStyle.fillColor;
 
@@ -183,12 +184,22 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
   let label = base.label;
   if (props.label) {
     label = props.label;
-  } else if (props.detail) {
-    const detailStr = String(props.detail);
-    const detailCapitalized = detailStr.charAt(0).toUpperCase() + detailStr.slice(1);
-    label = `${base.label} (${detailCapitalized})`;
-  } else if (props.profondeur !== undefined) {
-    label = `${base.label} (${props.profondeur} m)`;
+  } else {
+    const parts = [];
+    if (props.detail && String(props.detail).trim()) {
+      const detailStr = String(props.detail).trim();
+      parts.push(detailStr.charAt(0).toUpperCase() + detailStr.slice(1));
+    }
+    if (
+      props.profondeur !== undefined &&
+      props.profondeur !== null &&
+      String(props.profondeur).trim() !== ''
+    ) {
+      parts.push(`${props.profondeur} m`);
+    }
+    if (parts.length > 0) {
+      label = `${base.label} (${parts.join(' - ')})`;
+    }
   }
 
   return {

@@ -56,7 +56,8 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 18,
+                  "profondeur": 18,
+                  "detail": "",
                   "icon": "",
                   "color": "",
                   "description": ""
@@ -409,7 +410,8 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 8,
+                  "profondeur": 8,
+                  "detail": "",
                   "icon": "",
                   "color": "",
                   "description": ""
@@ -530,6 +532,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "mouillage",
+                  "profondeur": "",
                   "detail": "",
                   "icon": "ancre",
                   "color": "",
@@ -567,6 +570,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "epave",
+                  "profondeur": "",
                   "detail": "amphore",
                   "icon": "amphore",
                   "color": "",
@@ -612,6 +616,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "grotte",
+                  "profondeur": "",
                   "detail": "",
                   "icon": "grotte",
                   "color": "",
@@ -649,6 +654,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "entree",
+                  "profondeur": "",
                   "detail": "",
                   "icon": "entree",
                   "color": "",
@@ -686,6 +692,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "grotte",
+                  "profondeur": "",
                   "detail": "",
                   "icon": "grotte",
                   "color": "",
@@ -723,6 +730,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "entree",
+                  "profondeur": "",
                   "detail": "",
                   "icon": "entree",
                   "color": "",
@@ -760,6 +768,7 @@
                 "type": "Feature",
                 "properties": {
                   "type": "epave",
+                  "profondeur": "",
                   "detail": "avion",
                   "icon": "avion",
                   "color": "",
@@ -1935,10 +1944,11 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
+                  "profondeur": 22,
+                  "detail": "",
                   "icon": "",
                   "color": "",
-                  "description": "",
-                  "profondeur": 22
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -2228,7 +2238,11 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "profondeur": 15
+                  "profondeur": 15,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -2526,7 +2540,11 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "profondeur": 8
+                  "profondeur": 8,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -2848,7 +2866,11 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "profondeur": 22
+                  "profondeur": 22,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3069,7 +3091,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3110,7 +3137,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3144,7 +3176,11 @@
                 "type": "Feature",
                 "properties": {
                   "type": "rocher",
-                  "profondeur": 0
+                  "profondeur": 0,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3181,7 +3217,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3222,7 +3263,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3258,7 +3304,14 @@
               },
               {
                 "type": "Feature",
-                "properties": {},
+                "properties": {
+                  "type": "",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
+                },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
@@ -3274,7 +3327,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3315,7 +3373,12 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "rocher"
+                  "type": "rocher",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
                 },
                 "geometry": {
                   "type": "Polygon",
@@ -3351,7 +3414,14 @@
               },
               {
                 "type": "Feature",
-                "properties": {},
+                "properties": {
+                  "type": "",
+                  "profondeur": "",
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": ""
+                },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
