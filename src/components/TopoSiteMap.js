@@ -49,6 +49,7 @@ const DETAIL_ICONS = {
   entree: '🚪',
   arche: '⛩️',
   sec: '🪨',
+  rocher: '🪨',
   tombant: '🧱',
   plateau: '🌊',
   sable: '🏖️',
@@ -102,6 +103,7 @@ const BASE_TYPE_STYLES = {
   grotte: { strokeColor: '#A855F7', fillColor: 'rgba(168, 85, 247, 0.45)', icon: '🕳️', label: 'Grotte' },
   entree: { strokeColor: '#10B981', fillColor: 'rgba(16, 185, 129, 0.25)', lineDashPattern: [6, 4], icon: '🚪', label: 'Entrée Grotte' },
   sec: { strokeColor: '#F59E0B', fillColor: 'rgba(245, 158, 11, 0.35)', icon: '🪨', label: 'Sec' },
+  rocher: { strokeColor: '#F59E0B', fillColor: 'rgba(245, 158, 11, 0.40)', icon: '🪨', label: 'Rocher' },
   tombant: { strokeColor: '#EC4899', fillColor: 'rgba(236, 72, 153, 0.35)', icon: '🧱', label: 'Tombant' },
   faune: { strokeColor: '#3B82F6', fillColor: 'rgba(59, 130, 246, 0.35)', icon: '🐟', label: 'Faune' },
   flore: { strokeColor: '#22C55E', fillColor: 'rgba(34, 197, 94, 0.35)', icon: '🌿', label: 'Flore' },
@@ -125,7 +127,7 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
 
   // Traitement spécifique pour les zones de profondeur bathymétriques
   if (type === 'profondeur') {
-    const depthStyle = getDepthStyle(props.detail ?? props.profondeur);
+    const depthStyle = getDepthStyle(props.profondeur ?? props.detail);
     let strokeColor = depthStyle.strokeColor;
     let fillColor = depthStyle.fillColor;
 
@@ -185,6 +187,8 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
     const detailStr = String(props.detail);
     const detailCapitalized = detailStr.charAt(0).toUpperCase() + detailStr.slice(1);
     label = `${base.label} (${detailCapitalized})`;
+  } else if (props.profondeur !== undefined) {
+    label = `${base.label} (${props.profondeur} m)`;
   }
 
   return {
@@ -287,7 +291,7 @@ const TopoSiteMap = ({ topo, spot }) => {
     const markers = [];
 
     topo.geojson.features.forEach((feature, idx) => {
-      if (feature.geometry?.type === 'Polygon' && feature.geometry.coordinates?.[0]) {
+      if (feature.geometry?.type === 'Polygon' && feature.geometry.coordinates?.[0]?.length >= 3) {
         const coords = feature.geometry.coordinates[0].map(([lng, lat]) => ({
           latitude: lat,
           longitude: lng,

@@ -11,8 +11,8 @@
       "description": "Archipel spectaculaire avec une faune riche et des tombants verticaux impressionnants",
       "localite": "Marseille",
       "code_postal": "13008",
-      "latitude": 43.2700,
-      "longitude": 5.2970,
+      "latitude": 43.27,
+      "longitude": 5.297,
       "profondeur_max": 45,
       "profondeur_min": 5,
       "difficulte": "Intermediate",
@@ -65,90 +65,342 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.2959059, 43.2663631],
-                      [5.2964661, 43.2660339],
-                      [5.2973603, 43.2658693],
-                      [5.2988343, 43.2658264],
-                      [5.3001216, 43.26627],
-                      [5.3008586, 43.2669999],
-                      [5.301065, 43.2676511],
-                      [5.300554, 43.2680661],
-                      [5.2998891, 43.2681671],
-                      [5.2999131, 43.268091],
-                      [5.299961, 43.2680641],
-                      [5.299961, 43.2679848],
-                      [5.2999871, 43.267942],
-                      [5.2999675, 43.2679135],
-                      [5.2999718, 43.2678786],
-                      [5.2999283, 43.2678564],
-                      [5.2999218, 43.2678137],
-                      [5.2998478, 43.2677582],
-                      [5.2997912, 43.2677408],
-                      [5.2997237, 43.2676916],
-                      [5.2996933, 43.2677598],
-                      [5.2995017, 43.2678929],
-                      [5.2994821, 43.2679674],
-                      [5.2994038, 43.2680435],
-                      [5.2993515, 43.2680292],
-                      [5.2990991, 43.2681766],
-                      [5.298999, 43.2681702],
-                      [5.2989315, 43.2682368],
-                      [5.2986845, 43.2682414],
-                      [5.2987042, 43.2680901],
-                      [5.2987551, 43.2680444],
-                      [5.2988061, 43.2679245],
-                      [5.2987473, 43.2678074],
-                      [5.2986296, 43.2677846],
-                      [5.2986493, 43.2677046],
-                      [5.2988963, 43.2676246],
-                      [5.2989669, 43.2676703],
-                      [5.2990767, 43.2676075],
-                      [5.2989669, 43.2673734],
-                      [5.2990453, 43.2672392],
-                      [5.2991826, 43.2672591],
-                      [5.2992414, 43.2671278],
-                      [5.2990914, 43.2671387],
-                      [5.2989165, 43.2668767],
-                      [5.2988465, 43.2668585],
-                      [5.2987865, 43.2669676],
-                      [5.2985866, 43.2670477],
-                      [5.2985666, 43.2671278],
-                      [5.2985066, 43.2671569],
-                      [5.2984966, 43.267277],
-                      [5.2983417, 43.2673571],
-                      [5.2982017, 43.2673171],
-                      [5.2979218, 43.2673826],
-                      [5.2978418, 43.2675718],
-                      [5.2977418, 43.2675864],
-                      [5.2977368, 43.2676519],
-                      [5.2975619, 43.2675791],
-                      [5.2975769, 43.26755],
-                      [5.2975069, 43.2675209],
-                      [5.2975269, 43.2674772],
-                      [5.2974919, 43.2673899],
-                      [5.297347, 43.2673316],
-                      [5.297347, 43.2672734],
-                      [5.297212, 43.2671788],
-                      [5.297257, 43.2671278],
-                      [5.297267, 43.2669895],
-                      [5.297212, 43.2668839],
-                      [5.2969521, 43.2669458],
-                      [5.2967871, 43.2669312],
-                      [5.2967521, 43.2670295],
-                      [5.2967072, 43.2670295],
-                      [5.2966122, 43.2671387],
-                      [5.2964672, 43.2671169],
-                      [5.2964872, 43.2670514],
-                      [5.2964372, 43.2669895],
-                      [5.2962673, 43.2669167],
-                      [5.2963473, 43.2668657],
-                      [5.2962173, 43.2667238],
-                      [5.2962823, 43.2666437],
-                      [5.2961973, 43.2665564],
-                      [5.2963373, 43.266338],
-                      [5.2962723, 43.2663125],
-                      [5.2960473, 43.2663671],
-                      [5.2959059, 43.2663631]
+                      [
+                        5.2959059,
+                        43.2663631
+                      ],
+                      [
+                        5.2964661,
+                        43.2660339
+                      ],
+                      [
+                        5.2973603,
+                        43.2658693
+                      ],
+                      [
+                        5.2988343,
+                        43.2658264
+                      ],
+                      [
+                        5.3001216,
+                        43.26627
+                      ],
+                      [
+                        5.3008586,
+                        43.2669999
+                      ],
+                      [
+                        5.301065,
+                        43.2676511
+                      ],
+                      [
+                        5.300554,
+                        43.2680661
+                      ],
+                      [
+                        5.2998891,
+                        43.2681671
+                      ],
+                      [
+                        5.2999131,
+                        43.268091
+                      ],
+                      [
+                        5.299961,
+                        43.2680641
+                      ],
+                      [
+                        5.299961,
+                        43.2679848
+                      ],
+                      [
+                        5.2999871,
+                        43.267942
+                      ],
+                      [
+                        5.2999675,
+                        43.2679135
+                      ],
+                      [
+                        5.2999718,
+                        43.2678786
+                      ],
+                      [
+                        5.2999283,
+                        43.2678564
+                      ],
+                      [
+                        5.2999218,
+                        43.2678137
+                      ],
+                      [
+                        5.2998478,
+                        43.2677582
+                      ],
+                      [
+                        5.2997912,
+                        43.2677408
+                      ],
+                      [
+                        5.2997237,
+                        43.2676916
+                      ],
+                      [
+                        5.2996933,
+                        43.2677598
+                      ],
+                      [
+                        5.2995017,
+                        43.2678929
+                      ],
+                      [
+                        5.2994821,
+                        43.2679674
+                      ],
+                      [
+                        5.2994038,
+                        43.2680435
+                      ],
+                      [
+                        5.2993515,
+                        43.2680292
+                      ],
+                      [
+                        5.2990991,
+                        43.2681766
+                      ],
+                      [
+                        5.298999,
+                        43.2681702
+                      ],
+                      [
+                        5.2989315,
+                        43.2682368
+                      ],
+                      [
+                        5.2986845,
+                        43.2682414
+                      ],
+                      [
+                        5.2987042,
+                        43.2680901
+                      ],
+                      [
+                        5.2987551,
+                        43.2680444
+                      ],
+                      [
+                        5.2988061,
+                        43.2679245
+                      ],
+                      [
+                        5.2987473,
+                        43.2678074
+                      ],
+                      [
+                        5.2986296,
+                        43.2677846
+                      ],
+                      [
+                        5.2986493,
+                        43.2677046
+                      ],
+                      [
+                        5.2988963,
+                        43.2676246
+                      ],
+                      [
+                        5.2989669,
+                        43.2676703
+                      ],
+                      [
+                        5.2990767,
+                        43.2676075
+                      ],
+                      [
+                        5.2989669,
+                        43.2673734
+                      ],
+                      [
+                        5.2990453,
+                        43.2672392
+                      ],
+                      [
+                        5.2991826,
+                        43.2672591
+                      ],
+                      [
+                        5.2992414,
+                        43.2671278
+                      ],
+                      [
+                        5.2990914,
+                        43.2671387
+                      ],
+                      [
+                        5.2989165,
+                        43.2668767
+                      ],
+                      [
+                        5.2988465,
+                        43.2668585
+                      ],
+                      [
+                        5.2987865,
+                        43.2669676
+                      ],
+                      [
+                        5.2985866,
+                        43.2670477
+                      ],
+                      [
+                        5.2985666,
+                        43.2671278
+                      ],
+                      [
+                        5.2985066,
+                        43.2671569
+                      ],
+                      [
+                        5.2984966,
+                        43.267277
+                      ],
+                      [
+                        5.2983417,
+                        43.2673571
+                      ],
+                      [
+                        5.2982017,
+                        43.2673171
+                      ],
+                      [
+                        5.2979218,
+                        43.2673826
+                      ],
+                      [
+                        5.2978418,
+                        43.2675718
+                      ],
+                      [
+                        5.2977418,
+                        43.2675864
+                      ],
+                      [
+                        5.2977368,
+                        43.2676519
+                      ],
+                      [
+                        5.2975619,
+                        43.2675791
+                      ],
+                      [
+                        5.2975769,
+                        43.26755
+                      ],
+                      [
+                        5.2975069,
+                        43.2675209
+                      ],
+                      [
+                        5.2975269,
+                        43.2674772
+                      ],
+                      [
+                        5.2974919,
+                        43.2673899
+                      ],
+                      [
+                        5.297347,
+                        43.2673316
+                      ],
+                      [
+                        5.297347,
+                        43.2672734
+                      ],
+                      [
+                        5.297212,
+                        43.2671788
+                      ],
+                      [
+                        5.297257,
+                        43.2671278
+                      ],
+                      [
+                        5.297267,
+                        43.2669895
+                      ],
+                      [
+                        5.297212,
+                        43.2668839
+                      ],
+                      [
+                        5.2969521,
+                        43.2669458
+                      ],
+                      [
+                        5.2967871,
+                        43.2669312
+                      ],
+                      [
+                        5.2967521,
+                        43.2670295
+                      ],
+                      [
+                        5.2967072,
+                        43.2670295
+                      ],
+                      [
+                        5.2966122,
+                        43.2671387
+                      ],
+                      [
+                        5.2964672,
+                        43.2671169
+                      ],
+                      [
+                        5.2964872,
+                        43.2670514
+                      ],
+                      [
+                        5.2964372,
+                        43.2669895
+                      ],
+                      [
+                        5.2962673,
+                        43.2669167
+                      ],
+                      [
+                        5.2963473,
+                        43.2668657
+                      ],
+                      [
+                        5.2962173,
+                        43.2667238
+                      ],
+                      [
+                        5.2962823,
+                        43.2666437
+                      ],
+                      [
+                        5.2961973,
+                        43.2665564
+                      ],
+                      [
+                        5.2963373,
+                        43.266338
+                      ],
+                      [
+                        5.2962723,
+                        43.2663125
+                      ],
+                      [
+                        5.2960473,
+                        43.2663671
+                      ],
+                      [
+                        5.2959059,
+                        43.2663631
+                      ]
                     ]
                   ]
                 }
@@ -166,32 +418,110 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.2992009, 43.2671967],
-                      [5.2992972, 43.2672317],
-                      [5.2992346, 43.2677578],
-                      [5.2996922, 43.2677648],
-                      [5.2994967, 43.2678991],
-                      [5.2994797, 43.2679661],
-                      [5.2994048, 43.2680503],
-                      [5.2993401, 43.2680379],
-                      [5.2990951, 43.2681866],
-                      [5.2989998, 43.2681817],
-                      [5.2989317, 43.2682486],
-                      [5.2986935, 43.2682461],
-                      [5.2986969, 43.268085],
-                      [5.2987479, 43.2680577],
-                      [5.298799, 43.2679264],
-                      [5.2987411, 43.2678074],
-                      [5.2986322, 43.2677926],
-                      [5.298639, 43.2677158],
-                      [5.2988807, 43.2676241],
-                      [5.298976, 43.2676612],
-                      [5.2990542, 43.2676265],
-                      [5.2990679, 43.2676067],
-                      [5.2989658, 43.2673688],
-                      [5.2990372, 43.2672424],
-                      [5.2991904, 43.2672647],
-                      [5.2992009, 43.2671967]
+                      [
+                        5.2992009,
+                        43.2671967
+                      ],
+                      [
+                        5.2992972,
+                        43.2672317
+                      ],
+                      [
+                        5.2992346,
+                        43.2677578
+                      ],
+                      [
+                        5.2996922,
+                        43.2677648
+                      ],
+                      [
+                        5.2994967,
+                        43.2678991
+                      ],
+                      [
+                        5.2994797,
+                        43.2679661
+                      ],
+                      [
+                        5.2994048,
+                        43.2680503
+                      ],
+                      [
+                        5.2993401,
+                        43.2680379
+                      ],
+                      [
+                        5.2990951,
+                        43.2681866
+                      ],
+                      [
+                        5.2989998,
+                        43.2681817
+                      ],
+                      [
+                        5.2989317,
+                        43.2682486
+                      ],
+                      [
+                        5.2986935,
+                        43.2682461
+                      ],
+                      [
+                        5.2986969,
+                        43.268085
+                      ],
+                      [
+                        5.2987479,
+                        43.2680577
+                      ],
+                      [
+                        5.298799,
+                        43.2679264
+                      ],
+                      [
+                        5.2987411,
+                        43.2678074
+                      ],
+                      [
+                        5.2986322,
+                        43.2677926
+                      ],
+                      [
+                        5.298639,
+                        43.2677158
+                      ],
+                      [
+                        5.2988807,
+                        43.2676241
+                      ],
+                      [
+                        5.298976,
+                        43.2676612
+                      ],
+                      [
+                        5.2990542,
+                        43.2676265
+                      ],
+                      [
+                        5.2990679,
+                        43.2676067
+                      ],
+                      [
+                        5.2989658,
+                        43.2673688
+                      ],
+                      [
+                        5.2990372,
+                        43.2672424
+                      ],
+                      [
+                        5.2991904,
+                        43.2672647
+                      ],
+                      [
+                        5.2992009,
+                        43.2671967
+                      ]
                     ]
                   ]
                 }
@@ -209,11 +539,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.296623375872855, 43.266526704372865],
-                      [5.296722108752647, 43.266526704372865],
-                      [5.296722108752647, 43.26660412932836],
-                      [5.296623375872855, 43.26660412932836],
-                      [5.296623375872855, 43.266526704372865]
+                      [
+                        5.296623375872855,
+                        43.266526704372865
+                      ],
+                      [
+                        5.296722108752647,
+                        43.266526704372865
+                      ],
+                      [
+                        5.296722108752647,
+                        43.26660412932836
+                      ],
+                      [
+                        5.296623375872855,
+                        43.26660412932836
+                      ],
+                      [
+                        5.296623375872855,
+                        43.266526704372865
+                      ]
                     ]
                   ]
                 }
@@ -231,13 +576,34 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.2979327, 43.2670761],
-                      [5.2979259, 43.2670062],
-                      [5.2980287, 43.2669323],
-                      [5.2981133, 43.2669405],
-                      [5.2981246, 43.2670021],
-                      [5.298023, 43.2670843],
-                      [5.2979327, 43.2670761]
+                      [
+                        5.2979327,
+                        43.2670761
+                      ],
+                      [
+                        5.2979259,
+                        43.2670062
+                      ],
+                      [
+                        5.2980287,
+                        43.2669323
+                      ],
+                      [
+                        5.2981133,
+                        43.2669405
+                      ],
+                      [
+                        5.2981246,
+                        43.2670021
+                      ],
+                      [
+                        5.298023,
+                        43.2670843
+                      ],
+                      [
+                        5.2979327,
+                        43.2670761
+                      ]
                     ]
                   ]
                 }
@@ -255,11 +621,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.298493939565333, 43.267003604531396],
-                      [5.2985651044488975, 43.267003604531396],
-                      [5.2985651044488975, 43.266955930148015],
-                      [5.298493939565333, 43.266955930148015],
-                      [5.298493939565333, 43.267003604531396]
+                      [
+                        5.298493939565333,
+                        43.267003604531396
+                      ],
+                      [
+                        5.2985651044488975,
+                        43.267003604531396
+                      ],
+                      [
+                        5.2985651044488975,
+                        43.266955930148015
+                      ],
+                      [
+                        5.298493939565333,
+                        43.266955930148015
+                      ],
+                      [
+                        5.298493939565333,
+                        43.267003604531396
+                      ]
                     ]
                   ]
                 }
@@ -277,11 +658,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.298492696292499, 43.26700340155537],
-                      [5.298513958649096, 43.26700340155537],
-                      [5.298513958649096, 43.26695695386098],
-                      [5.298492696292499, 43.26695695386098],
-                      [5.298492696292499, 43.26700340155537]
+                      [
+                        5.298492696292499,
+                        43.26700340155537
+                      ],
+                      [
+                        5.298513958649096,
+                        43.26700340155537
+                      ],
+                      [
+                        5.298513958649096,
+                        43.26695695386098
+                      ],
+                      [
+                        5.298492696292499,
+                        43.26695695386098
+                      ],
+                      [
+                        5.298492696292499,
+                        43.26700340155537
+                      ]
                     ]
                   ]
                 }
@@ -299,11 +695,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.299071244944685, 43.26716376120345],
-                      [5.299090297810693, 43.26716376120345],
-                      [5.299090297810693, 43.26715042116032],
-                      [5.299071244944685, 43.26715042116032],
-                      [5.299071244944685, 43.26716376120345]
+                      [
+                        5.299071244944685,
+                        43.26716376120345
+                      ],
+                      [
+                        5.299090297810693,
+                        43.26716376120345
+                      ],
+                      [
+                        5.299090297810693,
+                        43.26715042116032
+                      ],
+                      [
+                        5.299071244944685,
+                        43.26715042116032
+                      ],
+                      [
+                        5.299071244944685,
+                        43.26716376120345
+                      ]
                     ]
                   ]
                 }
@@ -321,11 +732,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.29907490895755, 43.26715362277079],
-                      [5.299092496219032, 43.26715362277079],
-                      [5.299092496219032, 43.26714988755836],
-                      [5.29907490895755, 43.26714988755836],
-                      [5.29907490895755, 43.26715362277079]
+                      [
+                        5.29907490895755,
+                        43.26715362277079
+                      ],
+                      [
+                        5.299092496219032,
+                        43.26715362277079
+                      ],
+                      [
+                        5.299092496219032,
+                        43.26714988755836
+                      ],
+                      [
+                        5.29907490895755,
+                        43.26714988755836
+                      ],
+                      [
+                        5.29907490895755,
+                        43.26715362277079
+                      ]
                     ]
                   ]
                 }
@@ -343,11 +769,26 @@
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.298996814708119, 43.26680500168612],
-                      [5.299075566369595, 43.26680500168612],
-                      [5.299075566369595, 43.2667274177725],
-                      [5.298996814708119, 43.2667274177725],
-                      [5.298996814708119, 43.26680500168612]
+                      [
+                        5.298996814708119,
+                        43.26680500168612
+                      ],
+                      [
+                        5.299075566369595,
+                        43.26680500168612
+                      ],
+                      [
+                        5.299075566369595,
+                        43.2667274177725
+                      ],
+                      [
+                        5.298996814708119,
+                        43.2667274177725
+                      ],
+                      [
+                        5.298996814708119,
+                        43.26680500168612
+                      ]
                     ]
                   ]
                 }
@@ -428,17 +869,70 @@
           "coordonnees_gps": "43°17'976\"N - 5°17'517\"E",
           "plan_image": "topo-pierre-a-oeil.jpg",
           "pois": [
-            { "id": "corps-mort", "nom": "Corps mort au fond", "icone": "⚓", "profondeur": 12, "type": "mouillage", "description": "Zone de mouillage sur corps mort au fond à 12m" },
-            { "id": "plateau-sable", "nom": "Plateau de sable", "icone": "🏖️", "profondeur": 18, "type": "relief", "description": "Zone sablonneuse s'étendant entre 18m et 30m" },
-            { "id": "chalan", "nom": "Chalan (Épave)", "icone": "🚢", "profondeur": 32, "type": "epave", "description": "Restes de barge / chalan reposant à 32m de profondeur" },
-            { "id": "tombant-profond", "nom": "Tombant profond", "icone": "🌊", "profondeur": 38, "type": "tombant", "description": "Tombant rocheux s'enfonçant jusqu'à 38m" }
+            {
+              "id": "corps-mort",
+              "nom": "Corps mort au fond",
+              "icone": "⚓",
+              "profondeur": 12,
+              "type": "mouillage",
+              "description": "Zone de mouillage sur corps mort au fond à 12m"
+            },
+            {
+              "id": "plateau-sable",
+              "nom": "Plateau de sable",
+              "icone": "🏖️",
+              "profondeur": 18,
+              "type": "relief",
+              "description": "Zone sablonneuse s'étendant entre 18m et 30m"
+            },
+            {
+              "id": "chalan",
+              "nom": "Chalan (Épave)",
+              "icone": "🚢",
+              "profondeur": 32,
+              "type": "epave",
+              "description": "Restes de barge / chalan reposant à 32m de profondeur"
+            },
+            {
+              "id": "tombant-profond",
+              "nom": "Tombant profond",
+              "icone": "🌊",
+              "profondeur": 38,
+              "type": "tombant",
+              "description": "Tombant rocheux s'enfonçant jusqu'à 38m"
+            }
           ],
           "parcours": [
-            { "ordre": 1, "profondeur": "12 m", "titre": "Immersion au corps mort", "action": "Descente le long du corps mort au fond à 12m" },
-            { "ordre": 2, "profondeur": "18 m", "titre": "Plateau de sable", "action": "Cap au large sur la zone de sable entre 18m et 30m" },
-            { "ordre": 3, "profondeur": "32 m", "titre": "Exploration du chalan", "action": "Navigation vers l'épave de chalan reposant à 32m" },
-            { "ordre": 4, "profondeur": "38 m", "titre": "Tombant extérieur", "action": "Incursion le long du tombant rocheux jusqu'à 38m" },
-            { "ordre": 5, "profondeur": "5 m", "titre": "Palier de sécurité", "action": "Remontée et palier de sécurité à 5m sous le bateau" }
+            {
+              "ordre": 1,
+              "profondeur": "12 m",
+              "titre": "Immersion au corps mort",
+              "action": "Descente le long du corps mort au fond à 12m"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "18 m",
+              "titre": "Plateau de sable",
+              "action": "Cap au large sur la zone de sable entre 18m et 30m"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "32 m",
+              "titre": "Exploration du chalan",
+              "action": "Navigation vers l'épave de chalan reposant à 32m"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "38 m",
+              "titre": "Tombant extérieur",
+              "action": "Incursion le long du tombant rocheux jusqu'à 38m"
+            },
+            {
+              "ordre": 5,
+              "profondeur": "5 m",
+              "titre": "Palier de sécurité",
+              "action": "Remontée et palier de sécurité à 5m sous le bateau"
+            }
           ]
         },
         {
@@ -448,17 +942,70 @@
           "coordonnees_gps": "43°16'796\"N - 5°17'100\"E",
           "plan_image": "topo-tiboulen-du-frioul.jpg",
           "pois": [
-            { "id": "mouillage-crique", "nom": "Mouillage de la crique", "icone": "⚓", "profondeur": 8, "type": "mouillage", "description": "Zone de mouillage abritée dans la crique de Tiboulen (8m - 12m)" },
-            { "id": "sec-sud", "nom": "Plateau sud", "icone": "🪨", "profondeur": 15, "type": "relief", "description": "Plateau rocheux s'étendant au sud de l'îlot à 15m" },
-            { "id": "tombant-ouest", "nom": "Tombant ouest", "icone": "🌊", "profondeur": 25, "type": "tombant", "description": "Tombant rocheux tombant de 20m à 35m vers le large" },
-            { "id": "grand-fond-nord", "nom": "Zone profonde nord", "icone": "📉", "profondeur": 42, "type": "profond", "description": "Grand tombant rocheux atteignant 42m au nord de Tiboulen" }
+            {
+              "id": "mouillage-crique",
+              "nom": "Mouillage de la crique",
+              "icone": "⚓",
+              "profondeur": 8,
+              "type": "mouillage",
+              "description": "Zone de mouillage abritée dans la crique de Tiboulen (8m - 12m)"
+            },
+            {
+              "id": "sec-sud",
+              "nom": "Plateau sud",
+              "icone": "🪨",
+              "profondeur": 15,
+              "type": "relief",
+              "description": "Plateau rocheux s'étendant au sud de l'îlot à 15m"
+            },
+            {
+              "id": "tombant-ouest",
+              "nom": "Tombant ouest",
+              "icone": "🌊",
+              "profondeur": 25,
+              "type": "tombant",
+              "description": "Tombant rocheux tombant de 20m à 35m vers le large"
+            },
+            {
+              "id": "grand-fond-nord",
+              "nom": "Zone profonde nord",
+              "icone": "📉",
+              "profondeur": 42,
+              "type": "profond",
+              "description": "Grand tombant rocheux atteignant 42m au nord de Tiboulen"
+            }
           ],
           "parcours": [
-            { "ordre": 1, "profondeur": "8 m", "titre": "Immersion dans la crique", "action": "Descente à 8m au mouillage dans la calanque abritée" },
-            { "ordre": 2, "profondeur": "15 m", "titre": "Contournement du plateau sud", "action": "Parcours vers le sud de l'îlot le long de la roche (15m-20m)" },
-            { "ordre": 3, "profondeur": "25 m", "titre": "Exploration du tombant ouest", "action": "Progression vers la zone ouest entre 25m et 35m" },
-            { "ordre": 4, "profondeur": "42 m", "titre": "Pointe nord profonde", "action": "Passage au niveau du grand tombant nord (32m à 42m)" },
-            { "ordre": 5, "profondeur": "5 m", "titre": "Palier de sécurité", "action": "Retour dans la crique et palier de sécurité à 5m" }
+            {
+              "ordre": 1,
+              "profondeur": "8 m",
+              "titre": "Immersion dans la crique",
+              "action": "Descente à 8m au mouillage dans la calanque abritée"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "15 m",
+              "titre": "Contournement du plateau sud",
+              "action": "Parcours vers le sud de l'îlot le long de la roche (15m-20m)"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "25 m",
+              "titre": "Exploration du tombant ouest",
+              "action": "Progression vers la zone ouest entre 25m et 35m"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "42 m",
+              "titre": "Pointe nord profonde",
+              "action": "Passage au niveau du grand tombant nord (32m à 42m)"
+            },
+            {
+              "ordre": 5,
+              "profondeur": "5 m",
+              "titre": "Palier de sécurité",
+              "action": "Retour dans la crique et palier de sécurité à 5m"
+            }
           ]
         },
         {
@@ -468,15 +1015,56 @@
           "coordonnees_gps": "43°15'728\"N - 5°17'383\"E",
           "plan_image": "topo-cap-caveau.jpg",
           "pois": [
-            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
-            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
-            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+            {
+              "id": "point-1",
+              "nom": "Point 1",
+              "icone": "📍",
+              "profondeur": 10,
+              "type": "interet",
+              "description": "Description du point 1"
+            },
+            {
+              "id": "point-2",
+              "nom": "Point 2",
+              "icone": "📍",
+              "profondeur": 20,
+              "type": "interet",
+              "description": "Description du point 2"
+            },
+            {
+              "id": "point-3",
+              "nom": "Point 3",
+              "icone": "📍",
+              "profondeur": 30,
+              "type": "interet",
+              "description": "Description du point 3"
+            }
           ],
           "parcours": [
-            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
-            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
-            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
-            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+            {
+              "ordre": 1,
+              "profondeur": "10 m",
+              "titre": "Étape 1",
+              "action": "Description de l'étape 1"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "20 m",
+              "titre": "Étape 2",
+              "action": "Description de l'étape 2"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "30 m",
+              "titre": "Étape 3",
+              "action": "Description de l'étape 3"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "5 m",
+              "titre": "Étape 4",
+              "action": "Description de l'étape 4"
+            }
           ]
         },
         {
@@ -486,15 +1074,56 @@
           "coordonnees_gps": "43°15'862\"N - 5°17'058\"E",
           "plan_image": "topo-pierre-a-corbes.jpg",
           "pois": [
-            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
-            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
-            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+            {
+              "id": "point-1",
+              "nom": "Point 1",
+              "icone": "📍",
+              "profondeur": 10,
+              "type": "interet",
+              "description": "Description du point 1"
+            },
+            {
+              "id": "point-2",
+              "nom": "Point 2",
+              "icone": "📍",
+              "profondeur": 20,
+              "type": "interet",
+              "description": "Description du point 2"
+            },
+            {
+              "id": "point-3",
+              "nom": "Point 3",
+              "icone": "📍",
+              "profondeur": 30,
+              "type": "interet",
+              "description": "Description du point 3"
+            }
           ],
           "parcours": [
-            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
-            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
-            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
-            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+            {
+              "ordre": 1,
+              "profondeur": "10 m",
+              "titre": "Étape 1",
+              "action": "Description de l'étape 1"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "20 m",
+              "titre": "Étape 2",
+              "action": "Description de l'étape 2"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "30 m",
+              "titre": "Étape 3",
+              "action": "Description de l'étape 3"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "5 m",
+              "titre": "Étape 4",
+              "action": "Description de l'étape 4"
+            }
           ]
         },
         {
@@ -504,15 +1133,56 @@
           "coordonnees_gps": "43°16'472\"N - 5°17'161\"E",
           "plan_image": "topo-le-junker-88.jpg",
           "pois": [
-            { "id": "point-1", "nom": "Point 1", "icone": "📍", "profondeur": 10, "type": "interet", "description": "Description du point 1" },
-            { "id": "point-2", "nom": "Point 2", "icone": "📍", "profondeur": 20, "type": "interet", "description": "Description du point 2" },
-            { "id": "point-3", "nom": "Point 3", "icone": "📍", "profondeur": 30, "type": "interet", "description": "Description du point 3" }
+            {
+              "id": "point-1",
+              "nom": "Point 1",
+              "icone": "📍",
+              "profondeur": 10,
+              "type": "interet",
+              "description": "Description du point 1"
+            },
+            {
+              "id": "point-2",
+              "nom": "Point 2",
+              "icone": "📍",
+              "profondeur": 20,
+              "type": "interet",
+              "description": "Description du point 2"
+            },
+            {
+              "id": "point-3",
+              "nom": "Point 3",
+              "icone": "📍",
+              "profondeur": 30,
+              "type": "interet",
+              "description": "Description du point 3"
+            }
           ],
           "parcours": [
-            { "ordre": 1, "profondeur": "10 m", "titre": "Étape 1", "action": "Description de l'étape 1" },
-            { "ordre": 2, "profondeur": "20 m", "titre": "Étape 2", "action": "Description de l'étape 2" },
-            { "ordre": 3, "profondeur": "30 m", "titre": "Étape 3", "action": "Description de l'étape 3" },
-            { "ordre": 4, "profondeur": "5 m", "titre": "Étape 4", "action": "Description de l'étape 4" }
+            {
+              "ordre": 1,
+              "profondeur": "10 m",
+              "titre": "Étape 1",
+              "action": "Description de l'étape 1"
+            },
+            {
+              "ordre": 2,
+              "profondeur": "20 m",
+              "titre": "Étape 2",
+              "action": "Description de l'étape 2"
+            },
+            {
+              "ordre": 3,
+              "profondeur": "30 m",
+              "titre": "Étape 3",
+              "action": "Description de l'étape 3"
+            },
+            {
+              "ordre": 4,
+              "profondeur": "5 m",
+              "titre": "Étape 4",
+              "action": "Description de l'étape 4"
+            }
           ]
         }
       ]
@@ -1265,58 +1935,291 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 22,
                   "icon": "",
                   "color": "",
-                  "description": ""
+                  "description": "",
+                  "profondeur": 22
                 },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.327547, 43.2148165],
-                      [5.3275692, 43.2149191],
-                      [5.3275198, 43.2149821],
-                      [5.3273667, 43.2150127],
-                      [5.3269668, 43.2150073],
-                      [5.3265076, 43.2149623],
-                      [5.3261669, 43.2149947],
-                      [5.3258411, 43.2150522],
-                      [5.3256979, 43.2150181],
-                      [5.3257102, 43.2149173],
-                      [5.3257349, 43.2148795],
-                      [5.3257818, 43.2148651],
-                      [5.3257818, 43.2148381],
-                      [5.3258287, 43.2148183],
-                      [5.3258509, 43.2147896],
-                      [5.3258806, 43.2147842],
-                      [5.3259151, 43.2147392],
-                      [5.3259324, 43.214678],
-                      [5.3259398, 43.2146132],
-                      [5.3259645, 43.2146006],
-                      [5.3259398, 43.2145377],
-                      [5.3259917, 43.2145503],
-                      [5.3260386, 43.2145107],
-                      [5.3260781, 43.2145341],
-                      [5.3261225, 43.2145125],
-                      [5.3262262, 43.2144765],
-                      [5.326357, 43.2145035],
-                      [5.3263842, 43.2145395],
-                      [5.3264928, 43.2145449],
-                      [5.3265274, 43.2145629],
-                      [5.326678, 43.2145557],
-                      [5.3267446, 43.2146204],
-                      [5.3268014, 43.2146402],
-                      [5.3268977, 43.2146798],
-                      [5.3269545, 43.214678],
-                      [5.3269446, 43.2147428],
-                      [5.3270063, 43.2147356],
-                      [5.3271199, 43.2148147],
-                      [5.3272705, 43.2148345],
-                      [5.327347, 43.2148471],
-                      [5.3273865, 43.2148219],
-                      [5.3274408, 43.2147878],
-                      [5.327547, 43.2148165]
+                      [
+                        5.3275374,
+                        43.2148163
+                      ],
+                      [
+                        5.3275692,
+                        43.2149191
+                      ],
+                      [
+                        5.3275198,
+                        43.2149821
+                      ],
+                      [
+                        5.3273667,
+                        43.2150127
+                      ],
+                      [
+                        5.3269668,
+                        43.2150073
+                      ],
+                      [
+                        5.3265076,
+                        43.2149623
+                      ],
+                      [
+                        5.3261669,
+                        43.2149947
+                      ],
+                      [
+                        5.3258411,
+                        43.2150522
+                      ],
+                      [
+                        5.3256979,
+                        43.2150181
+                      ],
+                      [
+                        5.3257047,
+                        43.2149105
+                      ],
+                      [
+                        5.3257318,
+                        43.2148804
+                      ],
+                      [
+                        5.3257289,
+                        43.2148577
+                      ],
+                      [
+                        5.3257686,
+                        43.2148671
+                      ],
+                      [
+                        5.3257824,
+                        43.2148596
+                      ],
+                      [
+                        5.3257874,
+                        43.2148361
+                      ],
+                      [
+                        5.3258087,
+                        43.2148264
+                      ],
+                      [
+                        5.3258509,
+                        43.2147896
+                      ],
+                      [
+                        5.3258689,
+                        43.2147733
+                      ],
+                      [
+                        5.3258813,
+                        43.2147527
+                      ],
+                      [
+                        5.3259094,
+                        43.2147322
+                      ],
+                      [
+                        5.3259194,
+                        43.2147118
+                      ],
+                      [
+                        5.3259123,
+                        43.2146938
+                      ],
+                      [
+                        5.3259224,
+                        43.214662
+                      ],
+                      [
+                        5.3259411,
+                        43.2146122
+                      ],
+                      [
+                        5.3259536,
+                        43.214577
+                      ],
+                      [
+                        5.3259446,
+                        43.2145476
+                      ],
+                      [
+                        5.3259675,
+                        43.2145063
+                      ],
+                      [
+                        5.3260388,
+                        43.2145021
+                      ],
+                      [
+                        5.3261079,
+                        43.2144971
+                      ],
+                      [
+                        5.3261774,
+                        43.214493
+                      ],
+                      [
+                        5.3262309,
+                        43.2144678
+                      ],
+                      [
+                        5.3262861,
+                        43.2144886
+                      ],
+                      [
+                        5.3262827,
+                        43.2144958
+                      ],
+                      [
+                        5.3263223,
+                        43.2145036
+                      ],
+                      [
+                        5.3264085,
+                        43.2145412
+                      ],
+                      [
+                        5.3264515,
+                        43.2145419
+                      ],
+                      [
+                        5.3264604,
+                        43.2145343
+                      ],
+                      [
+                        5.3264905,
+                        43.2145445
+                      ],
+                      [
+                        5.3265653,
+                        43.2145447
+                      ],
+                      [
+                        5.3266876,
+                        43.2145589
+                      ],
+                      [
+                        5.3267304,
+                        43.2145921
+                      ],
+                      [
+                        5.3267373,
+                        43.2146159
+                      ],
+                      [
+                        5.3267638,
+                        43.2146303
+                      ],
+                      [
+                        5.32679,
+                        43.2146337
+                      ],
+                      [
+                        5.326816,
+                        43.214645
+                      ],
+                      [
+                        5.3268269,
+                        43.2146641
+                      ],
+                      [
+                        5.3268726,
+                        43.2146798
+                      ],
+                      [
+                        5.3268949,
+                        43.2146785
+                      ],
+                      [
+                        5.3269439,
+                        43.2146924
+                      ],
+                      [
+                        5.3269705,
+                        43.2146836
+                      ],
+                      [
+                        5.3269757,
+                        43.214708
+                      ],
+                      [
+                        5.3270659,
+                        43.2147715
+                      ],
+                      [
+                        5.3270761,
+                        43.21479
+                      ],
+                      [
+                        5.3271301,
+                        43.214796
+                      ],
+                      [
+                        5.3271459,
+                        43.2147881
+                      ],
+                      [
+                        5.3271764,
+                        43.2147934
+                      ],
+                      [
+                        5.3271781,
+                        43.2148029
+                      ],
+                      [
+                        5.3271959,
+                        43.2148143
+                      ],
+                      [
+                        5.3272129,
+                        43.2148092
+                      ],
+                      [
+                        5.3272178,
+                        43.2147976
+                      ],
+                      [
+                        5.3272896,
+                        43.214798
+                      ],
+                      [
+                        5.3273897,
+                        43.2148218
+                      ],
+                      [
+                        5.327407,
+                        43.2148167
+                      ],
+                      [
+                        5.3274144,
+                        43.2148067
+                      ],
+                      [
+                        5.3274062,
+                        43.2147772
+                      ],
+                      [
+                        5.3274177,
+                        43.214776
+                      ],
+                      [
+                        5.327474,
+                        43.2147888
+                      ],
+                      [
+                        5.3275096,
+                        43.2148117
+                      ],
+                      [
+                        5.3275374,
+                        43.2148163
+                      ]
                     ]
                   ]
                 }
@@ -1325,49 +2228,296 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 15
+                  "profondeur": 15
                 },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.3258379, 43.2150541],
-                      [5.3256914, 43.2151465],
-                      [5.325416, 43.2151384],
-                      [5.3252498, 43.2150402],
-                      [5.3252071, 43.2148536],
-                      [5.3252992, 43.214595],
-                      [5.3251396, 43.2143673],
-                      [5.3250664, 43.2140702],
-                      [5.32515, 43.213994],
-                      [5.3247842, 43.2138645],
-                      [5.324549, 43.2139673],
-                      [5.3243974, 43.2139483],
-                      [5.3244392, 43.2137616],
-                      [5.3247267, 43.213674],
-                      [5.3250507, 43.2137121],
-                      [5.3251784, 43.213767],
-                      [5.3252214, 43.2137921],
-                      [5.3252947, 43.2137607],
-                      [5.3254842, 43.2137984],
-                      [5.3256135, 43.2137858],
-                      [5.3257169, 43.2138423],
-                      [5.3257729, 43.2138172],
-                      [5.3259624, 43.2138172],
-                      [5.3260055, 43.2138549],
-                      [5.3259667, 43.214037],
-                      [5.326027, 43.2141563],
-                      [5.3259926, 43.2143038],
-                      [5.3258892, 43.2143415],
-                      [5.3257686, 43.2145079],
-                      [5.325617, 43.2146499],
-                      [5.3256064, 43.2146893],
-                      [5.3254854, 43.2148202],
-                      [5.3254488, 43.2149004],
-                      [5.3255514, 43.2149805],
-                      [5.3257017, 43.2149271],
-                      [5.325698, 43.2150179],
-                      [5.3258379, 43.2150541]
+                      [
+                        5.3258379,
+                        43.2150541
+                      ],
+                      [
+                        5.3256914,
+                        43.2151465
+                      ],
+                      [
+                        5.325416,
+                        43.2151384
+                      ],
+                      [
+                        5.3252498,
+                        43.2150402
+                      ],
+                      [
+                        5.3252071,
+                        43.2148536
+                      ],
+                      [
+                        5.3252992,
+                        43.214595
+                      ],
+                      [
+                        5.3251396,
+                        43.2143673
+                      ],
+                      [
+                        5.3250723,
+                        43.2140712
+                      ],
+                      [
+                        5.3251451,
+                        43.2139985
+                      ],
+                      [
+                        5.3247797,
+                        43.2138686
+                      ],
+                      [
+                        5.3245652,
+                        43.2139653
+                      ],
+                      [
+                        5.3243976,
+                        43.2139434
+                      ],
+                      [
+                        5.324447,
+                        43.2137584
+                      ],
+                      [
+                        5.3247267,
+                        43.213674
+                      ],
+                      [
+                        5.3250639,
+                        43.2137137
+                      ],
+                      [
+                        5.3250837,
+                        43.2137326
+                      ],
+                      [
+                        5.3251633,
+                        43.2137707
+                      ],
+                      [
+                        5.3251945,
+                        43.2137741
+                      ],
+                      [
+                        5.3252137,
+                        43.2137825
+                      ],
+                      [
+                        5.3253073,
+                        43.2137701
+                      ],
+                      [
+                        5.3253331,
+                        43.2137594
+                      ],
+                      [
+                        5.3254183,
+                        43.2137597
+                      ],
+                      [
+                        5.3254974,
+                        43.2137838
+                      ],
+                      [
+                        5.3256505,
+                        43.2137962
+                      ],
+                      [
+                        5.3257003,
+                        43.2138253
+                      ],
+                      [
+                        5.3257657,
+                        43.2138092
+                      ],
+                      [
+                        5.3258235,
+                        43.2138068
+                      ],
+                      [
+                        5.3258435,
+                        43.2138128
+                      ],
+                      [
+                        5.325862,
+                        43.2138336
+                      ],
+                      [
+                        5.3258974,
+                        43.2138465
+                      ],
+                      [
+                        5.325917,
+                        43.2138657
+                      ],
+                      [
+                        5.325971,
+                        43.2138853
+                      ],
+                      [
+                        5.3259913,
+                        43.2139028
+                      ],
+                      [
+                        5.3259819,
+                        43.214018
+                      ],
+                      [
+                        5.3259649,
+                        43.2140327
+                      ],
+                      [
+                        5.325955,
+                        43.2140738
+                      ],
+                      [
+                        5.3259642,
+                        43.2141112
+                      ],
+                      [
+                        5.3259873,
+                        43.214146
+                      ],
+                      [
+                        5.325978,
+                        43.2142205
+                      ],
+                      [
+                        5.3259922,
+                        43.2142487
+                      ],
+                      [
+                        5.3259846,
+                        43.2142788
+                      ],
+                      [
+                        5.3259286,
+                        43.2143491
+                      ],
+                      [
+                        5.3259123,
+                        43.2143315
+                      ],
+                      [
+                        5.3258775,
+                        43.214326
+                      ],
+                      [
+                        5.3258294,
+                        43.2143504
+                      ],
+                      [
+                        5.3258319,
+                        43.2143703
+                      ],
+                      [
+                        5.3258425,
+                        43.2143815
+                      ],
+                      [
+                        5.3258395,
+                        43.2144072
+                      ],
+                      [
+                        5.3258232,
+                        43.2144466
+                      ],
+                      [
+                        5.3257863,
+                        43.2144597
+                      ],
+                      [
+                        5.32577,
+                        43.214481
+                      ],
+                      [
+                        5.3257754,
+                        43.2145047
+                      ],
+                      [
+                        5.3257594,
+                        43.2145262
+                      ],
+                      [
+                        5.32575,
+                        43.2145575
+                      ],
+                      [
+                        5.3257111,
+                        43.2145878
+                      ],
+                      [
+                        5.3256816,
+                        43.2146014
+                      ],
+                      [
+                        5.3256311,
+                        43.214657
+                      ],
+                      [
+                        5.3256233,
+                        43.2146937
+                      ],
+                      [
+                        5.3254777,
+                        43.214835
+                      ],
+                      [
+                        5.3254659,
+                        43.2148547
+                      ],
+                      [
+                        5.325468,
+                        43.2148727
+                      ],
+                      [
+                        5.3254471,
+                        43.2148849
+                      ],
+                      [
+                        5.3254522,
+                        43.2149071
+                      ],
+                      [
+                        5.3254784,
+                        43.2149483
+                      ],
+                      [
+                        5.3255087,
+                        43.2149585
+                      ],
+                      [
+                        5.3255154,
+                        43.2149722
+                      ],
+                      [
+                        5.3255356,
+                        43.2149817
+                      ],
+                      [
+                        5.3255648,
+                        43.2149801
+                      ],
+                      [
+                        5.3257047,
+                        43.2149105
+                      ],
+                      [
+                        5.325698,
+                        43.2150179
+                      ],
+                      [
+                        5.3258379,
+                        43.2150541
+                      ]
                     ]
                   ]
                 }
@@ -1376,50 +2526,320 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 8
+                  "profondeur": 8
                 },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.325049, 43.213714],
-                      [5.3247404, 43.2136743],
-                      [5.3247223, 43.2134527],
-                      [5.3248856, 43.2132874],
-                      [5.3252032, 43.2132014],
-                      [5.3257341, 43.2130989],
-                      [5.3263875, 43.2130427],
-                      [5.3270961, 43.2131528],
-                      [5.3273296, 43.2133754],
-                      [5.327287, 43.2134374],
-                      [5.3272018, 43.2134374],
-                      [5.3271363, 43.2134088],
-                      [5.3270119, 43.2134565],
-                      [5.3269922, 43.2135759],
-                      [5.3269464, 43.213595],
-                      [5.3269005, 43.2135687],
-                      [5.3268678, 43.2136021],
-                      [5.3267957, 43.2135472],
-                      [5.3267139, 43.2135496],
-                      [5.3266221, 43.213595],
-                      [5.3265141, 43.2135783],
-                      [5.3264071, 43.2134742],
-                      [5.326318, 43.2134515],
-                      [5.3263047, 43.2134807],
-                      [5.3262512, 43.2134839],
-                      [5.3261488, 43.2134353],
-                      [5.3260464, 43.2134515],
-                      [5.3260331, 43.2135391],
-                      [5.3260331, 43.2135391],
-                      [5.3259039, 43.2135813],
-                      [5.3257303, 43.2135878],
-                      [5.3256323, 43.2135424],
-                      [5.3254631, 43.2135651],
-                      [5.3254141, 43.213643],
-                      [5.3253206, 43.2136624],
-                      [5.3252227, 43.2136494],
-                      [5.3250847, 43.2136722],
-                      [5.325049, 43.213714]
+                      [
+                        5.3250635,
+                        43.2137135
+                      ],
+                      [
+                        5.3247404,
+                        43.2136743
+                      ],
+                      [
+                        5.3247223,
+                        43.2134527
+                      ],
+                      [
+                        5.3248856,
+                        43.2132874
+                      ],
+                      [
+                        5.3252032,
+                        43.2132014
+                      ],
+                      [
+                        5.3257341,
+                        43.2130989
+                      ],
+                      [
+                        5.3263875,
+                        43.2130427
+                      ],
+                      [
+                        5.3270961,
+                        43.2131528
+                      ],
+                      [
+                        5.327338,
+                        43.2133777
+                      ],
+                      [
+                        5.3273193,
+                        43.2133919
+                      ],
+                      [
+                        5.327314,
+                        43.2134107
+                      ],
+                      [
+                        5.3272816,
+                        43.2134403
+                      ],
+                      [
+                        5.3272334,
+                        43.2134441
+                      ],
+                      [
+                        5.3271687,
+                        43.213419
+                      ],
+                      [
+                        5.3271338,
+                        43.2134422
+                      ],
+                      [
+                        5.3271127,
+                        43.2134411
+                      ],
+                      [
+                        5.3271005,
+                        43.2134315
+                      ],
+                      [
+                        5.3270564,
+                        43.2134415
+                      ],
+                      [
+                        5.3270559,
+                        43.213451
+                      ],
+                      [
+                        5.3270253,
+                        43.2134606
+                      ],
+                      [
+                        5.327011,
+                        43.2134878
+                      ],
+                      [
+                        5.3270013,
+                        43.2135302
+                      ],
+                      [
+                        5.3270065,
+                        43.2135622
+                      ],
+                      [
+                        5.3269972,
+                        43.2135867
+                      ],
+                      [
+                        5.3269109,
+                        43.2135742
+                      ],
+                      [
+                        5.3268858,
+                        43.213579
+                      ],
+                      [
+                        5.3268724,
+                        43.2136026
+                      ],
+                      [
+                        5.3268564,
+                        43.2136055
+                      ],
+                      [
+                        5.3268497,
+                        43.2135928
+                      ],
+                      [
+                        5.3268296,
+                        43.2135831
+                      ],
+                      [
+                        5.3268024,
+                        43.2135553
+                      ],
+                      [
+                        5.3267815,
+                        43.2135479
+                      ],
+                      [
+                        5.3267558,
+                        43.2135547
+                      ],
+                      [
+                        5.3267127,
+                        43.2135527
+                      ],
+                      [
+                        5.3266539,
+                        43.2135733
+                      ],
+                      [
+                        5.3266472,
+                        43.2135899
+                      ],
+                      [
+                        5.3266043,
+                        43.2135987
+                      ],
+                      [
+                        5.326497,
+                        43.2135743
+                      ],
+                      [
+                        5.3264765,
+                        43.2135416
+                      ],
+                      [
+                        5.326446,
+                        43.2135146
+                      ],
+                      [
+                        5.3264299,
+                        43.2135098
+                      ],
+                      [
+                        5.3264245,
+                        43.213496
+                      ],
+                      [
+                        5.3263832,
+                        43.2134579
+                      ],
+                      [
+                        5.3263472,
+                        43.2134656
+                      ],
+                      [
+                        5.3263133,
+                        43.2134647
+                      ],
+                      [
+                        5.3263133,
+                        43.2134834
+                      ],
+                      [
+                        5.3261911,
+                        43.2134541
+                      ],
+                      [
+                        5.3260707,
+                        43.2134568
+                      ],
+                      [
+                        5.3260503,
+                        43.2134763
+                      ],
+                      [
+                        5.3260431,
+                        43.2134973
+                      ],
+                      [
+                        5.3260563,
+                        43.2135184
+                      ],
+                      [
+                        5.3260289,
+                        43.2135503
+                      ],
+                      [
+                        5.3259864,
+                        43.2135538
+                      ],
+                      [
+                        5.3259526,
+                        43.2135648
+                      ],
+                      [
+                        5.3259524,
+                        43.2135743
+                      ],
+                      [
+                        5.3259217,
+                        43.213584
+                      ],
+                      [
+                        5.3259109,
+                        43.2135753
+                      ],
+                      [
+                        5.3258612,
+                        43.2135938
+                      ],
+                      [
+                        5.3257982,
+                        43.2135958
+                      ],
+                      [
+                        5.3257084,
+                        43.213588
+                      ],
+                      [
+                        5.3256741,
+                        43.2135701
+                      ],
+                      [
+                        5.3256499,
+                        43.2135696
+                      ],
+                      [
+                        5.3256348,
+                        43.2135568
+                      ],
+                      [
+                        5.325593,
+                        43.2135488
+                      ],
+                      [
+                        5.3255239,
+                        43.2135596
+                      ],
+                      [
+                        5.3255016,
+                        43.2135537
+                      ],
+                      [
+                        5.3254307,
+                        43.2135592
+                      ],
+                      [
+                        5.3254266,
+                        43.2136187
+                      ],
+                      [
+                        5.3254042,
+                        43.2136477
+                      ],
+                      [
+                        5.3253486,
+                        43.2136925
+                      ],
+                      [
+                        5.3253154,
+                        43.2136934
+                      ],
+                      [
+                        5.3252926,
+                        43.2136752
+                      ],
+                      [
+                        5.3251998,
+                        43.2136586
+                      ],
+                      [
+                        5.3251376,
+                        43.2136642
+                      ],
+                      [
+                        5.3250783,
+                        43.2136788
+                      ],
+                      [
+                        5.3250624,
+                        43.2136965
+                      ],
+                      [
+                        5.3250635,
+                        43.2137135
+                      ]
                     ]
                   ]
                 }
@@ -1428,52 +2848,538 @@
                 "type": "Feature",
                 "properties": {
                   "type": "profondeur",
-                  "detail": 22
+                  "profondeur": 22
                 },
                 "geometry": {
                   "type": "Polygon",
                   "coordinates": [
                     [
-                      [5.3252993, 43.2145965],
-                      [5.324596, 43.2146082],
-                      [5.3236919, 43.214437],
-                      [5.32277, 43.2138979],
-                      [5.3226451, 43.2132117],
-                      [5.323099, 43.2124173],
-                      [5.3237891, 43.2119518],
-                      [5.324448, 43.2117282],
-                      [5.3250834, 43.211769],
-                      [5.3260358, 43.2119267],
-                      [5.3270991, 43.212296],
-                      [5.3278663, 43.2126699],
-                      [5.3280917, 43.2129863],
-                      [5.3281548, 43.213351],
-                      [5.3281406, 43.2136847],
-                      [5.3280924, 43.2136443],
-                      [5.3279874, 43.2136298],
-                      [5.3279169, 43.2136477],
-                      [5.3278396, 43.2135965],
-                      [5.3276983, 43.2135554],
-                      [5.3276252, 43.2134516],
-                      [5.3275879, 43.2133893],
-                      [5.3275129, 43.2133828],
-                      [5.3274373, 43.2133259],
-                      [5.3273332, 43.2133737],
-                      [5.3271043, 43.2131585],
-                      [5.326391, 43.2130415],
-                      [5.325729, 43.2130989],
-                      [5.325215, 43.2132015],
-                      [5.3248989, 43.2132825],
-                      [5.3247226, 43.2134471],
-                      [5.3247409, 43.2136682],
-                      [5.3244467, 43.2137588],
-                      [5.3243972, 43.2139444],
-                      [5.3245649, 43.2139661],
-                      [5.3247783, 43.2138682],
-                      [5.3251449, 43.2139985],
-                      [5.3250724, 43.2140713],
-                      [5.3251363, 43.2143727],
-                      [5.3252993, 43.2145965]
+                      [
+                        5.3252993,
+                        43.2145965
+                      ],
+                      [
+                        5.324596,
+                        43.2146082
+                      ],
+                      [
+                        5.3236919,
+                        43.214437
+                      ],
+                      [
+                        5.32277,
+                        43.2138979
+                      ],
+                      [
+                        5.3226451,
+                        43.2132117
+                      ],
+                      [
+                        5.323099,
+                        43.2124173
+                      ],
+                      [
+                        5.3237891,
+                        43.2119518
+                      ],
+                      [
+                        5.324448,
+                        43.2117282
+                      ],
+                      [
+                        5.3250834,
+                        43.211769
+                      ],
+                      [
+                        5.3260358,
+                        43.2119267
+                      ],
+                      [
+                        5.3270991,
+                        43.212296
+                      ],
+                      [
+                        5.3278663,
+                        43.2126699
+                      ],
+                      [
+                        5.3280917,
+                        43.2129863
+                      ],
+                      [
+                        5.3281548,
+                        43.213351
+                      ],
+                      [
+                        5.3281259,
+                        43.2137012
+                      ],
+                      [
+                        5.3280956,
+                        43.2136749
+                      ],
+                      [
+                        5.3280888,
+                        43.2136554
+                      ],
+                      [
+                        5.3280366,
+                        43.2136534
+                      ],
+                      [
+                        5.3280083,
+                        43.2136388
+                      ],
+                      [
+                        5.3279829,
+                        43.2136349
+                      ],
+                      [
+                        5.3279131,
+                        43.213672
+                      ],
+                      [
+                        5.327881,
+                        43.2136701
+                      ],
+                      [
+                        5.3278475,
+                        43.2136515
+                      ],
+                      [
+                        5.3278474,
+                        43.2136261
+                      ],
+                      [
+                        5.3278275,
+                        43.2136143
+                      ],
+                      [
+                        5.32772,
+                        43.2136095
+                      ],
+                      [
+                        5.3276973,
+                        43.2135606
+                      ],
+                      [
+                        5.3276208,
+                        43.2134853
+                      ],
+                      [
+                        5.3276222,
+                        43.2134589
+                      ],
+                      [
+                        5.3275994,
+                        43.2134384
+                      ],
+                      [
+                        5.3275926,
+                        43.2134149
+                      ],
+                      [
+                        5.3275564,
+                        43.2133974
+                      ],
+                      [
+                        5.3275001,
+                        43.2133856
+                      ],
+                      [
+                        5.3274692,
+                        43.2133512
+                      ],
+                      [
+                        5.3274399,
+                        43.2133358
+                      ],
+                      [
+                        5.327401,
+                        43.2133327
+                      ],
+                      [
+                        5.3273381,
+                        43.2133774
+                      ],
+                      [
+                        5.3271043,
+                        43.2131585
+                      ],
+                      [
+                        5.326391,
+                        43.2130415
+                      ],
+                      [
+                        5.325729,
+                        43.2130989
+                      ],
+                      [
+                        5.325215,
+                        43.2132015
+                      ],
+                      [
+                        5.3248989,
+                        43.2132825
+                      ],
+                      [
+                        5.3247226,
+                        43.2134471
+                      ],
+                      [
+                        5.3247409,
+                        43.2136682
+                      ],
+                      [
+                        5.3244467,
+                        43.2137588
+                      ],
+                      [
+                        5.3243972,
+                        43.2139444
+                      ],
+                      [
+                        5.3245649,
+                        43.2139661
+                      ],
+                      [
+                        5.3247783,
+                        43.2138682
+                      ],
+                      [
+                        5.3251449,
+                        43.2139985
+                      ],
+                      [
+                        5.3250724,
+                        43.2140713
+                      ],
+                      [
+                        5.3251403,
+                        43.2143683
+                      ],
+                      [
+                        5.3252993,
+                        43.2145965
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3263705,
+                        43.2133196
+                      ],
+                      [
+                        5.3263553,
+                        43.2133397
+                      ],
+                      [
+                        5.3263722,
+                        43.2133425
+                      ],
+                      [
+                        5.3264273,
+                        43.2133225
+                      ],
+                      [
+                        5.3264342,
+                        43.2133075
+                      ],
+                      [
+                        5.326415,
+                        43.2132978
+                      ],
+                      [
+                        5.3263705,
+                        43.2133196
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3265124,
+                        43.213484
+                      ],
+                      [
+                        5.3265074,
+                        43.213464
+                      ],
+                      [
+                        5.3264464,
+                        43.2134676
+                      ],
+                      [
+                        5.3264578,
+                        43.2134913
+                      ],
+                      [
+                        5.3265124,
+                        43.213484
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher",
+                  "profondeur": 0
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3265491,
+                        43.2134714
+                      ],
+                      [
+                        5.3265376,
+                        43.2134793
+                      ],
+                      [
+                        5.326557,
+                        43.2134891
+                      ],
+                      [
+                        5.3266331,
+                        43.2134689
+                      ],
+                      [
+                        5.3266239,
+                        43.2134624
+                      ],
+                      [
+                        5.3265491,
+                        43.2134714
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3265943,
+                        43.2133985
+                      ],
+                      [
+                        5.326529,
+                        43.2134057
+                      ],
+                      [
+                        5.3265118,
+                        43.2134177
+                      ],
+                      [
+                        5.3265317,
+                        43.2134259
+                      ],
+                      [
+                        5.3266079,
+                        43.213427
+                      ],
+                      [
+                        5.326625,
+                        43.2133938
+                      ],
+                      [
+                        5.3265943,
+                        43.2133985
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3248992,
+                        43.2139148
+                      ],
+                      [
+                        5.3248904,
+                        43.2139876
+                      ],
+                      [
+                        5.3250518,
+                        43.2140597
+                      ],
+                      [
+                        5.3250825,
+                        43.2140339
+                      ],
+                      [
+                        5.3250995,
+                        43.2139975
+                      ],
+                      [
+                        5.3248992,
+                        43.2139148
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3249457,
+                        43.2138583
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3249106,
+                        43.2138373
+                      ],
+                      [
+                        5.324879,
+                        43.2138461
+                      ],
+                      [
+                        5.3248897,
+                        43.2138631
+                      ],
+                      [
+                        5.3249168,
+                        43.2138687
+                      ],
+                      [
+                        5.3249351,
+                        43.2138612
+                      ],
+                      [
+                        5.3249373,
+                        43.2138441
+                      ],
+                      [
+                        5.3249106,
+                        43.2138373
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "rocher"
+                },
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.3249587,
+                        43.2138628
+                      ],
+                      [
+                        5.3249783,
+                        43.2138871
+                      ],
+                      [
+                        5.3250359,
+                        43.2138768
+                      ],
+                      [
+                        5.3250236,
+                        43.2138549
+                      ],
+                      [
+                        5.324987,
+                        43.2138488
+                      ],
+                      [
+                        5.3249587,
+                        43.2138628
+                      ]
+                    ]
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                  "type": "Polygon",
+                  "coordinates": [
+                    [
+                      [
+                        5.324539,
+                        43.2135931
+                      ],
+                      [
+                        5.3245895,
+                        43.2135933
+                      ],
+                      [
+                        5.3246174,
+                        43.213631
+                      ],
+                      [
+                        5.3245621,
+                        43.2136731
+                      ],
+                      [
+                        5.3245229,
+                        43.213641
+                      ],
+                      [
+                        5.324539,
+                        43.2135931
+                      ]
                     ]
                   ]
                 }
