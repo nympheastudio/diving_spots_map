@@ -201,7 +201,7 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
         </View>
 
         {/* ── Bouton d'action dédié : Plan de plongée & Briefing (uniquement si topo disponible) ── */}
-        {Boolean(spot.topo) && (
+        {Boolean(spot.topos && spot.topos.length > 0) && (
           <View style={styles.topoActionWrap}>
             <TouchableOpacity
               style={styles.topoActionBtn}

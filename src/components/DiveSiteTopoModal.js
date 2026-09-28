@@ -30,10 +30,8 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
   const [selectedPoi, setSelectedPoi] = useState(null);
 
   const topos = useMemo(() => {
-    if (!spot) return [];
-    if (spot.topos && spot.topos.length > 0) return spot.topos;
-    if (spot.topo) return [spot.topo];
-    return [];
+    if (!spot || !Array.isArray(spot.topos)) return [];
+    return spot.topos;
   }, [spot]);
 
   if (!spot || topos.length === 0) return null;

@@ -29,6 +29,7 @@ const TOPO_LOCAL_ASSETS = {
   'topo-tiboulen-du-frioul.jpg': require('../../assets/topo-tiboulen-du-frioul.jpg'),
   'topo-cap-caveau.jpg': require('../../assets/topo-cap-caveau.jpg'),
   'topo-pierre-a-oeil.jpg': require('../../assets/topo-pierre-a-oeil.jpg'),
+  'topo-tiboulen-de-maire.jpg': require('../../assets/topo-tiboulen-de-maire.jpg'),
 };
 
 const DETAIL_ICONS = {
@@ -60,6 +61,39 @@ const DETAIL_ICONS = {
 };
 
 /**
+ * Palette de couleurs pour les zones de profondeur (isobathes / bathymétrie) :
+ * - 1 à 10 m : bleue (#38BDF8)
+ * - 11 à 20 m : vert clair (#4ADE80)
+ * - 21 à 30 m : orange (#FB923C)
+ * - 31 à 40 m : violet (#C084FC)
+ * - 41 m et + : rouge (#F87171)
+ */
+const DEPTH_COLOR_SCALE = [
+  { max: 10, stroke: '#38BDF8', fill: 'rgba(56, 189, 248, 0.25)', label: '1 à 10 m' },
+  { max: 20, stroke: '#4ADE80', fill: 'rgba(74, 222, 128, 0.25)', label: '11 à 20 m' },
+  { max: 30, stroke: '#FB923C', fill: 'rgba(251, 146, 60, 0.30)', label: '21 à 30 m' },
+  { max: 40, stroke: '#C084FC', fill: 'rgba(192, 132, 252, 0.30)', label: '31 à 40 m' },
+  { max: Infinity, stroke: '#F87171', fill: 'rgba(248, 113, 113, 0.30)', label: '41 m et +' },
+];
+
+const getDepthStyle = (detailOrProps) => {
+  let val = 18;
+  if (typeof detailOrProps === 'number') {
+    val = detailOrProps;
+  } else if (typeof detailOrProps === 'string') {
+    const parsed = parseFloat(detailOrProps);
+    if (!isNaN(parsed)) val = parsed;
+  }
+  const match = DEPTH_COLOR_SCALE.find((item) => val <= item.max) || DEPTH_COLOR_SCALE[1];
+  return {
+    strokeColor: match.stroke,
+    fillColor: match.fill,
+    icon: '🌊',
+    label: `Profondeur (${val} m)`,
+  };
+};
+
+/**
  * Styles visuels de base par grand type de zone
  */
 const BASE_TYPE_STYLES = {
@@ -87,7 +121,42 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
       : { type: typeOrProps, detail: directDetail };
 
   const type = (props.type || '').toLowerCase().trim();
-  const detail = (props.detail || props.sous_type || '').toLowerCase().trim();
+  const detail = (props.detail || props.sous_type || '').toString().toLowerCase().trim();
+
+  // Traitement spécifique pour les zones de profondeur bathymétriques
+  if (type === 'profondeur') {
+    const depthStyle = getDepthStyle(props.detail ?? props.profondeur);
+    let strokeColor = depthStyle.strokeColor;
+    let fillColor = depthStyle.fillColor;
+
+    // Si une couleur personnalisée est spécifiée
+    const customColor = props.strokeColor || props.color;
+    if (customColor && customColor !== 0 && customColor !== '0') {
+      strokeColor = customColor;
+      if (props.fillColor) {
+        fillColor = props.fillColor;
+      } else if (typeof strokeColor === 'string' && strokeColor.startsWith('#') && strokeColor.length === 7) {
+        const r = parseInt(strokeColor.slice(1, 3), 16) || 74;
+        const g = parseInt(strokeColor.slice(3, 5), 16) || 222;
+        const b = parseInt(strokeColor.slice(5, 7), 16) || 128;
+        fillColor = `rgba(${r}, ${g}, ${b}, 0.25)`;
+      }
+    } else if (props.fillColor) {
+      fillColor = props.fillColor;
+    }
+
+    const titleText = props.titre || props.nom || depthStyle.label;
+    const icon = props.icon && props.icon !== 0 && props.icon !== '0'
+      ? (DETAIL_ICONS[props.icon] || props.icon)
+      : '🌊';
+
+    return {
+      strokeColor,
+      fillColor,
+      icon,
+      label: titleText,
+    };
+  }
 
   const base = BASE_TYPE_STYLES[type] || {
     strokeColor: '#FF4757',
@@ -99,7 +168,7 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
   // 1. Icône explicite déclarée dans le GeoJSON (mot-clé du dictionnaire ou emoji direct)
   // 2. Sinon icône selon le détail / sous-type
   // 3. Sinon icône par défaut du type
-  const iconCandidate = (props.icon || props.emoji || '').toLowerCase().trim();
+  const iconCandidate = (props.icon || props.emoji || '').toString().toLowerCase().trim();
   const icon =
     DETAIL_ICONS[iconCandidate] ||
     BASE_TYPE_STYLES[iconCandidate]?.icon ||
@@ -113,7 +182,8 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
   if (props.label) {
     label = props.label;
   } else if (props.detail) {
-    const detailCapitalized = props.detail.charAt(0).toUpperCase() + props.detail.slice(1);
+    const detailStr = String(props.detail);
+    const detailCapitalized = detailStr.charAt(0).toUpperCase() + detailStr.slice(1);
     label = `${base.label} (${detailCapitalized})`;
   }
 
@@ -176,6 +246,8 @@ const TopoSiteMap = ({ topo, spot }) => {
   const [fullscreenPlan, setFullscreenPlan] = useState(false);
   // Zone sélectionnée (au clic sur polygone ou marqueur)
   const [selectedZone, setSelectedZone] = useState(null);
+  // Affichage replié/déplié de la légende bathymétrique en haut à droite
+  const [legendExpanded, setLegendExpanded] = useState(true);
 
   // Références vers les marqueurs pour ouvrir leur bulle de texte (Callout)
   const cardMarkerRefs = useRef({});
@@ -253,7 +325,7 @@ const TopoSiteMap = ({ topo, spot }) => {
           style.label;
         const calloutTitle = style.icon ? `${style.icon} ${rawTitle}` : rawTitle;
 
-        // On associe un marqueur à chaque polygone (badge visible pour les POIs, invisible pour les entrées)
+        // On associe un marqueur à chaque polygone (badge visible pour les POIs, invisible pour les entrées et zones de profondeur)
         markers.push({
           id: markerId,
           polyId,
@@ -263,7 +335,7 @@ const TopoSiteMap = ({ topo, spot }) => {
           titleText: rawTitle,
           calloutTitle,
           displayDesc: getFeatureDescription(feature.properties),
-          hasBadge: type !== 'entree',
+          hasBadge: type !== 'entree' && type !== 'profondeur' && feature.properties?.hasBadge !== false,
         });
       }
     });
@@ -279,7 +351,7 @@ const TopoSiteMap = ({ topo, spot }) => {
     return parseGpsCoords(topo?.coordonnees_gps, spot?.latitude, spot?.longitude);
   }, [geojsonPolygons.rawPolygons, topo?.coordonnees_gps, spot?.latitude, spot?.longitude]);
 
-  const mapDelta = geojsonPolygons.rawPolygons.length > 0 ? 0.0025 : 0.005;
+  const mapDelta = geojsonPolygons.rawPolygons.length > 0 ? 0.0035 : 0.005;
 
   // Animation fluide de la caméra sans réinitialiser la carte au clic
   useEffect(() => {
@@ -457,6 +529,31 @@ const TopoSiteMap = ({ topo, spot }) => {
     </>
   );
 
+  // Rendu de la légende bathymétrique en haut à droite
+  const renderDepthLegend = (isFullscreen = false) => (
+    <View style={[styles.depthLegend, isFullscreen && styles.depthLegendFullscreen]}>
+      <TouchableOpacity
+        style={styles.depthLegendHeader}
+        onPress={() => setLegendExpanded((prev) => !prev)}
+        activeOpacity={0.8}
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      >
+        <Text style={styles.depthLegendTitle}>Profondeur</Text>
+        <Text style={styles.depthLegendToggle}>{legendExpanded ? '▴' : '▾'}</Text>
+      </TouchableOpacity>
+      {legendExpanded && (
+        <View style={styles.depthLegendList}>
+          {DEPTH_COLOR_SCALE.map((item, idx) => (
+            <View key={idx} style={styles.depthLegendRow}>
+              <View style={[styles.depthColorDot, { backgroundColor: item.stroke }]} />
+              <Text style={styles.depthLegendText}>{item.label}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.card}>
       {/* ── En-tête de la carte / plan ── */}
@@ -504,6 +601,9 @@ const TopoSiteMap = ({ topo, spot }) => {
             >
               {renderMapElements(false)}
             </MapView>
+
+            {/* ── Légende des profondeurs en haut à droite ── */}
+            {renderDepthLegend(false)}
 
             <LinearGradient
               colors={['transparent', 'rgba(5,10,16,0.85)']}
@@ -618,6 +718,9 @@ const TopoSiteMap = ({ topo, spot }) => {
             >
               {renderMapElements(true)}
             </MapView>
+
+            {/* ── Légende des profondeurs en haut à droite en plein écran ── */}
+            {renderDepthLegend(true)}
 
             {/* Bulle d'information flottante en bas de l'écran en mode plein écran */}
             {selectedZone && (
@@ -901,6 +1004,66 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   fullscreenMap: {
     width: '100%',
     height: '100%',
+  },
+  depthLegend: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(5, 10, 16, 0.88)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.18)',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    zIndex: 25,
+    elevation: 6,
+    minWidth: 88,
+  },
+  depthLegendFullscreen: {
+    top: 14,
+    right: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    minWidth: 98,
+  },
+  depthLegendHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 4,
+  },
+  depthLegendTitle: {
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.9)',
+    letterSpacing: 0.3,
+    textTransform: 'uppercase',
+  },
+  depthLegendToggle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: colors.primary || '#00E5FF',
+  },
+  depthLegendList: {
+    marginTop: 4,
+    gap: 3,
+  },
+  depthLegendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  depthColorDot: {
+    width: 10,
+    height: 7,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  depthLegendText: {
+    fontSize: 9,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
 
