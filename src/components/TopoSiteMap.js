@@ -30,6 +30,7 @@ const TOPO_LOCAL_ASSETS = {
   'topo-cap-caveau.jpg': require('../../assets/topo-cap-caveau.jpg'),
   'topo-pierre-a-oeil.jpg': require('../../assets/topo-pierre-a-oeil.jpg'),
   'topo-tiboulen-de-maire.jpg': require('../../assets/topo-tiboulen-de-maire.jpg'),
+  'topo-la-grotte-a-corail.jpg': require('../../assets/topo-la-grotte-a-corail.jpg'),
 };
 
 const DETAIL_ICONS = {
@@ -127,7 +128,7 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
   const detail = (props.detail || props.sous_type || '').toString().toLowerCase().trim();
 
   // Traitement spécifique pour les zones de profondeur bathymétriques
-  if (type === 'zone') {
+  if (type === 'zone' || (type === 'profondeur' && props.isPolygon)) {
     const hasDepth =
       (props.profondeur !== undefined && props.profondeur !== null && props.profondeur !== '') ||
       (props.detail !== undefined && props.detail !== null && props.detail !== '' && !isNaN(parseFloat(props.detail)));
@@ -259,6 +260,60 @@ const parseGpsCoords = (gpsStr, defaultLat, defaultLng) => {
   return { latitude: defaultLat || 43.27, longitude: defaultLng || 5.28 };
 };
 
+/**
+ * Composant Marker dédié avec gestion autonome de tracksViewChanges
+ * pour garantir que chaque badge (sonde de profondeur ou icône) soit instantanément rendu
+ * sur Android et iOS dès le premier affichage sur petit écran sans avoir besoin d'ouvrir le plein écran.
+ */
+const CustomTopoMarker = React.memo(({
+  marker,
+  isSelected,
+  isFullscreen,
+  styles,
+  onPress,
+  markerRefSetter,
+}) => {
+  const [tracksViewChanges, setTracksViewChanges] = useState(true);
+
+  useEffect(() => {
+    setTracksViewChanges(true);
+    const timer = setTimeout(() => {
+      setTracksViewChanges(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [isSelected, marker.profondeur, marker.center?.latitude, marker.center?.longitude]);
+
+  return (
+    <Marker
+      ref={markerRefSetter}
+      coordinate={marker.center}
+      title={marker.calloutTitle}
+      description={marker.displayDesc || undefined}
+      tracksViewChanges={tracksViewChanges}
+      zIndex={isSelected ? 30 : (marker.isDepthPoint ? 12 : 15)}
+      onPress={onPress}
+    >
+      {marker.isDepthPoint ? (
+        <View style={[
+          styles.depthPointBadge,
+          isSelected && styles.depthPointBadgeSelected,
+          { borderColor: marker.depthColor || '#38BDF8' }
+        ]}>
+          <Text style={[styles.depthPointText, isSelected && styles.depthPointTextSelected]}>
+            {marker.profondeur}
+          </Text>
+        </View>
+      ) : marker.hasBadge ? (
+        <View style={styles.poiBadge}>
+          <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
+        </View>
+      ) : (
+        <View style={{ width: 1, height: 1, opacity: 0 }} />
+      )}
+    </Marker>
+  );
+});
+
 const TopoSiteMap = ({ topo, spot }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
@@ -278,30 +333,6 @@ const TopoSiteMap = ({ topo, spot }) => {
   const cardMapRef = useRef(null);
   const fullscreenMapRef = useRef(null);
 
-  // Gestion de tracksViewChanges pour éviter le scintillement tout en assurant l'affichage des icônes
-  const [cardTracksViewChanges, setCardTracksViewChanges] = useState(true);
-  const [fullscreenTracksViewChanges, setFullscreenTracksViewChanges] = useState(false);
-
-  // Vue carte réduite : autorise le snapshot au montage ou au retour sur la vue carte, puis fige
-  useEffect(() => {
-    if (viewMode === 'map') {
-      setCardTracksViewChanges(true);
-      const timer = setTimeout(() => setCardTracksViewChanges(false), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [viewMode]);
-
-  // Carte plein écran : déclenche le snapshot dès l'ouverture du modal plein écran, puis fige
-  useEffect(() => {
-    if (fullscreenMap) {
-      setFullscreenTracksViewChanges(true);
-      const timer = setTimeout(() => setFullscreenTracksViewChanges(false), 1200);
-      return () => clearTimeout(timer);
-    } else {
-      setFullscreenTracksViewChanges(false);
-    }
-  }, [fullscreenMap]);
-
   // Conversion des polygones GeoJSON & filtrage des marqueurs
   const geojsonPolygons = useMemo(() => {
     if (!topo?.geojson?.features) return { rawPolygons: [], markers: [] };
@@ -310,7 +341,8 @@ const TopoSiteMap = ({ topo, spot }) => {
     const markers = [];
 
     topo.geojson.features.forEach((feature, idx) => {
-      if (feature.geometry?.type === 'Polygon' && feature.geometry.coordinates?.[0]?.length >= 3) {
+      const geomType = feature.geometry?.type;
+      if (geomType === 'Polygon' && feature.geometry.coordinates?.[0]?.length >= 3) {
         const coords = feature.geometry.coordinates[0].map(([lng, lat]) => ({
           latitude: lat,
           longitude: lng,
@@ -323,7 +355,7 @@ const TopoSiteMap = ({ topo, spot }) => {
 
         const type = feature.properties?.type;
         const detail = feature.properties?.detail;
-        const style = getFeatureStyle(feature.properties);
+        const style = getFeatureStyle({ ...feature.properties, isPolygon: true });
         const polyId = `poly-${idx}`;
         const markerId = `marker-${idx}`;
 
@@ -360,21 +392,108 @@ const TopoSiteMap = ({ topo, spot }) => {
           displayDesc: getFeatureDescription(feature.properties),
           hasBadge: type !== 'entree' && type !== 'zone' && feature.properties?.hasBadge !== false,
         });
+      } else if (geomType === 'Point' && Array.isArray(feature.geometry.coordinates) && feature.geometry.coordinates.length >= 2) {
+        const [lng, lat] = feature.geometry.coordinates;
+        const center = { latitude: lat, longitude: lng };
+        const type = (feature.properties?.type || '').toLowerCase().trim();
+        const markerId = `pt-marker-${idx}`;
+
+        if (type === 'profondeur') {
+          const depthVal = feature.properties?.profondeur !== undefined && feature.properties?.profondeur !== ''
+            ? feature.properties.profondeur
+            : feature.properties?.detail;
+          const depthStyle = getDepthStyle(depthVal);
+          const rawTitle = feature.properties?.titre || feature.properties?.nom || `Profondeur : ${depthVal} m`;
+
+          markers.push({
+            id: markerId,
+            polyId: markerId,
+            type: 'profondeur',
+            isDepthPoint: true,
+            profondeur: depthVal,
+            center,
+            displayIcon: '↕️',
+            depthColor: depthStyle.strokeColor,
+            titleText: rawTitle,
+            calloutTitle: `Profondeur : ${depthVal} m`,
+            displayDesc: getFeatureDescription(feature.properties) || `Sonde bathymétrique mesurée à ${depthVal} m`,
+            hasBadge: true,
+          });
+        } else {
+          // Autre point POI (ex: epave, mouillage, etc.)
+          const style = getFeatureStyle(feature.properties);
+          const rawTitle =
+            feature.properties?.titre ||
+            feature.properties?.nom ||
+            feature.properties?.name ||
+            style.label;
+          const calloutTitle = style.icon ? `${style.icon} ${rawTitle}` : rawTitle;
+
+          markers.push({
+            id: markerId,
+            polyId: markerId,
+            type,
+            center,
+            displayIcon: style.icon,
+            titleText: rawTitle,
+            calloutTitle,
+            displayDesc: getFeatureDescription(feature.properties),
+            hasBadge: true,
+          });
+        }
       }
     });
 
     return { rawPolygons, markers };
   }, [topo?.geojson]);
 
-  // Calcul des coordonnées cibles : si GeoJSON est présent, on centre sur la zone principale
-  const targetCoords = useMemo(() => {
-    if (geojsonPolygons.rawPolygons.length > 0) {
-      return geojsonPolygons.rawPolygons[0].center;
-    }
-    return parseGpsCoords(topo?.coordonnees_gps, spot?.latitude, spot?.longitude);
-  }, [geojsonPolygons.rawPolygons, topo?.coordonnees_gps, spot?.latitude, spot?.longitude]);
+  // Calcul des coordonnées cibles et cadrage : englobe l'ensemble des polygones ET des sondes/POIs
+  const { targetCoords, mapDelta } = useMemo(() => {
+    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+    let hasCoords = false;
 
-  const mapDelta = geojsonPolygons.rawPolygons.length > 0 ? 0.0035 : 0.005;
+    // Englobe tous les contours des polygones
+    geojsonPolygons.rawPolygons.forEach((poly) => {
+      poly.coords.forEach((c) => {
+        minLat = Math.min(minLat, c.latitude);
+        maxLat = Math.max(maxLat, c.latitude);
+        minLng = Math.min(minLng, c.longitude);
+        maxLng = Math.max(maxLng, c.longitude);
+        hasCoords = true;
+      });
+    });
+
+    // Englobe également tous les points (sondes de profondeur, POIs)
+    geojsonPolygons.markers.forEach((m) => {
+      if (m.center?.latitude && m.center?.longitude) {
+        minLat = Math.min(minLat, m.center.latitude);
+        maxLat = Math.max(maxLat, m.center.latitude);
+        minLng = Math.min(minLng, m.center.longitude);
+        maxLng = Math.max(maxLng, m.center.longitude);
+        hasCoords = true;
+      }
+    });
+
+    if (hasCoords) {
+      const center = {
+        latitude: (minLat + maxLat) / 2,
+        longitude: (minLng + maxLng) / 2,
+      };
+      // Marge confortable (1.4x) pour que les sondes en bordure ne soient pas coupées sur le petit écran
+      const latDelta = Math.max(0.0035, (maxLat - minLat) * 1.4);
+      const lngDelta = Math.max(0.0035, (maxLng - minLng) * 1.4);
+      return {
+        targetCoords: center,
+        mapDelta: Math.max(latDelta, lngDelta),
+      };
+    }
+
+    const fallback = parseGpsCoords(topo?.coordonnees_gps, spot?.latitude, spot?.longitude);
+    return {
+      targetCoords: fallback,
+      mapDelta: 0.005,
+    };
+  }, [geojsonPolygons, topo?.coordonnees_gps, spot?.latitude, spot?.longitude]);
 
   // Animation fluide de la caméra sans réinitialiser la carte au clic
   useEffect(() => {
@@ -388,7 +507,7 @@ const TopoSiteMap = ({ topo, spot }) => {
         }, 400);
       } catch (e) {}
     }
-  }, [targetCoords?.latitude, targetCoords?.longitude]);
+  }, [targetCoords?.latitude, targetCoords?.longitude, mapDelta]);
 
   // Animation fluide de la caméra plein écran à l'ouverture du modal
   useEffect(() => {
@@ -523,30 +642,21 @@ const TopoSiteMap = ({ topo, spot }) => {
       {geojsonPolygons.markers.map((marker) => {
         const isSelected = selectedZone?.id === marker.polyId;
         return (
-          <Marker
-            key={isFullscreen ? `fs-marker-${marker.id}-${fullscreenMap}` : `card-marker-${marker.id}`}
-            tracksViewChanges={isFullscreen ? fullscreenTracksViewChanges : cardTracksViewChanges}
-            zIndex={isSelected ? 30 : 15}
-            ref={(ref) => {
+          <CustomTopoMarker
+            key={isFullscreen ? `fs-marker-${marker.id}-${topo?.id}` : `card-marker-${marker.id}-${topo?.id}`}
+            marker={marker}
+            isSelected={isSelected}
+            isFullscreen={isFullscreen}
+            styles={styles}
+            onPress={() => handleSelectMarker(marker, isFullscreen)}
+            markerRefSetter={(ref) => {
               if (ref) {
                 const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
                 refMap[marker.polyId] = ref;
                 refMap[marker.id] = ref;
               }
             }}
-            coordinate={marker.center}
-            title={marker.calloutTitle}
-            description={marker.displayDesc || undefined}
-            onPress={() => handleSelectMarker(marker, isFullscreen)}
-          >
-            {marker.hasBadge ? (
-              <View style={styles.poiBadge}>
-                <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
-              </View>
-            ) : (
-              <View style={{ width: 1, height: 1, opacity: 0 }} />
-            )}
-          </Marker>
+          />
         );
       })}
     </>
@@ -606,6 +716,7 @@ const TopoSiteMap = ({ topo, spot }) => {
 
             <MapView
               ref={cardMapRef}
+              key={`card-map-${topo?.id || 'default'}`}
               mapType="satellite"
               style={styles.topoMap}
               initialRegion={{
@@ -613,6 +724,18 @@ const TopoSiteMap = ({ topo, spot }) => {
                 longitude: targetCoords.longitude,
                 latitudeDelta: mapDelta,
                 longitudeDelta: mapDelta,
+              }}
+              onMapReady={() => {
+                if (cardMapRef.current && targetCoords) {
+                  try {
+                    cardMapRef.current.animateToRegion({
+                      latitude: targetCoords.latitude,
+                      longitude: targetCoords.longitude,
+                      latitudeDelta: mapDelta,
+                      longitudeDelta: mapDelta,
+                    }, 250);
+                  } catch (e) {}
+                }
               }}
               scrollEnabled={true}
               zoomEnabled={true}
@@ -875,6 +998,36 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   poiBadgeText: {
     fontSize: 15,
     textAlign: 'center',
+  },
+  depthPointBadge: {
+    backgroundColor: isDark ? 'rgba(5, 10, 16, 0.90)' : 'rgba(255, 255, 255, 0.95)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#38BDF8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.25,
+    shadowRadius: 2,
+  },
+  depthPointBadgeSelected: {
+    backgroundColor: '#0284C7',
+    borderColor: '#FFFFFF',
+    transform: [{ scale: 1.15 }],
+  },
+  depthPointText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: isDark ? '#F1F5F9' : '#0F172A',
+    textAlign: 'center',
+  },
+  depthPointTextSelected: {
+    color: '#FFFFFF',
   },
   selectedZoneBox: {
     marginTop: 12,
