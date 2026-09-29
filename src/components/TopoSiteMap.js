@@ -107,6 +107,7 @@ const BASE_TYPE_STYLES = {
   tombant: { strokeColor: '#EC4899', fillColor: 'rgba(236, 72, 153, 0.35)', icon: '🧱', label: 'Tombant' },
   faune: { strokeColor: '#3B82F6', fillColor: 'rgba(59, 130, 246, 0.35)', icon: '🐟', label: 'Faune' },
   flore: { strokeColor: '#22C55E', fillColor: 'rgba(34, 197, 94, 0.35)', icon: '🌿', label: 'Flore' },
+  zone: { strokeColor: '#38BDF8', fillColor: 'rgba(56, 189, 248, 0.25)', icon: '🌊', label: 'Zone' },
 };
 
 /**
@@ -126,9 +127,16 @@ const getFeatureStyle = (typeOrProps, directDetail) => {
   const detail = (props.detail || props.sous_type || '').toString().toLowerCase().trim();
 
   // Traitement spécifique pour les zones de profondeur bathymétriques
-  if (type === 'profondeur') {
+  if (type === 'zone') {
+    const hasDepth =
+      (props.profondeur !== undefined && props.profondeur !== null && props.profondeur !== '') ||
+      (props.detail !== undefined && props.detail !== null && props.detail !== '' && !isNaN(parseFloat(props.detail)));
+
     const depthVal = props.profondeur !== undefined && props.profondeur !== '' ? props.profondeur : props.detail;
-    const depthStyle = getDepthStyle(depthVal);
+    const depthStyle = hasDepth
+      ? getDepthStyle(depthVal)
+      : { strokeColor: '#38BDF8', fillColor: 'rgba(56, 189, 248, 0.25)', icon: '🌊', label: props.label || 'Zone' };
+
     let strokeColor = depthStyle.strokeColor;
     let fillColor = depthStyle.fillColor;
 
@@ -350,7 +358,7 @@ const TopoSiteMap = ({ topo, spot }) => {
           titleText: rawTitle,
           calloutTitle,
           displayDesc: getFeatureDescription(feature.properties),
-          hasBadge: type !== 'entree' && type !== 'profondeur' && feature.properties?.hasBadge !== false,
+          hasBadge: type !== 'entree' && type !== 'zone' && feature.properties?.hasBadge !== false,
         });
       }
     });

@@ -55,7 +55,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 18,
                   "detail": "",
                   "icon": "",
@@ -409,7 +409,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 8,
                   "detail": "",
                   "icon": "",
@@ -1943,7 +1943,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 22,
                   "detail": "",
                   "icon": "",
@@ -2237,7 +2237,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 15,
                   "detail": "",
                   "icon": "",
@@ -2539,7 +2539,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 8,
                   "detail": "",
                   "icon": "",
@@ -2865,7 +2865,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "profondeur",
+                  "type": "zone",
                   "profondeur": 22,
                   "detail": "",
                   "icon": "",
@@ -3415,7 +3415,7 @@
               {
                 "type": "Feature",
                 "properties": {
-                  "type": "",
+                  "type": "rocher",
                   "profondeur": "",
                   "detail": "",
                   "icon": "",
