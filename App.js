@@ -233,7 +233,7 @@ function AppContent() {
       </View>
 
       {/* ── Modals ── */}
-      <DetailSheet      spot={selectedSpot} isVisible={detailVisible}  onClose={handleCloseDetail}           />
+      <DetailSheet      spot={selectedSpot} isVisible={detailVisible}  onClose={handleCloseDetail} userLocation={userLocation} />
       <FilterSheet      isVisible={filterVisible}  onClose={() => setFilterVisible(false)}  onApplyFilters={handleApplyFilters} />
       <ProfileNavigator isVisible={profileVisible} onClose={() => setProfileVisible(false)} />
 

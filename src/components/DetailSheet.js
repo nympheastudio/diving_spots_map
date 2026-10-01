@@ -33,7 +33,7 @@ const withCacheBust = (uri, seed) => {
   return `${uri}${sep}v=${seed}`;
 };
 
-const DetailSheet = ({ spot, isVisible, onClose }) => {
+const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
   const { colors, difficultyMeta } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeTab, setActiveTab] = useState('info');
@@ -297,6 +297,7 @@ const DetailSheet = ({ spot, isVisible, onClose }) => {
         spot={spot}
         isVisible={topoVisible}
         onClose={() => setTopoVisible(false)}
+        userLocation={userLocation}
       />
     </Modal>
   );
@@ -547,6 +548,7 @@ DetailSheet.propTypes = {
   spot: PropTypes.object,
   isVisible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  userLocation: PropTypes.object,
 };
 
 export default DetailSheet;

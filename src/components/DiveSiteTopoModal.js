@@ -22,7 +22,7 @@ import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import TopoSiteMap from './TopoSiteMap';
 
-const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
+const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
@@ -125,7 +125,7 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose }) => {
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* ── Carte Topographique / Bathymétrique (Composant Dédié TopoSiteMap) ── */}
-          <TopoSiteMap topo={topo} spot={spot} />
+          <TopoSiteMap topo={topo} spot={spot} userLocation={userLocation} />
 
 
 
@@ -696,5 +696,12 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     height: '100%',
   },
 });
+
+DiveSiteTopoModal.propTypes = {
+  spot: PropTypes.object,
+  isVisible: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  userLocation: PropTypes.object,
+};
 
 export default DiveSiteTopoModal;

@@ -74,11 +74,13 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
   const smoothHeading = useRef(0);
   const smoothPitch = useRef(0);
 
-  /** Lissage circulaire (gère le passage 359° → 0°) */
-  function smoothAngle(prev, next, alpha) {
+  /** Lissage circulaire adaptatif (gère le passage 359° → 0°, sans lag lors des rotations franches) */
+  function smoothAngle(prev, next, baseAlpha = 0.35) {
     const diff = next - prev;
     // Normalise la différence entre -180 et +180
     const wrapped = ((diff + 540) % 360) - 180;
+    const absDiff = Math.abs(wrapped);
+    const alpha = absDiff > 18 ? 0.9 : absDiff > 6 ? 0.65 : baseAlpha;
     return (prev + wrapped * alpha + 360) % 360;
   }
 

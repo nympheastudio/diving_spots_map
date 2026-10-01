@@ -17,6 +17,8 @@ import {
 } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Location from 'expo-location';
+import { DeviceMotion, Magnetometer } from 'expo-sensors';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import ZoomableTopoViewer from './ZoomableTopoViewer';
@@ -32,6 +34,8 @@ const TOPO_LOCAL_ASSETS = {
   'topo-tiboulen-de-maire.jpg': require('../../assets/topo-tiboulen-de-maire.jpg'),
   'topo-la-grotte-a-corail.jpg': require('../../assets/topo-la-grotte-a-corail.jpg'),
 };
+
+const USER_BEARING_ICON = require('../../assets/user_bearing.png');
 
 const DETAIL_ICONS = {
   // Navigation & Épaves
@@ -261,6 +265,138 @@ const parseGpsCoords = (gpsStr, defaultLat, defaultLng) => {
 };
 
 /**
+ * Calcule la distance en mètres entre deux points GPS (formule de Haversine)
+ */
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371e3;
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+};
+
+/**
+ * Formate la distance de façon lisible et concise
+ */
+const formatDistance = (meters) => {
+  if (meters === null || meters === undefined || isNaN(meters)) return null;
+  if (meters < 30) return 'Sur site (< 30 m)';
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(1)} km`;
+};
+
+/**
+ * Calcul du lissage angulaire adaptatif circulaire (pour éviter le saut à 0°/360°)
+ * Réactivité immédiate en cas de mouvement franc (> 15°),
+ * et filtrage fin du bruit magnétique lors des micro-mouvements.
+ */
+const smoothAngle = (prev, current, baseAlpha = 0.35) => {
+  let diff = (current - prev + 360) % 360;
+  if (diff > 180) diff -= 360;
+
+  const absDiff = Math.abs(diff);
+  const alpha = absDiff > 20 ? 0.92 : absDiff > 8 ? 0.65 : baseAlpha;
+
+  let result = (prev + diff * alpha) % 360;
+  if (result < 0) result += 360;
+  return result;
+};
+
+/**
+ * Marqueur de position utilisateur avec cône de visée fluide et orientation en direct.
+ * Gère sa propre écoute de capteur pour ne JAMAIS déclencher de re-render de la carte TopoSiteMap.
+ * Utilise la prop native `rotation` de react-native-maps et une icône PNG dédiée
+ * pour une rotation GPU matérielle instantanée (60 FPS) sans lag ni duplication.
+ */
+const UserBearingMarker = React.memo(({ coordinate, distanceFormatted }) => {
+  const [heading, setHeading] = useState(0);
+  const headingRef = useRef(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    let sub = null;
+
+    const updateHeading = (rawHeading) => {
+      if (!isMounted || typeof rawHeading !== 'number' || isNaN(rawHeading)) return;
+      const smooth = smoothAngle(headingRef.current, rawHeading);
+      const rounded = Math.round(smooth * 10) / 10;
+      if (Math.abs(rounded - headingRef.current) >= 0.8) {
+        headingRef.current = rounded;
+        setHeading(rounded);
+      }
+    };
+
+    (async () => {
+      try {
+        // 1. Priorité à DeviceMotion (fusion matérielle gyro/accéléromètre/magnétomètre sans lag)
+        const isDeviceMotionAvailable = await DeviceMotion.isAvailableAsync().catch(() => false);
+        if (isDeviceMotionAvailable) {
+          DeviceMotion.setUpdateInterval(40); // 25 Hz
+          sub = DeviceMotion.addListener((data) => {
+            if (data?.rotation?.alpha !== undefined) {
+              const deg = (-data.rotation.alpha * (180 / Math.PI) + 360) % 360;
+              updateHeading(deg);
+            }
+          });
+          return;
+        }
+      } catch (e) {}
+
+      try {
+        // 2. Repli sur Location.watchHeadingAsync
+        sub = await Location.watchHeadingAsync((data) => {
+          const h = data.trueHeading >= 0 ? data.trueHeading : data.magHeading;
+          if (typeof h === 'number' && !isNaN(h)) {
+            updateHeading(h);
+          }
+        });
+      } catch (e) {
+        // 3. Repli ultime sur Magnetometer
+        try {
+          Magnetometer.setUpdateInterval(40);
+          sub = Magnetometer.addListener(({ x, y }) => {
+            let angle = Math.atan2(y, x) * (180 / Math.PI);
+            angle = (angle + 360) % 360;
+            const corrected = (360 - angle + 90) % 360;
+            updateHeading(corrected);
+          });
+        } catch (err) {}
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+      sub?.remove();
+    };
+  }, []);
+
+  if (!coordinate?.latitude || !coordinate?.longitude) return null;
+
+  return (
+    <Marker
+      coordinate={coordinate}
+      anchor={{ x: 0.5, y: 0.5 }}
+      flat={true}
+      rotation={heading}
+      image={USER_BEARING_ICON}
+      zIndex={100}
+      tracksViewChanges={false}
+      title="Votre position"
+      description={distanceFormatted ? `Distance au site : ${distanceFormatted}` : 'Vous êtes ici'}
+    />
+  );
+});
+
+
+
+/**
  * Composant Marker dédié avec gestion autonome de tracksViewChanges
  * pour garantir que chaque badge (sonde de profondeur ou icône) soit instantanément rendu
  * sur Android et iOS dès le premier affichage sur petit écran sans avoir besoin d'ouvrir le plein écran.
@@ -314,7 +450,7 @@ const CustomTopoMarker = React.memo(({
   );
 });
 
-const TopoSiteMap = ({ topo, spot }) => {
+const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
@@ -327,11 +463,80 @@ const TopoSiteMap = ({ topo, spot }) => {
   // Affichage replié/déplié de la légende bathymétrique en haut à droite
   const [legendExpanded, setLegendExpanded] = useState(true);
 
+  // Localisation utilisateur (pour calcul de distance et affichage natif)
+  const [userCoords, setUserCoords] = useState(
+    initialUserLocation?.latitude && initialUserLocation?.longitude
+      ? { latitude: initialUserLocation.latitude, longitude: initialUserLocation.longitude }
+      : null
+  );
+  const [hasLocationPermission, setHasLocationPermission] = useState(
+    Boolean(initialUserLocation?.latitude && initialUserLocation?.longitude)
+  );
+
+  // Synchronisation avec initialUserLocation si disponible ou mis à jour
+  useEffect(() => {
+    if (initialUserLocation?.latitude && initialUserLocation?.longitude) {
+      setUserCoords({
+        latitude: initialUserLocation.latitude,
+        longitude: initialUserLocation.longitude,
+      });
+      setHasLocationPermission(true);
+    }
+  }, [initialUserLocation?.latitude, initialUserLocation?.longitude]);
+
   // Références vers les marqueurs pour ouvrir leur bulle de texte (Callout)
   const cardMarkerRefs = useRef({});
   const fullscreenMarkerRefs = useRef({});
   const cardMapRef = useRef(null);
   const fullscreenMapRef = useRef(null);
+
+  // Initialisation & suivi continu de la géolocalisation
+  useEffect(() => {
+    let isMounted = true;
+    let sub = null;
+
+    (async () => {
+      try {
+        let { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') {
+          const req = await Location.requestForegroundPermissionsAsync();
+          status = req.status;
+        }
+        if (status === 'granted') {
+          if (isMounted) setHasLocationPermission(true);
+
+          const current = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced,
+          });
+          if (isMounted && current?.coords) {
+            setUserCoords({
+              latitude: current.coords.latitude,
+              longitude: current.coords.longitude,
+            });
+          }
+
+          sub = await Location.watchPositionAsync(
+            { accuracy: Location.Accuracy.High, distanceInterval: 5 },
+            (loc) => {
+              if (isMounted && loc?.coords) {
+                setUserCoords({
+                  latitude: loc.coords.latitude,
+                  longitude: loc.coords.longitude,
+                });
+              }
+            }
+          );
+        }
+      } catch (e) {
+        console.log('Erreur init géolocalisation TopoSiteMap:', e);
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+      sub?.remove();
+    };
+  }, []);
 
   // Conversion des polygones GeoJSON & filtrage des marqueurs
   const geojsonPolygons = useMemo(() => {
@@ -530,6 +735,40 @@ const TopoSiteMap = ({ topo, spot }) => {
       : { uri: topo.plan_image };
   }, [topo?.plan_image]);
 
+  // Distance calculée entre l'utilisateur et le centre de la plongée
+  const distanceToSite = useMemo(() => {
+    if (!userCoords?.latitude || !userCoords?.longitude || !targetCoords?.latitude || !targetCoords?.longitude) {
+      return null;
+    }
+    return calculateDistance(
+      userCoords.latitude,
+      userCoords.longitude,
+      targetCoords.latitude,
+      targetCoords.longitude
+    );
+  }, [userCoords?.latitude, userCoords?.longitude, targetCoords?.latitude, targetCoords?.longitude]);
+
+  const distanceFormatted = useMemo(() => {
+    return formatDistance(distanceToSite);
+  }, [distanceToSite]);
+
+
+
+  // Ajuster la caméra pour afficher à la fois le site de plongée et l'utilisateur
+  const handleFitBoth = (isFullscreen = false) => {
+    const map = isFullscreen ? fullscreenMapRef.current : cardMapRef.current;
+    if (map && userCoords && targetCoords) {
+      try {
+        map.fitToCoordinates([userCoords, targetCoords], {
+          edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
+          animated: true,
+        });
+      } catch (e) {
+        console.log('Erreur fitToCoordinates:', e);
+      }
+    }
+  };
+
   if (!topo && !spot) return null;
 
   const siteTitle = topo?.titre || spot?.nom || 'Site de plongée';
@@ -659,6 +898,15 @@ const TopoSiteMap = ({ topo, spot }) => {
           />
         );
       })}
+
+      {/* Position de l'utilisateur avec cône de visée fluide et boussole temps réel */}
+      {userCoords && (
+        <UserBearingMarker
+          key={isFullscreen ? 'fs-user-bearing' : 'card-user-bearing'}
+          coordinate={userCoords}
+          distanceFormatted={distanceFormatted}
+        />
+      )}
     </>
   );
 
@@ -743,6 +991,10 @@ const TopoSiteMap = ({ topo, spot }) => {
               rotateEnabled={false}
               showsZoomControls={false}
               toolbarEnabled={false}
+              showsUserLocation={false}
+              showsMyLocationButton={false}
+              followsUserLocation={false}
+              showsCompass={true}
               onPress={() => handleMapPress(false)}
             >
               {renderMapElements(false)}
@@ -757,7 +1009,16 @@ const TopoSiteMap = ({ topo, spot }) => {
               pointerEvents="box-none"
             >
               <View style={styles.overlayInfoRow}>
-                <Text style={styles.overlayLegend}>📍 {siteTitle}</Text>
+                <View style={styles.overlayTitleCol}>
+                  <Text style={styles.overlayLegend} numberOfLines={1}>📍 {siteTitle}</Text>
+                  {distanceFormatted && (
+                    <TouchableOpacity onPress={() => handleFitBoth(false)} activeOpacity={0.75}>
+                      <Text style={styles.overlayDistance}>
+                        {distanceToSite < 50 ? '⚓ Sur le site' : `🧭 À ${distanceFormatted} (Ajuster la vue)`}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
                 <TouchableOpacity onPress={() => setFullscreenMap(true)}>
                   <Text style={styles.overlayHint}>🔍 Carte plein écran</Text>
                 </TouchableOpacity>
@@ -860,6 +1121,10 @@ const TopoSiteMap = ({ topo, spot }) => {
               rotateEnabled={true}
               showsZoomControls={false}
               toolbarEnabled={false}
+              showsUserLocation={false}
+              showsMyLocationButton={false}
+              followsUserLocation={false}
+              showsCompass={true}
               onPress={() => handleMapPress(true)}
             >
               {renderMapElements(true)}
@@ -867,6 +1132,21 @@ const TopoSiteMap = ({ topo, spot }) => {
 
             {/* ── Légende des profondeurs en haut à droite en plein écran ── */}
             {renderDepthLegend(true)}
+
+            {/* ── Badge de distance en plein écran ── */}
+            {distanceFormatted && (
+              <View style={styles.floatingControlsFullscreen} pointerEvents="box-none">
+                <TouchableOpacity
+                  style={styles.floatingDistanceChip}
+                  onPress={() => handleFitBoth(true)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.floatingDistanceChipText}>
+                    {distanceToSite < 50 ? '⚓ Sur le site' : `🧭 À ${distanceFormatted}`}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* Bulle d'information flottante en bas de l'écran en mode plein écran */}
             {selectedZone && (
@@ -916,6 +1196,7 @@ const TopoSiteMap = ({ topo, spot }) => {
 TopoSiteMap.propTypes = {
   topo: PropTypes.object,
   spot: PropTypes.object,
+  userLocation: PropTypes.object,
 };
 
 const makeStyles = (colors, isDark) => StyleSheet.create({
@@ -1240,6 +1521,41 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     fontSize: 9,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+
+  // Badge de distance flottant (Plein écran)
+  floatingControlsFullscreen: {
+    position: 'absolute',
+    right: 16,
+    bottom: 40,
+    zIndex: 20,
+  },
+  floatingDistanceChip: {
+    backgroundColor: 'rgba(11, 20, 32, 0.92)',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#00E5FF',
+    marginBottom: 4,
+    ...shadows.card,
+  },
+  floatingDistanceChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#00E5FF',
+  },
+
+  // Overlay bas colonne titre + distance
+  overlayTitleCol: {
+    flex: 1,
+    marginRight: 8,
+  },
+  overlayDistance: {
+    fontSize: 10,
+    color: '#00E5FF',
+    fontWeight: '700',
+    marginTop: 2,
   },
 });
 

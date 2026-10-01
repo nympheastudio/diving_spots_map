@@ -4294,6 +4294,292 @@
           "parcours": []
         }
       ]
+    },
+    {
+      "id": 22,
+      "nom": "Site Test - 4 Rue Jean Althen",
+      "description": "Lieu de test géolocalisé pour validation du positionnement GPS en direct, des sondes de profondeur et de la carte bathymétrique.",
+      "localite": "Avignon",
+      "code_postal": "84000",
+      "latitude": 43.929448,
+      "longitude": 4.822285,
+      "profondeur_max": 25,
+      "profondeur_min": 5,
+      "difficulte": "Easy",
+      "type_site": "Site Test",
+      "faune": [
+        "Dorade de test",
+        "Loup de rivière",
+        "Poulpe d'Avignon"
+      ],
+      "flore": [
+        "Herbier test",
+        "Posidonie artificielle"
+      ],
+      "courant": "Nul",
+      "visibilite": 25,
+      "meilleure_saison": "Toute l'année",
+      "photo": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800",
+      "conditions_acces": "Accès immédiat sur place (4 Rue Jean Althen)",
+      "capacite_plongeurs": 8,
+      "photos_fond_marin": [
+        "https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800",
+        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800"
+      ],
+      "topos": [
+        {
+          "id": "test-avignon-althen",
+          "titre": "4 Rue Jean Althen - Carte de Test",
+          "sous_titre": "Avignon (Validation GPS & Topo)",
+          "coordonnees_gps": "43°55'76\"N - 4°49'33\"E",
+          "geojson": {
+            "type": "FeatureCollection",
+            "features": [
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 6,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde au centre exact (4 Rue Jean Althen)"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822285,
+                    43.929448
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 8,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 20m au Nord"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822285,
+                    43.929628
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 10,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 25m au Sud"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822285,
+                    43.929228
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 12,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 30m à l'Est"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822635,
+                    43.929448
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 14,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 30m à l'Ouest"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.821935,
+                    43.929448
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 18,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 60m au Nord-Est"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822835,
+                    43.929898
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 22,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 70m au Sud-Est"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822935,
+                    43.928948
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "profondeur",
+                  "profondeur": 25,
+                  "detail": "",
+                  "icon": "",
+                  "color": "",
+                  "description": "Sonde à 70m au Sud-Ouest"
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.821685,
+                    43.928998
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "mouillage",
+                  "profondeur": 6,
+                  "detail": "Point d'ancrage test",
+                  "icon": "⚓",
+                  "color": "",
+                  "description": "Mouillage d'essai situé devant l'entrée."
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822135,
+                    43.929528
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "grotte",
+                  "profondeur": 12,
+                  "detail": "Cavité test",
+                  "icon": "🕳️",
+                  "color": "",
+                  "description": "Petite cavité d'exercice pour test d'affichage POI."
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822535,
+                    43.929648
+                  ]
+                }
+              },
+              {
+                "type": "Feature",
+                "properties": {
+                  "type": "epave",
+                  "profondeur": 20,
+                  "detail": "Barge de test",
+                  "icon": "🚢",
+                  "color": "",
+                  "description": "Épave fictive d'entraînement."
+                },
+                "geometry": {
+                  "type": "Point",
+                  "coordinates": [
+                    4.822685,
+                    43.929148
+                  ]
+                }
+              }
+            ]
+          },
+          "pois": [
+            {
+              "id": "poi-1",
+              "nom": "Mouillage d'Entrée",
+              "icone": "⚓",
+              "profondeur": 6,
+              "type": "normal"
+            },
+            {
+              "id": "poi-2",
+              "nom": "Cavité Test",
+              "icone": "🕳️",
+              "profondeur": 12,
+              "type": "normal"
+            },
+            {
+              "id": "poi-3",
+              "nom": "Épave Barge Test",
+              "icone": "🚢",
+              "profondeur": 20,
+              "type": "normal"
+            }
+          ],
+          "parcours": [
+            {
+              "ordre": 1,
+              "titre": "Mise à l'eau",
+              "profondeur": "0-6m",
+              "action": "Départ au niveau du mouillage"
+            },
+            {
+              "ordre": 2,
+              "titre": "Plateau médian",
+              "profondeur": "12-14m",
+              "action": "Exploration de la cavité test"
+            },
+            {
+              "ordre": 3,
+              "titre": "Descente fosse",
+              "profondeur": "20-22m",
+              "action": "Visite de l'épave de barge"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
