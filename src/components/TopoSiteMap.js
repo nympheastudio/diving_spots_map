@@ -22,6 +22,14 @@ import { DeviceMotion, Magnetometer } from 'expo-sensors';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import ZoomableTopoViewer from './ZoomableTopoViewer';
+import {
+  DEPTH_COLOR_SCALE,
+  getDepthStyle as _getDepthStyle,
+  parseGpsCoords,
+  calculateDistance,
+  smoothAngle,
+  formatDistance,
+} from '../utils/topoUtils';
 
 // Assets locaux disponibles pour les topos
 const TOPO_LOCAL_ASSETS = {
@@ -66,38 +74,12 @@ const DETAIL_ICONS = {
   posidonie: '🌿',
 };
 
-/**
- * Palette de couleurs pour les zones de profondeur (isobathes / bathymétrie) :
- * - 1 à 10 m : bleue (#38BDF8)
- * - 11 à 20 m : vert clair (#4ADE80)
- * - 21 à 30 m : orange (#FB923C)
- * - 31 à 40 m : violet (#C084FC)
- * - 41 m et + : rouge (#F87171)
- */
-const DEPTH_COLOR_SCALE = [
-  { max: 10, stroke: '#38BDF8', fill: 'rgba(56, 189, 248, 0.25)', label: '1 à 10 m' },
-  { max: 20, stroke: '#4ADE80', fill: 'rgba(74, 222, 128, 0.25)', label: '11 à 20 m' },
-  { max: 30, stroke: '#FB923C', fill: 'rgba(251, 146, 60, 0.30)', label: '21 à 30 m' },
-  { max: 40, stroke: '#C084FC', fill: 'rgba(192, 132, 252, 0.30)', label: '31 à 40 m' },
-  { max: Infinity, stroke: '#F87171', fill: 'rgba(248, 113, 113, 0.30)', label: '41 m et +' },
-];
+// DEPTH_COLOR_SCALE, getDepthStyle, parseGpsCoords, calculateDistance,
+// smoothAngle et formatDistance sont importes depuis '../utils/topoUtils'
 
-const getDepthStyle = (detailOrProps) => {
-  let val = 18;
-  if (typeof detailOrProps === 'number') {
-    val = detailOrProps;
-  } else if (typeof detailOrProps === 'string') {
-    const parsed = parseFloat(detailOrProps);
-    if (!isNaN(parsed)) val = parsed;
-  }
-  const match = DEPTH_COLOR_SCALE.find((item) => val <= item.max) || DEPTH_COLOR_SCALE[1];
-  return {
-    strokeColor: match.stroke,
-    fillColor: match.fill,
-    icon: '🌊',
-    label: `Profondeur (${val} m)`,
-  };
-};
+// getDepthStyle est re-exporte depuis topoUtils sous le nom _getDepthStyle
+// On cree un alias local pour la compatibilite interne.
+const getDepthStyle = _getDepthStyle;
 
 /**
  * Styles visuels de base par grand type de zone
@@ -231,83 +213,9 @@ const getFeatureDescription = (properties) => {
   return properties?.description ? String(properties.description).trim() : '';
 };
 
-/**
- * Convertit les coordonnées GPS nautiques (ex: "43°17'976\"N - 5°17'517\"E")
- * ou renvoie les coordonnées par défaut du spot.
- */
-const parseGpsCoords = (gpsStr, defaultLat, defaultLng) => {
-  if (!gpsStr) return { latitude: defaultLat || 43.27, longitude: defaultLng || 5.28 };
-  try {
-    const parts = gpsStr.split('-');
-    if (parts.length === 2) {
-      const parseDMS = (str) => {
-        const match = str.match(/(\d+)°\s*(\d+)['′\.](\d+)?["″]?\s*([NSEWOU])/i);
-        if (!match) return null;
-        const deg = parseFloat(match[1]);
-        const min = parseFloat(match[2]);
-        const secStr = match[3] ? match[3] : '0';
-        const minFraction = parseFloat(`${min}.${secStr}`);
-        let val = deg + minFraction / 60;
-        const dir = match[4].toUpperCase();
-        if (dir === 'S' || dir === 'W' || dir === 'O') val = -val;
-        return val;
-      };
-      const lat = parseDMS(parts[0]);
-      const lng = parseDMS(parts[1]);
-      if (lat !== null && lng !== null) {
-        return { latitude: lat, longitude: lng };
-      }
-    }
-  } catch (e) {
-    console.log('Erreur parsing GPS TopoSiteMap:', e);
-  }
-  return { latitude: defaultLat || 43.27, longitude: defaultLng || 5.28 };
-};
+// parseGpsCoords est importe depuis '../utils/topoUtils'
 
-/**
- * Calcule la distance en mètres entre deux points GPS (formule de Haversine)
- */
-const calculateDistance = (lat1, lon1, lat2, lon2) => {
-  const R = 6371e3;
-  const phi1 = (lat1 * Math.PI) / 180;
-  const phi2 = (lat2 * Math.PI) / 180;
-  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
-  const deltaLambda = ((lon2 - lon1) * Math.PI) / 180;
-
-  const a =
-    Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
-    Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c;
-};
-
-/**
- * Formate la distance de façon lisible et concise
- */
-const formatDistance = (meters) => {
-  if (meters === null || meters === undefined || isNaN(meters)) return null;
-  if (meters < 30) return 'Sur site (< 30 m)';
-  if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${(meters / 1000).toFixed(1)} km`;
-};
-
-/**
- * Calcul du lissage angulaire adaptatif circulaire (pour éviter le saut à 0°/360°)
- * Réactivité immédiate en cas de mouvement franc (> 15°),
- * et filtrage fin du bruit magnétique lors des micro-mouvements.
- */
-const smoothAngle = (prev, current, baseAlpha = 0.35) => {
-  let diff = (current - prev + 360) % 360;
-  if (diff > 180) diff -= 360;
-
-  const absDiff = Math.abs(diff);
-  const alpha = absDiff > 20 ? 0.92 : absDiff > 8 ? 0.65 : baseAlpha;
-
-  let result = (prev + diff * alpha) % 360;
-  if (result < 0) result += 360;
-  return result;
-};
+// calculateDistance, formatDistance et smoothAngle sont importes depuis '../utils/topoUtils'
 
 /**
  * Marqueur de position utilisateur avec cône de visée fluide et orientation en direct.
@@ -490,10 +398,14 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
   const cardMapRef = useRef(null);
   const fullscreenMapRef = useRef(null);
 
-  // Initialisation & suivi continu de la géolocalisation
+  // Récupération ponctuelle de la géolocalisation UNIQUEMENT si aucune position n'est fournie par le parent
   useEffect(() => {
+    // Si le parent fournit déjà la localisation, aucun abonnement ni appel supplémentaire n'est requis
+    if (initialUserLocation?.latitude && initialUserLocation?.longitude) {
+      return;
+    }
+
     let isMounted = true;
-    let sub = null;
 
     (async () => {
       try {
@@ -502,9 +414,10 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
           const req = await Location.requestForegroundPermissionsAsync();
           status = req.status;
         }
-        if (status === 'granted') {
-          if (isMounted) setHasLocationPermission(true);
+        if (status === 'granted' && isMounted) {
+          setHasLocationPermission(true);
 
+          // Récupération ponctuelle économique (Accuracy.Balanced) au lieu d'un watchPositionAsync haute fréquence
           const current = await Location.getCurrentPositionAsync({
             accuracy: Location.Accuracy.Balanced,
           });
@@ -514,18 +427,6 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
               longitude: current.coords.longitude,
             });
           }
-
-          sub = await Location.watchPositionAsync(
-            { accuracy: Location.Accuracy.High, distanceInterval: 5 },
-            (loc) => {
-              if (isMounted && loc?.coords) {
-                setUserCoords({
-                  latitude: loc.coords.latitude,
-                  longitude: loc.coords.longitude,
-                });
-              }
-            }
-          );
         }
       } catch (e) {
         console.log('Erreur init géolocalisation TopoSiteMap:', e);
@@ -534,9 +435,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
     return () => {
       isMounted = false;
-      sub?.remove();
     };
-  }, []);
+  }, [initialUserLocation?.latitude, initialUserLocation?.longitude]);
 
   // Conversion des polygones GeoJSON & filtrage des marqueurs
   const geojsonPolygons = useMemo(() => {
