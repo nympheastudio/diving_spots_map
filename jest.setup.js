@@ -1,5 +1,4 @@
 // Jest setup file
-import '@testing-library/jest-dom';
 
 // Mock expo modules
 jest.mock('expo-location', () => ({

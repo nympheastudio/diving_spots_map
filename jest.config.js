@@ -1,14 +1,24 @@
+const path = require('path');
+
 module.exports = {
-  preset: 'jest-expo',
+  rootDir: __dirname,
+  preset: path.join(__dirname, 'node_modules/jest-expo/node'),
   testPathIgnorePatterns: ['/node_modules/', '/.expo/'],
   transformIgnorePatterns: [
     'node_modules/(?!(expo|expo-modules-core|react-native|react-native-maps|react-native-map-clustering|geolib)/)',
   ],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: [path.resolve(__dirname, 'jest.setup.js')],
   testEnvironment: 'node',
   collectCoverageFrom: [
-    'src/**/*.{js,jsx}',
+    'src/utils/**/*.{js,jsx}',
     '!src/**/*.test.{js,jsx}',
-    '!src/**/index.{js,jsx}',
   ],
+  coverageThreshold: {
+    global: {
+      branches: 80,
+      functions: 80,
+      lines: 80,
+      statements: 80,
+    },
+  },
 };
