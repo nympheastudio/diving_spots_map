@@ -29,6 +29,7 @@ import {
   calculateDistance,
   smoothAngle,
   formatDistance,
+  getStraightLineDistance,
 } from '../utils/topoUtils';
 
 // Assets locaux disponibles pour les topos
@@ -316,6 +317,7 @@ const CustomTopoMarker = React.memo(({
   styles,
   onPress,
   markerRefSetter,
+  distanceText,
 }) => {
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
 
@@ -325,34 +327,46 @@ const CustomTopoMarker = React.memo(({
       setTracksViewChanges(false);
     }, 600);
     return () => clearTimeout(timer);
-  }, [isSelected, marker.profondeur, marker.center?.latitude, marker.center?.longitude]);
+  }, [isSelected, marker.profondeur, marker.center?.latitude, marker.center?.longitude, distanceText]);
+
+  const calloutDescription = useMemo(() => {
+    const parts = [];
+    if (marker.displayDesc) parts.push(marker.displayDesc);
+    if (distanceText) {
+      parts.push(`🧭 À ${distanceText}`);
+    }
+    return parts.length > 0 ? parts.join('\n') : undefined;
+  }, [marker.displayDesc, distanceText]);
 
   return (
     <Marker
       ref={markerRefSetter}
       coordinate={marker.center}
       title={marker.calloutTitle}
-      description={marker.displayDesc || undefined}
+      description={calloutDescription}
       tracksViewChanges={tracksViewChanges}
-      zIndex={isSelected ? 30 : (marker.isDepthPoint ? 12 : 15)}
+      zIndex={isSelected ? 40 : (marker.isDepthPoint ? 12 : 20)}
       onPress={onPress}
     >
       {marker.isDepthPoint ? (
-        <View style={[
-          styles.depthPointBadge,
-          isSelected && styles.depthPointBadgeSelected,
-          { borderColor: marker.depthColor || '#38BDF8' }
-        ]}>
+        <View
+          pointerEvents="none"
+          style={[
+            styles.depthPointBadge,
+            isSelected && styles.depthPointBadgeSelected,
+            { borderColor: marker.depthColor || '#38BDF8' }
+          ]}
+        >
           <Text style={[styles.depthPointText, isSelected && styles.depthPointTextSelected]}>
             {marker.profondeur}
           </Text>
         </View>
       ) : marker.hasBadge ? (
-        <View style={styles.poiBadge}>
+        <View pointerEvents="none" style={styles.poiBadge}>
           <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
         </View>
       ) : (
-        <View style={{ width: 1, height: 1, opacity: 0 }} />
+        <View pointerEvents="none" style={{ width: 1, height: 1, opacity: 0 }} />
       )}
     </Marker>
   );
@@ -549,6 +563,15 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       }
     });
 
+    // Trier les polygones : zones bathymétriques d'abord, POIs (mouillage, épave, etc.) au-dessus
+    rawPolygons.sort((a, b) => {
+      const aDepth = a.type === 'zone' || a.type === 'profondeur';
+      const bDepth = b.type === 'zone' || b.type === 'profondeur';
+      if (aDepth && !bDepth) return -1;
+      if (!aDepth && bDepth) return 1;
+      return 0;
+    });
+
     return { rawPolygons, markers };
   }, [topo?.geojson]);
 
@@ -652,7 +675,11 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     return formatDistance(distanceToSite);
   }, [distanceToSite]);
 
-
+  // Distance en ligne droite jusqu'à l'objet sélectionné (rocher, grotte, etc. - hors zones de profondeur)
+  const selectedZoneDistance = useMemo(() => {
+    if (!selectedZone?.center) return null;
+    return getStraightLineDistance(userCoords, selectedZone.center, selectedZone.isDepthZone);
+  }, [userCoords, selectedZone]);
 
   // Ajuster la caméra pour afficher à la fois le site de plongée et l'utilisateur
   const handleFitBoth = (isFullscreen = false) => {
@@ -681,11 +708,20 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       poly.properties?.nom ||
       poly.properties?.name ||
       poly.style.label;
+    const isDepthZone =
+      poly.type === 'zone' ||
+      poly.type === 'profondeur' ||
+      poly.properties?.type === 'zone' ||
+      poly.properties?.type === 'profondeur' ||
+      Boolean(poly.isDepthZone);
+
     setSelectedZone({
       id: poly.id,
       icon: poly.style.icon,
       title,
       description: getFeatureDescription(poly.properties),
+      center: poly.center,
+      isDepthZone,
     });
 
     const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
@@ -703,11 +739,19 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
   // Sélection d'un marqueur (clic icône) : met à jour l'état et s'assure que la bulle s'ouvre
   const handleSelectMarker = (marker, isFullscreen = false) => {
+    const isDepthZone =
+      Boolean(marker.isDepthPoint) ||
+      marker.type === 'profondeur' ||
+      marker.type === 'zone' ||
+      Boolean(marker.isDepthZone);
+
     setSelectedZone({
       id: marker.polyId,
       icon: marker.displayIcon,
       title: marker.titleText,
       description: marker.displayDesc || '',
+      center: marker.center,
+      isDepthZone,
     });
 
     const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
@@ -763,6 +807,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       {/* Dessin des contours de toutes les zones GeoJSON cliquables */}
       {geojsonPolygons.rawPolygons.map((poly) => {
         const isSelected = selectedZone?.id === poly.id;
+        const isDepth = poly.type === 'zone' || poly.type === 'profondeur';
         return (
           <Polygon
             key={isFullscreen ? `fs-poly-${poly.id}` : `card-poly-${poly.id}`}
@@ -771,6 +816,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             fillColor={isSelected ? poly.style.fillColor.replace('0.25', '0.6').replace('0.4', '0.7') : poly.style.fillColor}
             strokeWidth={isSelected ? 3 : 2}
             lineDashPattern={poly.style.lineDashPattern}
+            zIndex={isSelected ? 35 : (isDepth ? 2 : 15)}
             tappable={true}
             onPress={() => handleSelectPoly(poly, isFullscreen)}
           />
@@ -780,6 +826,11 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       {/* Rendu des marqueurs avec référence pour pouvoir ouvrir leur bulle */}
       {geojsonPolygons.markers.map((marker) => {
         const isSelected = selectedZone?.id === marker.polyId;
+        const markerDistance = getStraightLineDistance(
+          userCoords,
+          marker.center,
+          marker.isDepthPoint || marker.type === 'profondeur' || marker.type === 'zone'
+        );
         return (
           <CustomTopoMarker
             key={isFullscreen ? `fs-marker-${marker.id}-${topo?.id}` : `card-marker-${marker.id}-${topo?.id}`}
@@ -787,6 +838,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             isSelected={isSelected}
             isFullscreen={isFullscreen}
             styles={styles}
+            distanceText={markerDistance}
             onPress={() => handleSelectMarker(marker, isFullscreen)}
             markerRefSetter={(ref) => {
               if (ref) {
@@ -966,9 +1018,16 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
           <View style={[styles.selectedZoneHeader, !selectedZone.description && { marginBottom: 0 }]}>
             <View style={styles.selectedZoneTitleRow}>
               <Text style={styles.selectedZoneIcon}>{selectedZone.icon}</Text>
-              <Text style={styles.selectedZoneTitle} numberOfLines={1}>
-                {selectedZone.title}
-              </Text>
+              <View style={styles.selectedZoneTitleCol}>
+                <Text style={styles.selectedZoneTitle} numberOfLines={1}>
+                  {selectedZone.title}
+                </Text>
+                {selectedZoneDistance && (
+                  <Text style={styles.selectedZoneDistanceText}>
+                    🧭 À {selectedZoneDistance}
+                  </Text>
+                )}
+              </View>
             </View>
             <TouchableOpacity
               onPress={handleCloseZone}
@@ -1054,9 +1113,16 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
                 <View style={[styles.zoneInfoHeader, !selectedZone.description && { marginBottom: 0 }]}>
                   <View style={styles.zoneInfoTitleRow}>
                     <Text style={styles.zoneInfoIcon}>{selectedZone.icon}</Text>
-                    <Text style={styles.zoneInfoTitle} numberOfLines={1}>
-                      {selectedZone.title}
-                    </Text>
+                    <View style={styles.zoneInfoTitleCol}>
+                      <Text style={styles.zoneInfoTitle} numberOfLines={1}>
+                        {selectedZone.title}
+                      </Text>
+                      {selectedZoneDistance && (
+                        <Text style={styles.zoneInfoDistanceText}>
+                          🧭 À {selectedZoneDistance}
+                        </Text>
+                      )}
+                    </View>
                   </View>
                   <TouchableOpacity
                     onPress={handleCloseZone}
@@ -1233,11 +1299,20 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   selectedZoneIcon: {
     fontSize: 18,
   },
+  selectedZoneTitleCol: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   selectedZoneTitle: {
     fontSize: 14,
     fontWeight: '800',
     color: colors.textPrimary,
-    flex: 1,
+  },
+  selectedZoneDistanceText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary || '#00E5FF',
+    marginTop: 2,
   },
   selectedZoneClose: {
     fontSize: 14,
@@ -1282,11 +1357,20 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   zoneInfoIcon: {
     fontSize: 16,
   },
+  zoneInfoTitleCol: {
+    flex: 1,
+    justifyContent: 'center',
+  },
   zoneInfoTitle: {
     fontSize: 13,
     fontWeight: '800',
     color: colors.textPrimary,
-    flex: 1,
+  },
+  zoneInfoDistanceText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary || '#00E5FF',
+    marginTop: 2,
   },
   zoneInfoClose: {
     fontSize: 14,

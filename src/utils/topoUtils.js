@@ -199,7 +199,33 @@ export const smoothAngle = (prev, current, baseAlpha = 0.35) => {
  */
 export const formatDistance = (meters) => {
   if (meters === null || meters === undefined || isNaN(meters)) return null;
-  if (meters < 30) return 'Sur site (< 30 m)';
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 };
+
+/**
+ * Calcule et formate la distance en ligne droite jusqu'a un objet selectionne sur le topo.
+ * Ne s'applique pas aux zones de profondeur (retourne null).
+ *
+ * @param {{ latitude: number, longitude: number }} [userCoords] - Coordonnees de l'utilisateur
+ * @param {{ latitude: number, longitude: number }} [objectCenter] - Coordonnees du centre de l'objet
+ * @param {boolean} [isDepthZone=false] - Indique si l'element est une zone de profondeur (isobathe / sonde)
+ * @returns {string|null} Distance formatee (ex: "45 m", "1.2 km") ou null si inapplicable
+ */
+export const getStraightLineDistance = (userCoords, objectCenter, isDepthZone = false) => {
+  if (Boolean(isDepthZone)) return null;
+  if (!userCoords || !objectCenter) return null;
+
+  const userLat = Number(userCoords.latitude);
+  const userLng = Number(userCoords.longitude);
+  const objLat = Number(objectCenter.latitude);
+  const objLng = Number(objectCenter.longitude);
+
+  if (isNaN(userLat) || isNaN(userLng) || isNaN(objLat) || isNaN(objLng)) {
+    return null;
+  }
+
+  const dist = calculateDistance(userLat, userLng, objLat, objLng);
+  return formatDistance(dist);
+};
+

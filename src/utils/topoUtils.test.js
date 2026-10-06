@@ -11,6 +11,7 @@ import {
   calculateDistanceKm,
   smoothAngle,
   formatDistance,
+  getStraightLineDistance,
 } from './topoUtils';
 
 // =============================================================================
@@ -349,9 +350,10 @@ describe('formatDistance', () => {
     expect(formatDistance(NaN)).toBeNull();
   });
 
-  it('< 30 m -> "Sur site..."', () => {
-    expect(formatDistance(20)).toBe('Sur site (< 30 m)');
-    expect(formatDistance(0)).toBe('Sur site (< 30 m)');
+  it('distance < 30 m -> toujours la distance en metres', () => {
+    expect(formatDistance(20)).toBe('20 m');
+    expect(formatDistance(0)).toBe('0 m');
+    expect(formatDistance(12.4)).toBe('12 m');
   });
 
   it('30 m -> metres', () => {
@@ -370,3 +372,67 @@ describe('formatDistance', () => {
     expect(formatDistance(5500)).toBe('5.5 km');
   });
 });
+
+// =============================================================================
+// getStraightLineDistance
+// =============================================================================
+
+describe('getStraightLineDistance', () => {
+  const user = { latitude: 43.27, longitude: 5.28 };
+  const rock = { latitude: 43.271, longitude: 5.281 }; // ~138 m de distance
+
+  it('retourne null si isDepthZone est true (zone de profondeur)', () => {
+    expect(getStraightLineDistance(user, rock, true)).toBeNull();
+  });
+
+  it('retourne null si isDepthZone est une valeur truthy', () => {
+    expect(getStraightLineDistance(user, rock, 1)).toBeNull();
+    expect(getStraightLineDistance(user, rock, 'yes')).toBeNull();
+  });
+
+  it('retourne null si userCoords est null ou absent', () => {
+    expect(getStraightLineDistance(null, rock, false)).toBeNull();
+    expect(getStraightLineDistance(undefined, rock, false)).toBeNull();
+    expect(getStraightLineDistance({}, rock, false)).toBeNull();
+  });
+
+  it('retourne null si objectCenter est null ou absent', () => {
+    expect(getStraightLineDistance(user, null, false)).toBeNull();
+    expect(getStraightLineDistance(user, undefined, false)).toBeNull();
+    expect(getStraightLineDistance(user, {}, false)).toBeNull();
+  });
+
+  it('retourne null si les coordonnees contiennent NaN', () => {
+    expect(getStraightLineDistance({ latitude: 'abc', longitude: 5.28 }, rock)).toBeNull();
+    expect(getStraightLineDistance(user, { latitude: 43.27, longitude: 'xyz' })).toBeNull();
+  });
+
+  it('calcule la distance en metres pour un objet a proximite immediate (< 30 m)', () => {
+    // Même position -> 0 m
+    expect(getStraightLineDistance(user, user, false)).toBe('0 m');
+  });
+
+  it('calcule la distance en metres pour un objet proche (rocher, grotte)', () => {
+    const dist = getStraightLineDistance(user, rock, false);
+    expect(dist).toMatch(/^\d+ m$/);
+    const meters = parseInt(dist, 10);
+    expect(meters).toBeGreaterThan(50);
+    expect(meters).toBeLessThan(300);
+  });
+
+  it('calcule la distance en km pour un objet a plus d\'1 km', () => {
+    // ~11 km
+    const farPoi = { latitude: 43.37, longitude: 5.28 };
+    const dist = getStraightLineDistance(user, farPoi, false);
+    expect(dist).toMatch(/^\d+\.\d+ km$/);
+  });
+
+  it('accepte des coordonnees transmises sous forme de chaines numeriques', () => {
+    const userStr = { latitude: '43.27', longitude: '5.28' };
+    const rockStr = { latitude: '43.271', longitude: '5.281' };
+    const dist = getStraightLineDistance(userStr, rockStr, false);
+    expect(dist).not.toBeNull();
+    expect(dist).toMatch(/^\d+ m$/);
+  });
+});
+

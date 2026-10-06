@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import TopoSiteMap from './TopoSiteMap';
+import { getStraightLineDistance, parseGpsCoords } from '../utils/topoUtils';
 
 const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
   const { colors, isDark } = useTheme();
@@ -37,6 +38,42 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
   if (!spot || topos.length === 0) return null;
 
   const topo = topos[selectedTopoIndex] || topos[0];
+
+  // Distance jusqu'au POI sélectionné (mouillage, épave, etc.)
+  const selectedPoiDistance = useMemo(() => {
+    if (!selectedPoi || !userLocation?.latitude || !userLocation?.longitude) return null;
+
+    let poiCoords = null;
+    if (topo?.geojson?.features) {
+      const match = topo.geojson.features.find((f) => {
+        const p = f.properties || {};
+        return (
+          (p.type && (p.type === selectedPoi.type || p.type === selectedPoi.id)) ||
+          (p.nom && p.nom === selectedPoi.nom) ||
+          (p.titre && p.titre === selectedPoi.nom) ||
+          (p.detail && p.detail === selectedPoi.nom) ||
+          (p.icon && (p.icon === selectedPoi.icone || (p.icon === 'ancre' && selectedPoi.icone === '⚓')))
+        );
+      });
+      if (match?.geometry) {
+        if (match.geometry.type === 'Point' && Array.isArray(match.geometry.coordinates)) {
+          poiCoords = { latitude: match.geometry.coordinates[1], longitude: match.geometry.coordinates[0] };
+        } else if (match.geometry.type === 'Polygon' && Array.isArray(match.geometry.coordinates?.[0])) {
+          const coords = match.geometry.coordinates[0];
+          const lat = coords.reduce((acc, c) => acc + c[1], 0) / coords.length;
+          const lng = coords.reduce((acc, c) => acc + c[0], 0) / coords.length;
+          poiCoords = { latitude: lat, longitude: lng };
+        }
+      }
+    }
+
+    if (!poiCoords) {
+      poiCoords = parseGpsCoords(topo?.coordonnees_gps, spot?.latitude, spot?.longitude);
+    }
+
+    if (!poiCoords) return null;
+    return getStraightLineDistance(userLocation, poiCoords, false);
+  }, [selectedPoi, userLocation, topo, spot]);
 
   const handleShareTopo = async () => {
     const stepsText = (topo.parcours || [])
@@ -169,7 +206,14 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
               {selectedPoi && (
                 <View style={styles.selectedPoiBox}>
                   <View style={styles.selectedPoiHeader}>
-                    <Text style={styles.selectedPoiTitle}>{selectedPoi.icone} {selectedPoi.nom} ({selectedPoi.profondeur} m)</Text>
+                    <View style={styles.selectedPoiTitleCol}>
+                      <Text style={styles.selectedPoiTitle}>{selectedPoi.icone} {selectedPoi.nom} ({selectedPoi.profondeur} m)</Text>
+                      {selectedPoiDistance && (
+                        <Text style={styles.selectedPoiDistanceText}>
+                          🧭 À {selectedPoiDistance}
+                        </Text>
+                      )}
+                    </View>
                     <TouchableOpacity onPress={() => setSelectedPoi(null)}>
                       <Text style={styles.selectedPoiClose}>✕</Text>
                     </TouchableOpacity>
@@ -505,10 +549,20 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     alignItems: 'center',
     marginBottom: 4,
   },
+  selectedPoiTitleCol: {
+    flex: 1,
+    marginRight: 8,
+  },
   selectedPoiTitle: {
     fontSize: 13,
     fontWeight: '700',
     color: colors.textPrimary,
+  },
+  selectedPoiDistanceText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.primary || '#00E5FF',
+    marginTop: 2,
   },
   selectedPoiClose: {
     fontSize: 14,
