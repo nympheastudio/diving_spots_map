@@ -1,6 +1,6 @@
 /**
  * TopoSiteMap – Composant de carte interactive & plan bathymétrique pour les guides de plongée
- * Bascule entre la carte satellite (avec polygones GeoJSON cliquables, entrées hachurées)
+ * Bascule entre la carte standard (avec polygones GeoJSON cliquables, entrées hachurées)
  * et le plan en mode réduit (avec affichage des infos sous la carte hors plein écran).
  */
 
@@ -256,7 +256,7 @@ const UserBearingMarker = React.memo(({ coordinate, distanceFormatted }) => {
           });
           return;
         }
-      } catch (e) {}
+      } catch (e) { }
 
       try {
         // 2. Repli sur Location.watchHeadingAsync
@@ -276,7 +276,7 @@ const UserBearingMarker = React.memo(({ coordinate, distanceFormatted }) => {
             const corrected = (360 - angle + 90) % 360;
             updateHeading(corrected);
           });
-        } catch (err) {}
+        } catch (err) { }
       }
     })();
 
@@ -376,7 +376,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
-  // Mode d'affichage dans la carte réduite : 'map' (carte satellite) ou 'plan' (image schéma)
+  // Mode d'affichage dans la carte réduite : 'map' (carte standard) ou 'plan' (image schéma)
   const [viewMode, setViewMode] = useState('map');
   const [fullscreenMap, setFullscreenMap] = useState(false);
   const [fullscreenPlan, setFullscreenPlan] = useState(false);
@@ -633,7 +633,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
           latitudeDelta: mapDelta,
           longitudeDelta: mapDelta,
         }, 400);
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [targetCoords?.latitude, targetCoords?.longitude, mapDelta]);
 
@@ -647,7 +647,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
           latitudeDelta: mapDelta,
           longitudeDelta: mapDelta,
         }, 300);
-      } catch (e) {}
+      } catch (e) { }
     }
   }, [fullscreenMap, targetCoords?.latitude, targetCoords?.longitude]);
 
@@ -774,7 +774,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     Object.values(refMap).forEach((ref) => {
       try {
         ref?.hideCallout();
-      } catch (e) {}
+      } catch (e) { }
     });
   };
 
@@ -782,10 +782,10 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
   const handleCloseZone = () => {
     setSelectedZone(null);
     Object.values(cardMarkerRefs.current).forEach((ref) => {
-      try { ref?.hideCallout(); } catch (e) {}
+      try { ref?.hideCallout(); } catch (e) { }
     });
     Object.values(fullscreenMarkerRefs.current).forEach((ref) => {
-      try { ref?.hideCallout(); } catch (e) {}
+      try { ref?.hideCallout(); } catch (e) { }
     });
   };
 
@@ -807,15 +807,16 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       {/* Dessin des contours de toutes les zones GeoJSON cliquables */}
       {geojsonPolygons.rawPolygons.map((poly) => {
         const isSelected = selectedZone?.id === poly.id;
-        const isDepth = poly.type === 'zone' || poly.type === 'profondeur';
+        const polyType = (poly.type || poly.properties?.type || '').toString().toLowerCase().trim();
+        const isDepth = polyType === 'zone' || polyType === 'profondeur';
         return (
           <Polygon
             key={isFullscreen ? `fs-poly-${poly.id}` : `card-poly-${poly.id}`}
             coordinates={poly.coords}
-            strokeColor={isSelected ? '#FFFFFF' : poly.style.strokeColor}
+            strokeColor={isSelected ? '#FFFFFF' : (isDepth ? 'transparent' : poly.style.strokeColor)}
             fillColor={isSelected ? poly.style.fillColor.replace('0.25', '0.6').replace('0.4', '0.7') : poly.style.fillColor}
-            strokeWidth={isSelected ? 3 : 2}
-            lineDashPattern={poly.style.lineDashPattern}
+            strokeWidth={isSelected ? 2.5 : (isDepth ? 0 : 2)}
+            lineDashPattern={isDepth ? undefined : poly.style.lineDashPattern}
             zIndex={isSelected ? 35 : (isDepth ? 2 : 15)}
             tappable={true}
             onPress={() => handleSelectPoly(poly, isFullscreen)}
@@ -902,7 +903,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       {/* ── Container Réduit (240px) ── */}
       <View style={styles.mapContainer}>
         {viewMode === 'map' ? (
-          /* ── Vue Carte Satellite Réduite ── */
+          /* ── Vue Carte Standard Réduite ── */
           <>
             {imageSource && (
               <TouchableOpacity
@@ -934,7 +935,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
                       latitudeDelta: mapDelta,
                       longitudeDelta: mapDelta,
                     }, 250);
-                  } catch (e) {}
+                  } catch (e) { }
                 }
               }}
               scrollEnabled={true}
