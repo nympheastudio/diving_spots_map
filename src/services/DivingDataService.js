@@ -3,6 +3,7 @@
  * Simule une API mais utilise les données locales en JSON
  */
 
+import { Image } from 'react-native';
 import drivingSpots from '../../data/diving_spots.json';
 
 const defaultPhoto = drivingSpots.default_photo;
@@ -21,39 +22,27 @@ const fallbackSpotPhotos = [
   'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg',
 ];
 
-const fallbackUnderwaterGallery = [
-  'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200',
-  'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1200',
-  'https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1200',
-  'https://images.unsplash.com/photo-1546026423-cc4642628d2b?w=1200',
-  'https://images.unsplash.com/photo-1535908339838-e79cba118f78?w=1200',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Calanques_de_Marseille_3.jpg/1280px-Calanques_de_Marseille_3.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Porquerolles_2007.jpg/1280px-Porquerolles_2007.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/2/28/Bandol_areal.jpg/1280px-Bandol_areal.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Cap_Lardier.jpg/1280px-Cap_Lardier.jpg',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Antibes_vue.jpg/1280px-Antibes_vue.jpg',
-];
+// Photos sous-marines embarquées (Wikimedia Commons, licences libres – crédits dans l'écran À propos)
+const localUnderwaterPhotos = [
+  require('../../assets/spots/gorgones-cote-bleue.jpg'),
+  require('../../assets/spots/corail-rouge-1.jpg'),
+  require('../../assets/spots/sars-arrabida.jpg'),
+  require('../../assets/spots/corail-rouge-4.jpg'),
+  require('../../assets/spots/sars-arrabida-2.jpg'),
+].map((asset) => Image.resolveAssetSource(asset)?.uri).filter(Boolean);
+
+const pickLocalGallery = (spotId = 0) => {
+  const start = Math.abs(spotId) % localUnderwaterPhotos.length;
+  return localUnderwaterPhotos.map((_, i) => localUnderwaterPhotos[(start + i) % localUnderwaterPhotos.length]);
+};
 
 const createSeededImage = (seed, width = 1200, height = 800) =>
   `https://picsum.photos/seed/${encodeURIComponent(seed)}/${width}/${height}`;
 
 const uniqUrls = (urls = []) => urls.filter((url, idx, arr) => url && arr.indexOf(url) === idx);
 
-const buildGeneratedGallery = (spotId = 0) => [
-  createSeededImage(`diving-gallery-${spotId}-1`),
-  createSeededImage(`diving-gallery-${spotId}-2`),
-  createSeededImage(`diving-gallery-${spotId}-3`),
-];
-
 const pickFallbackPhoto = (spotId = 0) =>
   fallbackSpotPhotos[Math.abs(spotId) % fallbackSpotPhotos.length] || defaultPhoto;
-
-const buildFallbackGallery = (spotId = 0) => {
-  const start = Math.abs(spotId) % fallbackUnderwaterGallery.length;
-  return [0, 1, 2].map(
-    (offset) => fallbackUnderwaterGallery[(start + offset) % fallbackUnderwaterGallery.length]
-  );
-};
 
 const applyDefaultPhotos = (spot) => ({
   ...spot,
@@ -63,13 +52,10 @@ const applyDefaultPhotos = (spot) => ({
     pickFallbackPhoto(spot.id) ||
     defaultPhoto,
   photos_fond_marin: uniqUrls([
-    ...buildGeneratedGallery(spot.id),
+    ...pickLocalGallery(spot.id),
     ...(spot.photos_fond_marin || []),
-    ...((spot.photos_fond_marin && spot.photos_fond_marin.length > 0
-      ? []
-      : buildFallbackGallery(spot.id)) || []),
     ...(defaultGallery || []),
-  ]).slice(0, 6),
+  ]).slice(0, 8),
 });
 
 const getSpotsWithDefaults = () => drivingSpots.spots.map(applyDefaultPhotos);

@@ -17,7 +17,7 @@ import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 
 const withCacheBust = (uri, seed) => {
-  if (!uri) return uri;
+  if (!uri || !/^https?:/.test(uri)) return uri;
   const sep = uri.includes('?') ? '&' : '?';
   return `${uri}${sep}v=${seed}`;
 };

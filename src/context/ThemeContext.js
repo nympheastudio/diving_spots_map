@@ -12,18 +12,18 @@ import {
 const THEME_KEY = '@dive_v2_theme';
 
 const ThemeContext = createContext({
-  colors:         darkColors,
-  difficultyMeta: DIFFICULTY_META,
-  isDark:         true,
+  colors:         lightColors,
+  difficultyMeta: DIFFICULTY_META_LIGHT,
+  isDark:         false,
   toggleTheme:    () => {},
 });
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY)
-      .then(val => { if (val === 'light') setIsDark(false); })
+      .then(val => { if (val === 'dark') setIsDark(true); })
       .catch(() => {});
   }, []);
 

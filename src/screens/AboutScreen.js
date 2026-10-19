@@ -122,6 +122,7 @@ const AboutScreen = ({ onBack }) => {
           <Text style={styles.footerLine}>Fait avec 🤿 à Marseille</Text>
           <Text style={styles.footerSub}>© 2026 Dive Explorer · Tous droits réservés</Text>
           <Text style={styles.footerSub}>Données : OpenStreetMap · Wikimedia Commons</Text>
+          <Text style={styles.footerSub}>Photos sous-marines : Wikimedia Commons (CC BY-SA 4.0, CC0) – détail des auteurs sur la page de chaque fichier</Text>
         </View>
 
         <View style={{ height: 48 }} />

@@ -5,12 +5,19 @@
     <key>EXUpdatesCheckOnLaunch</key>
     <string>ALWAYS</string>
     <key>EXUpdatesEnabled</key>
-    <false/>
+    <true/>
     <key>EXUpdatesLaunchWaitMs</key>
     <integer>0</integer>
     <key>EXUpdatesRuntimeVersion</key>
     <string>1.0.0</string>
     <key>EXUpdatesURL</key>
-    <string>https://u.expo.dev/update</string>
+    <string>https://ota.appli.ovh/manifest</string>
+    <key>EXUpdatesRequestHeaders</key>
+    <dict>
+      <key>expo-app-id</key>
+      <string>7e6e72fb-cade-47c9-bc6e-7c4170704437</string>
+      <key>expo-channel-name</key>
+      <string>production</string>
+    </dict>
   </dict>
 </plist>

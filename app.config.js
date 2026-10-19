@@ -66,9 +66,14 @@ export default {
     platforms: ['ios', 'android', 'web'],
     runtimeVersion: '1.0.0',
     updates: {
-      url: 'https://u.expo.dev/update',
-      enabled: false,
+      url: 'https://ota.appli.ovh/manifest',
+      enabled: true,
+      checkAutomatically: 'ON_LOAD',
       fallbackToCacheTimeout: 0,
+      requestHeaders: {
+        'expo-app-id': '7e6e72fb-cade-47c9-bc6e-7c4170704437',
+        'expo-channel-name': 'production',
+      },
     },
     extra: {
       eas: {
