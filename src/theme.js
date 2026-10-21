@@ -5,14 +5,14 @@
 
 // ── Dark palette ──────────────────────────────────────────────────────────
 export const darkColors = {
-  bg:              '#050A10',
-  bgCard:          '#0A1520',
-  bgElevated:      '#0F1C2E',
-  bgGlass:         'rgba(8,15,28,0.82)',
+  bg:              '#03111F',
+  bgCard:          '#071B2D',
+  bgElevated:      '#0B243A',
+  bgGlass:         'rgba(3,17,31,0.92)',
   bgGlassLight:    'rgba(255,255,255,0.07)',
   bgGlassStrong:   'rgba(255,255,255,0.13)',
 
-  primary:         '#00E5FF',
+  primary:         '#00DDF5',
   primaryDim:      'rgba(0,229,255,0.13)',
   primaryMid:      'rgba(0,229,255,0.30)',
   primaryGlow:     'rgba(0,229,255,0.55)',
@@ -32,23 +32,23 @@ export const darkColors = {
   amber:           '#FFB020',
   amberDim:        'rgba(255,176,32,0.15)',
 
-  textPrimary:     '#EEF2FF',
-  textSecondary:   'rgba(238,242,255,0.60)',
-  textMuted:       'rgba(238,242,255,0.32)',
+  textPrimary:     '#F4F8FF',
+  textSecondary:   '#A9C0D9',
+  textMuted:       '#7593B3',
   textDisabled:    'rgba(238,242,255,0.16)',
 
-  border:          'rgba(255,255,255,0.07)',
-  borderMid:       'rgba(255,255,255,0.13)',
-  borderBright:    'rgba(255,255,255,0.24)',
+  border:          'rgba(42,124,174,0.25)',
+  borderMid:       'rgba(48,153,213,0.43)',
+  borderBright:    'rgba(70,179,230,0.60)',
 
-  gradOcean:     ['#050A10', '#0A1830', '#0D2244'],
+  gradOcean:     ['#03111F', '#082A49', '#0B4367'],
   gradCard:      ['rgba(0,229,255,0.07)', 'rgba(0,229,255,0.0)'],
-  gradHero:      ['transparent', 'rgba(5,10,16,0.75)', 'rgba(5,10,16,0.99)'],
-  gradPrimary:   ['#00E5FF', '#0088FF'],
+  gradHero:      ['transparent', 'rgba(3,17,31,0.62)', '#03111F'],
+  gradPrimary:   ['#00DDF5', '#008FFF'],
   gradSecondary: ['#7B61FF', '#C061FF'],
   gradAccent:    ['#FF4757', '#FF8B6A'],
   gradProfile:   ['#00E5FF', '#7B61FF'],
-  gradNav:       ['rgba(5,10,16,0)', 'rgba(5,10,16,0.88)', 'rgba(5,10,16,0.99)'],
+  gradNav:       ['rgba(3,17,31,0)', 'rgba(3,17,31,0.90)', '#03111F'],
 };
 
 // ── Light palette ─────────────────────────────────────────────────────────
@@ -104,15 +104,17 @@ export const colors = darkColors;
 
 // ── Difficulty meta ───────────────────────────────────────────────────────
 export const DIFFICULTY_META = {
-  Beginner:     { color: '#00E5A0', bg: 'rgba(0,229,160,0.15)',  label: 'Débutant'      },
-  Intermediate: { color: '#FFB020', bg: 'rgba(255,176,32,0.15)', label: 'Intermédiaire' },
-  Advanced:     { color: '#FF4757', bg: 'rgba(255,71,87,0.15)',  label: 'Expert'        },
+  Beginner:     { color: '#00E5A0', bg: 'rgba(0,229,160,0.15)',  badgeBg: '#08765A', label: 'Débutant'      },
+  Easy:         { color: '#00E5A0', bg: 'rgba(0,229,160,0.15)',  badgeBg: '#08765A', label: 'Débutant'      },
+  Intermediate: { color: '#FFB020', bg: 'rgba(255,176,32,0.15)', badgeBg: '#9C5B00', label: 'Intermédiaire' },
+  Advanced:     { color: '#FF4757', bg: 'rgba(255,71,87,0.15)',  badgeBg: '#B52B3B', label: 'Expert'        },
 };
 
 export const DIFFICULTY_META_LIGHT = {
-  Beginner:     { color: '#008855', bg: 'rgba(0,136,85,0.12)',   label: 'Débutant'      },
-  Intermediate: { color: '#CC7A00', bg: 'rgba(204,122,0,0.12)',  label: 'Intermédiaire' },
-  Advanced:     { color: '#CC2233', bg: 'rgba(204,34,51,0.12)',  label: 'Expert'        },
+  Beginner:     { color: '#008855', bg: 'rgba(0,136,85,0.12)',   badgeBg: '#08765A', label: 'Débutant'      },
+  Easy:         { color: '#008855', bg: 'rgba(0,136,85,0.12)',   badgeBg: '#08765A', label: 'Débutant'      },
+  Intermediate: { color: '#CC7A00', bg: 'rgba(204,122,0,0.12)',  badgeBg: '#9C5B00', label: 'Intermédiaire' },
+  Advanced:     { color: '#CC2233', bg: 'rgba(204,34,51,0.12)',  badgeBg: '#B52B3B', label: 'Expert'        },
 };
 
 // ── Shared tokens ─────────────────────────────────────────────────────────

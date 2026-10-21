@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows, spacing } from '../theme';
+import OutlineIcon from './OutlineIcon';
 
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'];
 const SITE_TYPE_OPTIONS = [
@@ -61,7 +62,7 @@ const FilterSheet = ({ isVisible, onClose, onApplyFilters }) => {
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Filtres</Text>
             <TouchableOpacity onPress={onClose} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <View style={styles.closeBtn}><Text style={styles.closeBtnText}>✕</Text></View>
+              <View style={styles.closeBtn}><OutlineIcon name="close-outline" size={22} color={colors.textPrimary} /></View>
             </TouchableOpacity>
           </View>
 

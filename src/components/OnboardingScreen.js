@@ -17,7 +17,8 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { lightColors as colors, radius } from '../theme';
+import { darkColors as colors, radius } from '../theme';
+import OutlineIcon from './OutlineIcon';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
@@ -34,32 +35,32 @@ const SLIDES = [
     icon: '🌊',
     title: 'Bienvenue dans\nDive Explorer',
     subtitle: 'Découvrez les spots de plongée\nles plus épiques de Méditerranée',
-    gradColors: ['#F4F9FF', '#E3F1FF', '#CFE6FA'],
-    accent: '#0077BB',
+    gradColors: ['#03111F', '#082A49', '#0B4367'],
+    accent: '#00DDF5',
   },
   {
     key: 'map',
     icon: '◎',
     title: '200+ Spots\nCartographiés',
     subtitle: 'Naviguez sur une carte interactive\net explorez les fonds marins en HD',
-    gradColors: ['#F6F5FF', '#E9E6FF', '#D8D3FA'],
-    accent: '#5B43E0',
+    gradColors: ['#03111F', '#0A2440', '#12335C'],
+    accent: '#48A9FF',
   },
   {
     key: 'filter',
     icon: '⧉',
     title: 'Filtrez\nSelon Votre Niveau',
     subtitle: 'Débutant, intermédiaire ou expert —\ntrouvez exactement votre spot',
-    gradColors: ['#F3FBF8', '#DFF5EC', '#C9ECDD'],
-    accent: '#00946B',
+    gradColors: ['#03111F', '#082D37', '#0D4A51'],
+    accent: '#00E5A0',
   },
   {
     key: 'ready',
     icon: '🤿',
     title: 'Prêt à\nExplorer ?',
     subtitle: 'Activez votre GPS pour découvrir\nles spots les plus proches de vous',
-    gradColors: ['#FFF6F6', '#FFE6E8', '#FAD3D6'],
-    accent: '#D93245',
+    gradColors: ['#03111F', '#112443', '#173F67'],
+    accent: '#00DDF5',
   },
 ];
 
@@ -129,7 +130,7 @@ const SlideContent = ({ slide, isActive }) => {
           borderColor:     slide.accent + '40',
           shadowColor:     slide.accent,
         }]}>
-          <Text style={styles.iconText}>{slide.icon}</Text>
+          <OutlineIcon name={slide.icon} size={70} color={slide.accent} />
         </View>
       </Animated.View>
 
@@ -201,7 +202,7 @@ const OnboardingScreen = ({ onDone }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" translucent backgroundColor="transparent" />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
 
       {/* Dynamic background */}
       <LinearGradient colors={slide.gradColors} style={StyleSheet.absoluteFillObject} />
@@ -250,13 +251,13 @@ const OnboardingScreen = ({ onDone }) => {
           <LinearGradient
             colors={isLast
               ? [slide.accent, slide.accent + 'CC']
-              : [colors.primary, '#0088FF']
+              : [colors.primary, '#008FFF']
             }
             start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
             style={styles.ctaBtn}
           >
             <Text style={styles.ctaBtnText}>
-              {isLast ? "Commencer l'aventure  🚀" : 'Suivant  →'}
+              {isLast ? "Commencer l'aventure" : 'Suivant'}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -275,7 +276,7 @@ const OnboardingScreen = ({ onDone }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#EFF5FF',
+    backgroundColor: colors.bg,
   },
   scrollView: {
     flex: 1,
@@ -343,9 +344,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: radius.pill,
-    backgroundColor: 'rgba(0,30,80,0.06)',
+    backgroundColor: 'rgba(3,17,31,0.72)',
     borderWidth: 1,
-    borderColor: 'rgba(0,30,80,0.12)',
+    borderColor: colors.borderMid,
   },
   skipText: {
     fontSize: 14,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
   ctaBtnText: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#fff',
+    color: colors.bg,
     letterSpacing: 0.2,
   },
   hintText: {

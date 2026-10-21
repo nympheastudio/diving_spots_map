@@ -4,7 +4,7 @@
  * Thème bimodal Ocean Deep Ultra 2026
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -18,24 +18,31 @@ import {
   Share,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import TopoSiteMap from './TopoSiteMap';
+import OutlineIcon from './OutlineIcon';
 import { getStraightLineDistance, parseGpsCoords } from '../utils/topoUtils';
 
-const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
+const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation, onNavigate }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
   const [selectedTopoIndex, setSelectedTopoIndex] = useState(0);
   const [selectedPoi, setSelectedPoi] = useState(null);
+  const [discoverRequest, setDiscoverRequest] = useState(0);
+  const pendingNavigation = useRef(null);
+
+  const navigateAfterDismiss = (key) => {
+    pendingNavigation.current = key;
+    onClose();
+  };
 
   const topos = useMemo(() => {
     if (!spot || !Array.isArray(spot.topos)) return [];
     return spot.topos;
   }, [spot]);
-
-  if (!spot || topos.length === 0) return null;
 
   const topo = topos[selectedTopoIndex] || topos[0];
 
@@ -112,15 +119,21 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
     }
   };
 
+  if (!spot || topos.length === 0) return null;
+
   return (
-    <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose} onDismiss={() => {
+      const next = pendingNavigation.current;
+      pendingNavigation.current = null;
+      if (next) onNavigate?.(next);
+    }}>
       <SafeAreaView style={styles.safeArea}>
         <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
 
         {/* ── En-tête Navigation ── */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.closeBtn} onPress={onClose} activeOpacity={0.8}>
-            <Text style={styles.closeBtnText}>✕</Text>
+            <OutlineIcon name="chevron-back-outline" size={22} color={colors.textPrimary} />
           </TouchableOpacity>
           <View style={styles.headerTitles}>
             <View style={styles.badgeRow}>
@@ -128,17 +141,20 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
                 <Text style={styles.badgeTopoText}>TOPO & BRIEFING SOUS-MARIN</Text>
               </View>
             </View>
-            <Text style={styles.title} numberOfLines={1}>{topo.titre || spot.nom}</Text>
-            {topo.sous_titre && <Text style={styles.subTitle} numberOfLines={1}>{topo.sous_titre}</Text>}
+            <Text style={styles.title} numberOfLines={2}>{spot.nom}</Text>
+            <View style={styles.locationRow}>
+              <OutlineIcon name="location-outline" size={15} color={colors.textSecondary} />
+              <Text style={styles.subTitle} numberOfLines={1}>{spot.localite}</Text>
+            </View>
           </View>
           <TouchableOpacity style={styles.shareBtn} onPress={handleShareTopo} activeOpacity={0.8}>
-            <Text style={styles.shareBtnIcon}>🔗</Text>
+            <Ionicons name="share-social-outline" size={20} color={colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
-        {/* ── Sélecteur de fiches topos (si plusieurs fiches pour ce spot) ── */}
-        {topos.length > 1 && (
-          <View style={styles.topoSelectorWrap}>
+        {/* ── Spots de plongée du lieu ── */}
+        <View style={styles.topoSelectorWrap}>
+          <Text style={styles.topoSelectorTitle}>Spots de plongée</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.topoSelectorScroll}>
               {topos.map((t, idx) => (
                 <TouchableOpacity
@@ -150,19 +166,25 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
                   }}
                   activeOpacity={0.8}
                 >
-                  <Text style={[styles.topoTabText, selectedTopoIndex === idx && styles.topoTabTextActive]}>
-                    {t.titre}
-                  </Text>
+                  {selectedTopoIndex === idx ? (
+                    <LinearGradient colors={colors.gradPrimary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.topoTabInner}>
+                      <Text style={styles.topoTabEyebrow}>SPOT SÉLECTIONNÉ</Text>
+                      <Text style={styles.topoTabTextActive} numberOfLines={2}>{t.titre}</Text>
+                    </LinearGradient>
+                  ) : (
+                    <View style={styles.topoTabInner}>
+                      <Text style={styles.topoTabText} numberOfLines={2}>{t.titre}</Text>
+                    </View>
+                  )}
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </View>
-        )}
+        </View>
 
         <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
           {/* ── Carte Topographique / Bathymétrique (Composant Dédié TopoSiteMap) ── */}
-          <TopoSiteMap topo={topo} spot={spot} userLocation={userLocation} />
+          <TopoSiteMap topo={topo} spot={spot} userLocation={userLocation} discoverRequest={discoverRequest} />
 
 
 
@@ -171,10 +193,10 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardHeaderLeft}>
-                  <Text style={styles.cardIcon}>📍</Text>
-                  <Text style={styles.cardTitle}>Points d'Intérêt Clés du Site</Text>
+                  <OutlineIcon name="location-outline" size={24} color={colors.primary} />
+                  <Text style={styles.cardTitle} numberOfLines={2}>Points d'Intérêt Clés du Site</Text>
                 </View>
-                <Text style={styles.poiCountBadge}>{topo.pois.length} Points d'Intérêt</Text>
+                <Text style={styles.poiCountBadge} numberOfLines={2}>{topo.pois.length} Points d'Intérêt</Text>
               </View>
 
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.poiScroll}>
@@ -188,14 +210,14 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
                       activeOpacity={0.85}
                     >
                       <View style={styles.poiTopRow}>
-                        <Text style={styles.poiIcon}>{poi.icone || '📍'}</Text>
+                        <OutlineIcon name={poi.icone || 'location-outline'} size={25} color={colors.primary} />
                         <View style={[styles.depthTag, poi.type === 'danger' && styles.depthTagDanger]}>
                           <Text style={[styles.depthTagText, poi.type === 'danger' && styles.depthTagDangerText]}>
                             {poi.profondeur} m
                           </Text>
                         </View>
                       </View>
-                      <Text style={styles.poiName} numberOfLines={1}>{poi.nom}</Text>
+                      <Text style={styles.poiName} numberOfLines={2}>{poi.nom}</Text>
                       <Text style={styles.poiType}>{poi.type?.toUpperCase() || 'REPÈRE'}</Text>
                     </TouchableOpacity>
                   );
@@ -207,15 +229,15 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
                 <View style={styles.selectedPoiBox}>
                   <View style={styles.selectedPoiHeader}>
                     <View style={styles.selectedPoiTitleCol}>
-                      <Text style={styles.selectedPoiTitle}>{selectedPoi.icone} {selectedPoi.nom} ({selectedPoi.profondeur} m)</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minWidth: 0 }}><OutlineIcon name={selectedPoi.icone || 'location-outline'} size={19} color={colors.primary} /><Text style={styles.selectedPoiTitle} numberOfLines={2}>{selectedPoi.nom} ({selectedPoi.profondeur} m)</Text></View>
                       {selectedPoiDistance && (
                         <Text style={styles.selectedPoiDistanceText}>
-                          🧭 À {selectedPoiDistance}
+                          À {selectedPoiDistance}
                         </Text>
                       )}
                     </View>
                     <TouchableOpacity onPress={() => setSelectedPoi(null)}>
-                      <Text style={styles.selectedPoiClose}>✕</Text>
+                      <OutlineIcon name="close-outline" size={22} color={colors.textSecondary} />
                     </TouchableOpacity>
                   </View>
                   <Text style={styles.selectedPoiDesc}>{selectedPoi.description || "Point remarquable du parcours sous-marin."}</Text>
@@ -229,8 +251,8 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.cardHeaderLeft}>
-                  <Text style={styles.cardIcon}>🧭</Text>
-                  <Text style={styles.cardTitle}>Parcours d'Immersion Recommandé</Text>
+                  <OutlineIcon name="compass-outline" size={24} color={colors.primary} />
+                  <Text style={styles.cardTitle} numberOfLines={2}>Parcours d'Immersion Recommandé</Text>
                 </View>
                 <View style={styles.safetyPill}>
                   <Text style={styles.safetyPillText}>SÉCURITÉ</Text>
@@ -252,9 +274,9 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
 
                       <View style={styles.timelineContent}>
                         <View style={styles.timelineHeader}>
-                          <Text style={styles.timelineTitle}>{step.titre || `Étape ${idx + 1}`}</Text>
+                          <Text style={styles.timelineTitle} numberOfLines={3}>{step.titre || `Étape ${idx + 1}`}</Text>
                           <View style={[styles.timelineDepthBadge, isPalier && styles.timelineDepthBadgePalier]}>
-                            <Text style={[styles.timelineDepthText, isPalier && styles.timelineDepthTextPalier]}>
+                            <Text style={[styles.timelineDepthText, isPalier && styles.timelineDepthTextPalier]} numberOfLines={1} adjustsFontSizeToFit>
                               {step.profondeur}
                             </Text>
                           </View>
@@ -275,11 +297,12 @@ const DiveSiteTopoModal = ({ spot, isVisible, onClose, userLocation }) => {
         {/* ── Barre d'Action Inférieure ── */}
         <View style={styles.bottomBar}>
           <TouchableOpacity style={styles.btnSecondary} onPress={handleShareTopo} activeOpacity={0.85}>
-            <Text style={styles.btnSecondaryText}>🔗 Partager</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><OutlineIcon name="share-social-outline" size={21} color={colors.primary} /><Text style={styles.btnSecondaryText}>Partager</Text></View>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.btnPrimary} onPress={onClose} activeOpacity={0.85}>
+          <TouchableOpacity style={styles.btnPrimary} onPress={() => setDiscoverRequest((current) => current + 1)} activeOpacity={0.85}>
             <LinearGradient colors={colors.gradPrimary} style={styles.btnPrimaryGrad}>
-              <Text style={styles.btnPrimaryText}>Terminer le briefing</Text>
+              <Text style={styles.btnPrimaryText}>Découvrir</Text>
+              <OutlineIcon name="arrow-forward-outline" size={20} color="#03111F" />
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -308,13 +331,14 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     paddingBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.bg,
   },
   closeBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: colors.bgGlassStrong || 'rgba(255,255,255,0.1)',
+    backgroundColor: colors.bgElevated,
+    borderWidth: 1, borderColor: colors.borderMid,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -326,6 +350,7 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   },
   headerTitles: {
     flex: 1,
+    minWidth: 0,
   },
   badgeRow: {
     flexDirection: 'row',
@@ -355,74 +380,104 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  topoSelectorTitle: {
+    color: colors.textPrimary,
+    fontSize: 13,
+    fontWeight: '800',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
   topoSelectorScroll: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingTop: 8,
+    paddingBottom: 12,
     gap: 8,
   },
   topoTab: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: radius.pill || 999,
-    backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
+    width: 190,
+    minHeight: 64,
+    borderRadius: 15,
+    overflow: 'hidden',
+    backgroundColor: colors.bgCard,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderMid,
   },
   topoTabActive: {
-    backgroundColor: colors.primaryDim || 'rgba(0,229,255,0.15)',
+    width: 236,
     borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  topoTabInner: {
+    minHeight: 62,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    justifyContent: 'center',
+  },
+  topoTabEyebrow: {
+    fontSize: 10,
+    color: '#03111F',
+    fontWeight: '900',
+    letterSpacing: 0.6,
+    marginBottom: 2,
   },
   topoTabText: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '700',
     color: colors.textSecondary,
   },
   topoTabTextActive: {
-    color: colors.primary,
+    fontSize: 14,
+    color: '#03111F',
     fontWeight: '800',
   },
 
   title: {
-    fontSize: 18,
+    fontSize: 19,
+    lineHeight: 23,
     fontWeight: '800',
     color: colors.textPrimary,
     letterSpacing: -0.2,
   },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 3 },
   subTitle: {
     fontSize: 12,
     color: colors.textSecondary,
     fontWeight: '500',
-    marginTop: 1,
   },
   scrollContent: {
     padding: 16,
   },
   card: {
     backgroundColor: colors.bgCard,
-    borderRadius: radius.xl || 20,
+    borderRadius: 24,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderMid,
     ...shadows.card,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: 8,
     marginBottom: 14,
   },
   cardHeaderLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 8,
+    flex: 1,
+    minWidth: 0,
   },
   cardIcon: {
     fontSize: 18,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    flexShrink: 1,
+    minWidth: 0,
+    fontSize: 17,
+    fontWeight: '800',
     color: colors.textPrimary,
   },
   zoomButton: {
@@ -480,18 +535,21 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     fontSize: 11,
     color: colors.textSecondary,
     fontWeight: '600',
+    maxWidth: 82,
+    flexShrink: 0,
+    textAlign: 'right',
   },
   poiScroll: {
     gap: 12,
     paddingVertical: 4,
   },
   poiCard: {
-    width: 140,
+    width: 150,
     backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
     borderRadius: radius.md || 12,
     padding: 12,
     borderWidth: 1.5,
-    borderColor: colors.border,
+    borderColor: colors.borderMid,
   },
   poiCardActive: {
     borderColor: colors.primary,
@@ -554,6 +612,8 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     marginRight: 8,
   },
   selectedPoiTitle: {
+    flexShrink: 1,
+    minWidth: 0,
     fontSize: 13,
     fontWeight: '700',
     color: colors.textPrimary,
@@ -579,6 +639,7 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: radius.pill || 999,
+    flexShrink: 0,
   },
   safetyPillText: {
     fontSize: 10,
@@ -622,6 +683,7 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   },
   timelineContent: {
     flex: 1,
+    minWidth: 0,
     marginLeft: 12,
     paddingBottom: 16,
   },
@@ -630,8 +692,11 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 2,
+    gap: 8,
   },
   timelineTitle: {
+    flex: 1,
+    minWidth: 0,
     fontSize: 14,
     fontWeight: '700',
     color: colors.textPrimary,
@@ -641,6 +706,8 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
+    flexShrink: 0,
+    maxWidth: 80,
   },
   timelineDepthBadgePalier: {
     backgroundColor: colors.emeraldDim || 'rgba(0,229,160,0.15)',
@@ -662,7 +729,7 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     flexDirection: 'row',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.bg,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     gap: 12,
@@ -702,13 +769,15 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
   },
   btnPrimaryGrad: {
     flex: 1,
+    flexDirection: 'row',
+    gap: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   btnPrimaryText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFF',
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#03111F',
   },
   fullscreenMapSafeArea: {
     flex: 1,
@@ -756,6 +825,7 @@ DiveSiteTopoModal.propTypes = {
   isVisible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   userLocation: PropTypes.object,
+  onNavigate: PropTypes.func,
 };
 
 export default DiveSiteTopoModal;

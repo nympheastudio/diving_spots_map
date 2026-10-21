@@ -15,40 +15,41 @@ import {
   ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import OutlineIcon from './OutlineIcon';
 import { colors, radius, shadows, spacing } from '../theme';
 
 const MENU_ITEMS = [
   {
     key:   'account',
-    icon:  '◉',
+    icon:  'person-circle-outline',
     label: 'Mon Compte',
     sub:   'Profil & préférences',
     color: colors.primary,
   },
   {
     key:   'favorites',
-    icon:  '★',
+    icon:  'star-outline',
     label: 'Mes Favoris',
     sub:   'Spots sauvegardés',
     color: colors.amber,
   },
   {
     key:   'notifications',
-    icon:  '◈',
+    icon:  'notifications-outline',
     label: 'Notifications',
     sub:   'Alertes & rappels',
     color: colors.emerald,
   },
   {
     key:   'settings',
-    icon:  '◧',
+    icon:  'settings-outline',
     label: 'Paramètres',
     sub:   'Unités, langue, thème',
     color: colors.secondary,
   },
   {
     key:   'about',
-    icon:  'ℹ',
+    icon:  'information-circle-outline',
     label: 'À propos',
     sub:   'Version · Mentions légales',
     color: colors.textMuted,
@@ -85,14 +86,14 @@ const MenuItem = ({ item, onPress, index }) => {
         { transform: [{ scale: scaleAnim }] },
       ]}>
         <View style={[styles.menuIconWrap, { backgroundColor: item.color + '18' }]}>
-          <Text style={[styles.menuIcon, { color: item.color }]}>{item.icon}</Text>
+          <OutlineIcon name={item.icon} size={23} color={item.color} />
         </View>
         <View style={styles.menuTextWrap}>
           <Text style={styles.menuLabel}>{item.label}</Text>
           <Text style={styles.menuSub}>{item.sub}</Text>
         </View>
         <View style={styles.menuChevronWrap}>
-          <Text style={styles.menuChevron}>›</Text>
+          <OutlineIcon name="chevron-forward-outline" size={19} color={colors.textMuted} />
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -150,7 +151,7 @@ const ProfileMenuSheet = ({ isVisible, onClose, onMenuPress }) => {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.avatarGradient}
               >
-                <Text style={styles.avatarIcon}>🤿</Text>
+                <OutlineIcon name="person-outline" size={31} color={colors.bg} />
               </LinearGradient>
               {/* Online indicator */}
               <View style={styles.onlineDot} />
@@ -176,7 +177,7 @@ const ProfileMenuSheet = ({ isVisible, onClose, onMenuPress }) => {
               onPress={() => handleItemPress('account')}
               activeOpacity={0.75}
             >
-              <Text style={styles.editIcon}>✎</Text>
+              <OutlineIcon name="create-outline" size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
 
@@ -204,7 +205,7 @@ const ProfileMenuSheet = ({ isVisible, onClose, onMenuPress }) => {
           {/* ── Footer ── */}
           <View style={styles.footer}>
             <TouchableOpacity style={styles.logoutBtn} onPress={onClose} activeOpacity={0.8}>
-              <Text style={styles.logoutIcon}>↩</Text>
+              <OutlineIcon name="log-out-outline" size={19} color={colors.accent} />
               <Text style={styles.logoutText}>Déconnexion</Text>
             </TouchableOpacity>
             <Text style={styles.versionText}>Dive Explorer v2.0 · Ocean Deep Edition</Text>

@@ -4,7 +4,7 @@
  * et le plan en mode réduit (avec affichage des infos sous la carte hors plein écran).
  */
 
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import {
   View,
@@ -14,14 +14,17 @@ import {
   StyleSheet,
   Modal,
   SafeAreaView,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
-import { DeviceMotion, Magnetometer } from 'expo-sensors';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import ZoomableTopoViewer from './ZoomableTopoViewer';
+import OutlineIcon from './OutlineIcon';
 import {
   DEPTH_COLOR_SCALE,
   getDepthStyle as _getDepthStyle,
@@ -30,6 +33,8 @@ import {
   smoothAngle,
   formatDistance,
   getStraightLineDistance,
+  getBearingToPoint,
+  getRelativeBearing,
 } from '../utils/topoUtils';
 
 // Assets locaux disponibles pour les topos
@@ -45,6 +50,25 @@ const TOPO_LOCAL_ASSETS = {
 };
 
 const USER_BEARING_ICON = require('../../assets/user_bearing.png');
+
+const getCompassPoint = (bearing) => {
+  if (bearing == null) return '—';
+  return ['N', 'NE', 'E', 'SE', 'S', 'SO', 'O', 'NO'][Math.round(bearing / 45) % 8];
+};
+
+const getScale = (region) => {
+  if (!region?.longitudeDelta || !region?.latitude) return null;
+  const width = Dimensions.get('window').width;
+  const mapWidth = calculateDistance(
+    region.latitude, region.longitude - region.longitudeDelta / 2,
+    region.latitude, region.longitude + region.longitudeDelta / 2
+  );
+  if (!mapWidth || !width) return null;
+  const targetMeters = mapWidth * 0.24;
+  const power = 10 ** Math.floor(Math.log10(targetMeters));
+  const rounded = [1, 2, 5, 10].map((n) => n * power).filter((n) => n <= targetMeters).pop() || power;
+  return { meters: rounded, width: Math.max(35, Math.min(125, rounded / mapWidth * width)) };
+};
 
 const DETAIL_ICONS = {
   // Navigation & Épaves
@@ -218,89 +242,68 @@ const getFeatureDescription = (properties) => {
 
 // calculateDistance, formatDistance et smoothAngle sont importes depuis '../utils/topoUtils'
 
-/**
- * Marqueur de position utilisateur avec cône de visée fluide et orientation en direct.
- * Gère sa propre écoute de capteur pour ne JAMAIS déclencher de re-render de la carte TopoSiteMap.
- * Utilise la prop native `rotation` de react-native-maps et une icône PNG dédiée
- * pour une rotation GPU matérielle instantanée (60 FPS) sans lag ni duplication.
- */
-const UserBearingMarker = React.memo(({ coordinate, distanceFormatted }) => {
-  const [heading, setHeading] = useState(0);
-  const headingRef = useRef(0);
-
-  useEffect(() => {
-    let isMounted = true;
-    let sub = null;
-
-    const updateHeading = (rawHeading) => {
-      if (!isMounted || typeof rawHeading !== 'number' || isNaN(rawHeading)) return;
-      const smooth = smoothAngle(headingRef.current, rawHeading);
-      const rounded = Math.round(smooth * 10) / 10;
-      if (Math.abs(rounded - headingRef.current) >= 0.8) {
-        headingRef.current = rounded;
-        setHeading(rounded);
-      }
-    };
-
-    (async () => {
-      try {
-        // 1. Priorité à DeviceMotion (fusion matérielle gyro/accéléromètre/magnétomètre sans lag)
-        const isDeviceMotionAvailable = await DeviceMotion.isAvailableAsync().catch(() => false);
-        if (isDeviceMotionAvailable) {
-          DeviceMotion.setUpdateInterval(40); // 25 Hz
-          sub = DeviceMotion.addListener((data) => {
-            if (data?.rotation?.alpha !== undefined) {
-              const deg = (-data.rotation.alpha * (180 / Math.PI) + 360) % 360;
-              updateHeading(deg);
-            }
-          });
-          return;
-        }
-      } catch (e) { }
-
-      try {
-        // 2. Repli sur Location.watchHeadingAsync
-        sub = await Location.watchHeadingAsync((data) => {
-          const h = data.trueHeading >= 0 ? data.trueHeading : data.magHeading;
-          if (typeof h === 'number' && !isNaN(h)) {
-            updateHeading(h);
-          }
-        });
-      } catch (e) {
-        // 3. Repli ultime sur Magnetometer
-        try {
-          Magnetometer.setUpdateInterval(40);
-          sub = Magnetometer.addListener(({ x, y }) => {
-            let angle = Math.atan2(y, x) * (180 / Math.PI);
-            angle = (angle + 360) % 360;
-            const corrected = (360 - angle + 90) % 360;
-            updateHeading(corrected);
-          });
-        } catch (err) { }
-      }
-    })();
-
-    return () => {
-      isMounted = false;
-      sub?.remove();
-    };
-  }, []);
-
+/** Le point GPS reste au centre ; seul le cône et la flèche tournent avec le cap. */
+const UserBearingMarker = React.memo(({ coordinate, heading, isFullscreen }) => {
   if (!coordinate?.latitude || !coordinate?.longitude) return null;
 
   return (
     <Marker
       coordinate={coordinate}
       anchor={{ x: 0.5, y: 0.5 }}
-      flat={true}
-      rotation={heading}
-      image={USER_BEARING_ICON}
       zIndex={100}
-      tracksViewChanges={false}
-      title="Votre position"
-      description={distanceFormatted ? `Distance au site : ${distanceFormatted}` : 'Vous êtes ici'}
-    />
+      tracksViewChanges={true}
+      tappable={false}
+    >
+      {isFullscreen ? (
+        <View style={userMarkerStyles.container} pointerEvents="none">
+          {heading != null && (
+            <View style={[userMarkerStyles.direction, { transform: [{ rotate: `${heading}deg` }] }]}>
+              <View style={userMarkerStyles.cone} />
+              <Ionicons name="arrow-up" size={38} color="#FFFFFF" style={userMarkerStyles.arrow} />
+            </View>
+          )}
+          <View style={userMarkerStyles.glow} />
+          <View style={userMarkerStyles.dotOuter}>
+            <View style={userMarkerStyles.dotInner} />
+          </View>
+        </View>
+      ) : (
+        <Image
+          source={USER_BEARING_ICON}
+          style={{ width: 76, height: 76, transform: [{ rotate: `${heading ?? 0}deg` }] }}
+          resizeMode="contain"
+        />
+      )}
+    </Marker>
   );
+});
+
+const userMarkerStyles = StyleSheet.create({
+  container: { width: 152, height: 152, alignItems: 'center', justifyContent: 'center' },
+  direction: { position: 'absolute', width: 152, height: 152, left: 0, top: 0 },
+  cone: {
+    position: 'absolute', top: 0, left: 19, width: 0, height: 0,
+    borderLeftWidth: 57, borderRightWidth: 57, borderTopWidth: 76,
+    borderLeftColor: 'transparent', borderRightColor: 'transparent',
+    borderTopColor: 'rgba(18,142,255,0.42)',
+  },
+  arrow: {
+    position: 'absolute', top: 13, left: 57,
+    textShadowColor: '#005CB6', textShadowRadius: 5,
+    textShadowOffset: { width: 0, height: 1 },
+  },
+  glow: {
+    position: 'absolute', width: 62, height: 62, borderRadius: 31,
+    backgroundColor: 'rgba(25,142,255,0.27)',
+  },
+  dotOuter: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: '#FFFFFF', borderWidth: 3, borderColor: '#168FFF',
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#168FFF', shadowOpacity: 0.9, shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 }, elevation: 6,
+  },
+  dotInner: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#168FFF' },
 });
 
 
@@ -316,8 +319,7 @@ const CustomTopoMarker = React.memo(({
   isFullscreen,
   styles,
   onPress,
-  markerRefSetter,
-  distanceText,
+  featured,
 }) => {
   const [tracksViewChanges, setTracksViewChanges] = useState(true);
 
@@ -327,26 +329,20 @@ const CustomTopoMarker = React.memo(({
       setTracksViewChanges(false);
     }, 600);
     return () => clearTimeout(timer);
-  }, [isSelected, marker.profondeur, marker.center?.latitude, marker.center?.longitude, distanceText]);
+  }, [isSelected, featured, marker.profondeur, marker.center?.latitude, marker.center?.longitude]);
 
-  const calloutDescription = useMemo(() => {
-    const parts = [];
-    if (marker.displayDesc) parts.push(marker.displayDesc);
-    if (distanceText) {
-      parts.push(`🧭 À ${distanceText}`);
-    }
-    return parts.length > 0 ? parts.join('\n') : undefined;
-  }, [marker.displayDesc, distanceText]);
+  const poiColor = marker.type === 'mouillage' ? '#27D8F5'
+    : marker.type === 'epave' ? '#FF9B45'
+    : marker.type === 'grotte' || marker.type === 'entree' ? '#FFC247'
+    : marker.type === 'tombant' ? '#C472F3' : '#9BD5E8';
 
   return (
     <Marker
-      ref={markerRefSetter}
       coordinate={marker.center}
-      title={marker.calloutTitle}
-      description={calloutDescription}
       tracksViewChanges={tracksViewChanges}
       zIndex={isSelected ? 40 : (marker.isDepthPoint ? 12 : 20)}
       onPress={onPress}
+      anchor={isFullscreen && marker.hasBadge && !marker.isDepthPoint ? { x: 0.5, y: 0.55 } : undefined}
     >
       {marker.isDepthPoint ? (
         <View
@@ -361,9 +357,16 @@ const CustomTopoMarker = React.memo(({
             {marker.profondeur}
           </Text>
         </View>
+      ) : isFullscreen && marker.hasBadge ? (
+        <View pointerEvents="none" style={styles.fullscreenPoiMarker}>
+          <View style={[styles.fullscreenPoiRing, { borderColor: poiColor }, (isSelected || featured) && styles.fullscreenPoiRingActive]}>
+            <OutlineIcon name={marker.displayIcon} size={24} color={poiColor} />
+          </View>
+          <View style={[styles.fullscreenPoiDot, { backgroundColor: poiColor }]} />
+        </View>
       ) : marker.hasBadge ? (
         <View pointerEvents="none" style={styles.poiBadge}>
-          <Text style={styles.poiBadgeText}>{marker.displayIcon}</Text>
+          <OutlineIcon name={marker.displayIcon} size={21} color={poiColor} />
         </View>
       ) : (
         <View pointerEvents="none" style={{ width: 1, height: 1, opacity: 0 }} />
@@ -372,18 +375,38 @@ const CustomTopoMarker = React.memo(({
   );
 });
 
-const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) => {
+const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null, discoverRequest = 0 }) => {
   const { colors, isDark } = useTheme();
   const styles = useMemo(() => makeStyles(colors, isDark), [colors, isDark]);
 
-  // Mode d'affichage dans la carte réduite : 'map' (carte standard) ou 'plan' (image schéma)
-  const [viewMode, setViewMode] = useState('map');
   const [fullscreenMap, setFullscreenMap] = useState(false);
   const [fullscreenPlan, setFullscreenPlan] = useState(false);
+  const [fullscreenMapType, setFullscreenMapType] = useState('satellite');
+  const [fullscreenRegion, setFullscreenRegion] = useState(null);
+  const [fullscreenMapHeading, setFullscreenMapHeading] = useState(0);
+  const [fullscreenSummaryHeight, setFullscreenSummaryHeight] = useState(180);
+  const [fullscreenMapReady, setFullscreenMapReady] = useState(false);
+  const autoFitGpsRef = useRef(false);
+  const lastDiscoverRequestRef = useRef(discoverRequest);
   // Zone sélectionnée (au clic sur polygone ou marqueur)
   const [selectedZone, setSelectedZone] = useState(null);
   // Affichage replié/déplié de la légende bathymétrique en haut à droite
   const [legendExpanded, setLegendExpanded] = useState(true);
+
+  useEffect(() => {
+    const shouldOpen = discoverRequest > lastDiscoverRequestRef.current;
+    lastDiscoverRequestRef.current = discoverRequest;
+    if (!shouldOpen) return;
+    autoFitGpsRef.current = false;
+    setFullscreenMapReady(false);
+    setFullscreenMapHeading(0);
+    setFullscreenMap(true);
+  }, [discoverRequest]);
+
+  useEffect(() => {
+    setSelectedZone(null);
+    setFullscreenRegion(null);
+  }, [topo?.id]);
 
   // Localisation utilisateur (pour calcul de distance et affichage natif)
   const [userCoords, setUserCoords] = useState(
@@ -394,6 +417,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
   const [hasLocationPermission, setHasLocationPermission] = useState(
     Boolean(initialUserLocation?.latitude && initialUserLocation?.longitude)
   );
+  const [deviceHeading, setDeviceHeading] = useState(null);
+  const headingRef = useRef(null);
 
   // Synchronisation avec initialUserLocation si disponible ou mis à jour
   useEffect(() => {
@@ -406,11 +431,58 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     }
   }, [initialUserLocation?.latitude, initialUserLocation?.longitude]);
 
-  // Références vers les marqueurs pour ouvrir leur bulle de texte (Callout)
-  const cardMarkerRefs = useRef({});
-  const fullscreenMarkerRefs = useRef({});
+  // Pendant la carte agrandie, le point bleu suit la vraie position du téléphone.
+  useEffect(() => {
+    if (!fullscreenMap || !hasLocationPermission) return undefined;
+    let active = true;
+    let subscription;
+    Location.watchPositionAsync(
+      { accuracy: Location.Accuracy.High, distanceInterval: 5, timeInterval: 1500 },
+      ({ coords }) => {
+        if (active && Number.isFinite(coords?.latitude) && Number.isFinite(coords?.longitude)) {
+          setUserCoords({ latitude: coords.latitude, longitude: coords.longitude });
+        }
+      }
+    ).then((watcher) => {
+      if (active) subscription = watcher;
+      else watcher.remove();
+    }).catch((error) => console.log('Position GPS indisponible :', error));
+    return () => { active = false; subscription?.remove(); };
+  }, [fullscreenMap, hasLocationPermission]);
+
+  // watchHeadingAsync donne un cap géographique absolu, contrairement à l'angle alpha du gyroscope.
+  useEffect(() => {
+    if (!fullscreenMap || !hasLocationPermission) return undefined;
+    headingRef.current = null;
+    setDeviceHeading(null);
+    let active = true;
+    let subscription;
+    Location.watchHeadingAsync(({ trueHeading, magHeading }) => {
+      const raw = Number.isFinite(trueHeading) && trueHeading >= 0 ? trueHeading : magHeading;
+      if (!active || !Number.isFinite(raw) || raw < 0) return;
+      const next = headingRef.current == null ? raw : smoothAngle(headingRef.current, raw);
+      if (headingRef.current == null || Math.abs(((next - headingRef.current + 540) % 360) - 180) >= 1) {
+        headingRef.current = next;
+        setDeviceHeading(next);
+      }
+    }).then((watcher) => {
+      if (active) subscription = watcher;
+      else watcher.remove();
+    }).catch((error) => console.log('Cap du téléphone indisponible :', error));
+    return () => { active = false; subscription?.remove(); };
+  }, [fullscreenMap, hasLocationPermission]);
+
+  const lastFeaturePressRef = useRef(0);
   const cardMapRef = useRef(null);
   const fullscreenMapRef = useRef(null);
+  const refreshFullscreenMapHeading = useCallback(async () => {
+    try {
+      const camera = await fullscreenMapRef.current?.getCamera?.();
+      if (Number.isFinite(camera?.heading)) setFullscreenMapHeading(camera.heading);
+    } catch (error) {
+      // Le cap de la carte reste à 0 si la caméra native n'est pas encore disponible.
+    }
+  }, []);
 
   // Récupération ponctuelle de la géolocalisation UNIQUEMENT si aucune position n'est fournie par le parent
   useEffect(() => {
@@ -458,6 +530,19 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
     const rawPolygons = [];
     const markers = [];
+    const getPoiDepth = (properties) => {
+      const direct = Number(properties?.profondeur);
+      if (Number.isFinite(direct) && direct > 0) return direct;
+      const detail = String(properties?.detail || properties?.sous_type || '').toLowerCase();
+      const type = String(properties?.type || '').toLowerCase();
+      const pois = topo?.pois || [];
+      const specific = detail && pois.find((poi) =>
+        String(poi.id || '').toLowerCase().includes(detail)
+        || String(poi.nom || '').toLowerCase().includes(detail)
+      );
+      const match = specific || pois.find((poi) => String(poi.type || '').toLowerCase() === type);
+      return parseFloat(String(match?.profondeur ?? '').replace(',', '.')) || null;
+    };
 
     topo.geojson.features.forEach((feature, idx) => {
       const geomType = feature.geometry?.type;
@@ -480,7 +565,6 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
         const polyObj = {
           id: polyId,
-          markerId,
           type,
           detail,
           coords,
@@ -491,13 +575,12 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
         rawPolygons.push(polyObj);
 
-        // Titre brut pour l'encadré du bas, et titre avec icône pour la bulle native
+        // Titre du repère affiché dans le panneau inférieur.
         const rawTitle =
           feature.properties?.titre ||
           feature.properties?.nom ||
           feature.properties?.name ||
           style.label;
-        const calloutTitle = style.icon ? `${style.icon} ${rawTitle}` : rawTitle;
 
         // On associe un marqueur à chaque polygone (badge visible pour les POIs, invisible pour les entrées et zones de profondeur)
         markers.push({
@@ -507,8 +590,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
           center: { latitude: centerLat, longitude: centerLng },
           displayIcon: style.icon,
           titleText: rawTitle,
-          calloutTitle,
           displayDesc: getFeatureDescription(feature.properties),
+          depth: getPoiDepth(feature.properties),
           hasBadge: type !== 'entree' && type !== 'zone' && feature.properties?.hasBadge !== false,
         });
       } else if (geomType === 'Point' && Array.isArray(feature.geometry.coordinates) && feature.geometry.coordinates.length >= 2) {
@@ -534,7 +617,6 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             displayIcon: '↕️',
             depthColor: depthStyle.strokeColor,
             titleText: rawTitle,
-            calloutTitle: `Profondeur : ${depthVal} m`,
             displayDesc: getFeatureDescription(feature.properties) || `Sonde bathymétrique mesurée à ${depthVal} m`,
             hasBadge: true,
           });
@@ -546,7 +628,6 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             feature.properties?.nom ||
             feature.properties?.name ||
             style.label;
-          const calloutTitle = style.icon ? `${style.icon} ${rawTitle}` : rawTitle;
 
           markers.push({
             id: markerId,
@@ -555,8 +636,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             center,
             displayIcon: style.icon,
             titleText: rawTitle,
-            calloutTitle,
             displayDesc: getFeatureDescription(feature.properties),
+            depth: getPoiDepth(feature.properties),
             hasBadge: true,
           });
         }
@@ -573,7 +654,16 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     });
 
     return { rawPolygons, markers };
-  }, [topo?.geojson]);
+  }, [topo?.geojson, topo?.pois]);
+
+  const featuredMarker = useMemo(() => {
+    const pois = geojsonPolygons.markers.filter((marker) => marker.hasBadge && !marker.isDepthPoint);
+    return pois.find((marker) => marker.type === 'epave' && /amphore/i.test(marker.titleText))
+      || pois.find((marker) => marker.type === 'epave')
+      || pois.find((marker) => marker.type === 'mouillage')
+      || pois[0]
+      || null;
+  }, [geojsonPolygons.markers]);
 
   // Calcul des coordonnées cibles et cadrage : englobe l'ensemble des polygones ET des sondes/POIs
   const { targetCoords, mapDelta } = useMemo(() => {
@@ -623,6 +713,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     };
   }, [geojsonPolygons, topo?.coordonnees_gps, spot?.latitude, spot?.longitude]);
 
+  const navigationTarget = selectedZone?.center || featuredMarker?.center || targetCoords;
+
   // Animation fluide de la caméra sans réinitialiser la carte au clic
   useEffect(() => {
     if (cardMapRef.current && targetCoords) {
@@ -637,19 +729,52 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     }
   }, [targetCoords?.latitude, targetCoords?.longitude, mapDelta]);
 
-  // Animation fluide de la caméra plein écran à l'ouverture du modal
-  useEffect(() => {
-    if (fullscreenMap && fullscreenMapRef.current && targetCoords) {
-      try {
-        fullscreenMapRef.current.animateToRegion({
+  const fitFullscreenMap = useCallback((includeUser = false) => {
+    const map = fullscreenMapRef.current;
+    if (!map) return;
+    const coordinates = [
+      targetCoords,
+      ...geojsonPolygons.rawPolygons.flatMap((polygon) => polygon.coords),
+      ...geojsonPolygons.markers.map((marker) => marker.center),
+    ];
+    if (includeUser && userCoords) coordinates.push(userCoords);
+    try {
+      if (coordinates.length > 1) {
+        map.fitToCoordinates(coordinates, {
+          edgePadding: {
+            top: 105, right: 45,
+            bottom: Math.min(fullscreenSummaryHeight + 28, Dimensions.get('window').height * 0.42), left: 45,
+          },
+          animated: true,
+        });
+      } else {
+        map.animateToRegion({
           latitude: targetCoords.latitude,
           longitude: targetCoords.longitude,
           latitudeDelta: mapDelta,
           longitudeDelta: mapDelta,
         }, 300);
-      } catch (e) { }
+      }
+    } catch (error) {
+      console.log('Erreur cadrage du topo:', error);
     }
-  }, [fullscreenMap, targetCoords?.latitude, targetCoords?.longitude]);
+  }, [geojsonPolygons, targetCoords.latitude, targetCoords.longitude, mapDelta, userCoords?.latitude, userCoords?.longitude, fullscreenSummaryHeight]);
+  const fitFullscreenSite = useCallback(() => fitFullscreenMap(false), [fitFullscreenMap]);
+  const fitFullscreenOverview = useCallback(() => fitFullscreenMap(true), [fitFullscreenMap]);
+
+  useEffect(() => {
+    if (!fullscreenMap || !fullscreenMapReady || autoFitGpsRef.current) return undefined;
+    const timer = setTimeout(() => {
+      if (userCoords) {
+        autoFitGpsRef.current = true;
+        fitFullscreenOverview();
+      } else {
+        fitFullscreenSite();
+      }
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [fullscreenMap, fullscreenMapReady, topo?.id, userCoords?.latitude, userCoords?.longitude,
+    fitFullscreenOverview, fitFullscreenSite]);
 
   const imageSource = useMemo(() => {
     if (!topo?.plan_image) return null;
@@ -675,34 +800,82 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
     return formatDistance(distanceToSite);
   }, [distanceToSite]);
 
-  // Distance en ligne droite jusqu'à l'objet sélectionné (rocher, grotte, etc. - hors zones de profondeur)
+  const targetDistanceMeters = useMemo(() => {
+    if (!userCoords || !navigationTarget) return null;
+    return calculateDistance(userCoords.latitude, userCoords.longitude, navigationTarget.latitude, navigationTarget.longitude);
+  }, [userCoords?.latitude, userCoords?.longitude, navigationTarget?.latitude, navigationTarget?.longitude]);
+  const targetDistanceText = formatDistance(targetDistanceMeters);
+  const bearingToTarget = useMemo(() => getBearingToPoint(userCoords, navigationTarget), [
+    userCoords?.latitude, userCoords?.longitude, navigationTarget?.latitude, navigationTarget?.longitude,
+  ]);
+  const relativeBearing = getRelativeBearing(bearingToTarget, deviceHeading);
+  const scale = useMemo(() => getScale(fullscreenRegion || {
+    latitude: targetCoords.latitude,
+    longitude: targetCoords.longitude,
+    longitudeDelta: mapDelta,
+  }), [fullscreenRegion, targetCoords.latitude, targetCoords.longitude, mapDelta]);
+
+  // Distance en ligne droite jusqu'au repère réellement sélectionné sur la carte.
   const selectedZoneDistance = useMemo(() => {
     if (!selectedZone?.center) return null;
-    return getStraightLineDistance(userCoords, selectedZone.center, selectedZone.isDepthZone);
+    return getStraightLineDistance(userCoords, selectedZone.center);
   }, [userCoords, selectedZone]);
 
   // Ajuster la caméra pour afficher à la fois le site de plongée et l'utilisateur
   const handleFitBoth = (isFullscreen = false) => {
     const map = isFullscreen ? fullscreenMapRef.current : cardMapRef.current;
-    if (map && userCoords && targetCoords) {
+    if (map && userCoords && navigationTarget) {
       try {
-        map.fitToCoordinates([userCoords, targetCoords], {
-          edgePadding: { top: 60, right: 60, bottom: 60, left: 60 },
-          animated: true,
-        });
+        if (targetDistanceMeters != null && targetDistanceMeters < 5) {
+          map.animateToRegion({ ...navigationTarget, latitudeDelta: mapDelta, longitudeDelta: mapDelta }, 350);
+        } else {
+          map.fitToCoordinates([userCoords, navigationTarget], {
+            edgePadding: isFullscreen
+              ? { top: 90, right: 45, bottom: Math.min(fullscreenSummaryHeight + 28, Dimensions.get('window').height * 0.42), left: 45 }
+              : { top: 60, right: 60, bottom: 60, left: 60 },
+            animated: true,
+          });
+        }
       } catch (e) {
         console.log('Erreur fitToCoordinates:', e);
       }
+    } else if (map && navigationTarget) {
+      map.animateToRegion({
+        ...navigationTarget,
+        latitudeDelta: mapDelta,
+        longitudeDelta: mapDelta,
+      }, 350);
     }
+  };
+
+  const handleCenterSite = fitFullscreenSite;
+  const closeFullscreenMap = () => {
+    setFullscreenMap(false);
   };
 
   if (!topo && !spot) return null;
 
   const siteTitle = topo?.titre || spot?.nom || 'Site de plongée';
   const siteSubTitle = topo?.sous_titre || spot?.localite || '';
+  const summaryTitle = selectedZone
+    ? selectedZone.title
+    : featuredMarker?.titleText || siteTitle;
+  const summaryDescription = selectedZone?.description || (!selectedZone ? featuredMarker?.displayDesc : '') || '';
+  const summaryKind = selectedZone?.type || featuredMarker?.type;
+  const summaryType = ({ epave: 'Épave', grotte: 'Grotte', mouillage: 'Mouillage',
+    rocher: 'Rocher', sec: 'Sec', tombant: 'Tombant', profondeur: 'Sonde',
+    zone: 'Zone de profondeur', entree: 'Entrée' })[summaryKind]
+    || spot?.type_site || 'Site de plongée';
+  const summaryDepth = selectedZone?.depth != null && String(selectedZone.depth).trim()
+    ? `${String(selectedZone.depth).trim().replace(/\s*m$/i, '')} m`
+    : `${spot?.profondeur_min}–${spot?.profondeur_max} m`;
+  const difficultyLabel = {
+    Beginner: 'Débutant', Intermediate: 'Intermédiaire', Advanced: 'Expert',
+  }[spot?.difficulte] || spot?.difficulte || 'Non renseigné';
 
-  // Sélection d'une zone (clic polygone) : met à jour l'état et OUVRE la bulle du marqueur
-  const handleSelectPoly = (poly, isFullscreen = false) => {
+  // Les détails du repère sélectionné s'affichent exclusivement dans le panneau inférieur.
+  const handleSelectPoly = (poly, event) => {
+    lastFeaturePressRef.current = Date.now();
     const title =
       poly.properties?.titre ||
       poly.properties?.nom ||
@@ -715,30 +888,25 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       poly.properties?.type === 'profondeur' ||
       Boolean(poly.isDepthZone);
 
+    const matchingMarker = geojsonPolygons.markers.find((marker) => marker.polyId === poly.id);
+    const pressedCoordinate = event?.nativeEvent?.coordinate;
+    const selectedCoordinate = Number.isFinite(pressedCoordinate?.latitude) && Number.isFinite(pressedCoordinate?.longitude)
+      ? pressedCoordinate : poly.center;
     setSelectedZone({
       id: poly.id,
+      type: poly.type || poly.properties?.type,
+      depth: matchingMarker?.depth ?? poly.properties?.profondeur ?? null,
       icon: poly.style.icon,
       title,
       description: getFeatureDescription(poly.properties),
-      center: poly.center,
+      center: selectedCoordinate,
       isDepthZone,
     });
 
-    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
-    const markerRef = refMap[poly.id] || refMap[poly.markerId];
-    if (markerRef) {
-      setTimeout(() => {
-        try {
-          markerRef.showCallout();
-        } catch (e) {
-          console.log('Erreur showCallout poly:', e);
-        }
-      }, 50);
-    }
   };
 
-  // Sélection d'un marqueur (clic icône) : met à jour l'état et s'assure que la bulle s'ouvre
-  const handleSelectMarker = (marker, isFullscreen = false) => {
+  const handleSelectMarker = (marker) => {
+    lastFeaturePressRef.current = Date.now();
     const isDepthZone =
       Boolean(marker.isDepthPoint) ||
       marker.type === 'profondeur' ||
@@ -747,6 +915,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
 
     setSelectedZone({
       id: marker.polyId,
+      type: marker.type,
+      depth: marker.depth ?? marker.profondeur ?? null,
       icon: marker.displayIcon,
       title: marker.titleText,
       description: marker.displayDesc || '',
@@ -754,39 +924,16 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       isDepthZone,
     });
 
-    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
-    const markerRef = refMap[marker.id] || refMap[marker.polyId];
-    if (markerRef) {
-      setTimeout(() => {
-        try {
-          markerRef.showCallout();
-        } catch (e) {
-          console.log('Erreur showCallout marker:', e);
-        }
-      }, 50);
-    }
   };
 
-  // Fermeture des bulles et désélection au clic sur la carte vide
-  const handleMapPress = (isFullscreen = false) => {
+  const handleMapPress = (event) => {
+    if (event?.nativeEvent?.action === 'marker-press' || Date.now() - lastFeaturePressRef.current < 250) return;
     setSelectedZone(null);
-    const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
-    Object.values(refMap).forEach((ref) => {
-      try {
-        ref?.hideCallout();
-      } catch (e) { }
-    });
   };
 
   // Fermeture manuelle de l'encadré d'info
   const handleCloseZone = () => {
     setSelectedZone(null);
-    Object.values(cardMarkerRefs.current).forEach((ref) => {
-      try { ref?.hideCallout(); } catch (e) { }
-    });
-    Object.values(fullscreenMarkerRefs.current).forEach((ref) => {
-      try { ref?.hideCallout(); } catch (e) { }
-    });
   };
 
   const renderMapElements = (isFullscreen = false) => (
@@ -799,8 +946,12 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             latitude: targetCoords.latitude,
             longitude: targetCoords.longitude,
           }}
-          title={siteTitle}
-          description={siteSubTitle}
+          onPress={() => {
+            lastFeaturePressRef.current = Date.now();
+            setSelectedZone({ id: 'site-center', type: spot?.type_site,
+              title: siteTitle, icon: 'location-outline', center: targetCoords,
+              depth: null, description: siteSubTitle });
+          }}
         />
       )}
 
@@ -809,29 +960,37 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
         const isSelected = selectedZone?.id === poly.id;
         const polyType = (poly.type || poly.properties?.type || '').toString().toLowerCase().trim();
         const isDepth = polyType === 'zone' || polyType === 'profondeur';
+        const fillOpacity = isDepth ? (isSelected ? 0.27 : 0.13) : (isSelected ? 0.28 : 0.16);
+        const softerFill = poly.style.fillColor.replace(/,\s*[\d.]+\)$/, `, ${fillOpacity})`);
         return (
           <Polygon
             key={isFullscreen ? `fs-poly-${poly.id}` : `card-poly-${poly.id}`}
             coordinates={poly.coords}
-            strokeColor={isSelected ? '#FFFFFF' : (isDepth ? 'transparent' : poly.style.strokeColor)}
-            fillColor={isSelected ? poly.style.fillColor.replace('0.25', '0.6').replace('0.4', '0.7') : poly.style.fillColor}
-            strokeWidth={isSelected ? 2.5 : (isDepth ? 0 : 2)}
+            strokeColor={isSelected ? '#FFFFFF' : (isDepth ? (isFullscreen && poly.id === 'poly-0' ? '#00E5A0' : 'transparent') : poly.style.strokeColor)}
+            fillColor={isFullscreen ? softerFill : poly.style.fillColor}
+            strokeWidth={isSelected ? 2.5 : (isDepth ? (isFullscreen && poly.id === 'poly-0' ? 2 : 0) : 2)}
             lineDashPattern={isDepth ? undefined : poly.style.lineDashPattern}
             zIndex={isSelected ? 35 : (isDepth ? 2 : 15)}
             tappable={true}
-            onPress={() => handleSelectPoly(poly, isFullscreen)}
+            onPress={(event) => handleSelectPoly(poly, event)}
           />
         );
       })}
 
-      {/* Rendu des marqueurs avec référence pour pouvoir ouvrir leur bulle */}
+      {isFullscreen && userCoords && targetDistanceMeters != null && (
+        <Polyline
+          coordinates={[userCoords, navigationTarget]}
+          strokeColor="rgba(255,255,255,0.9)"
+          strokeWidth={2}
+          lineDashPattern={[8, 7]}
+          zIndex={18}
+        />
+      )}
+
+      {/* Repères de profondeur et points d'intérêt */}
       {geojsonPolygons.markers.map((marker) => {
-        const isSelected = selectedZone?.id === marker.polyId;
-        const markerDistance = getStraightLineDistance(
-          userCoords,
-          marker.center,
-          marker.isDepthPoint || marker.type === 'profondeur' || marker.type === 'zone'
-        );
+        const isSelected = selectedZone?.id === marker.polyId
+          || (isFullscreen && !selectedZone && marker.id === featuredMarker?.id);
         return (
           <CustomTopoMarker
             key={isFullscreen ? `fs-marker-${marker.id}-${topo?.id}` : `card-marker-${marker.id}-${topo?.id}`}
@@ -839,15 +998,8 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             isSelected={isSelected}
             isFullscreen={isFullscreen}
             styles={styles}
-            distanceText={markerDistance}
-            onPress={() => handleSelectMarker(marker, isFullscreen)}
-            markerRefSetter={(ref) => {
-              if (ref) {
-                const refMap = isFullscreen ? fullscreenMarkerRefs.current : cardMarkerRefs.current;
-                refMap[marker.polyId] = ref;
-                refMap[marker.id] = ref;
-              }
-            }}
+            featured={isFullscreen && (selectedZone ? selectedZone.id === marker.polyId : marker.id === featuredMarker?.id)}
+            onPress={() => handleSelectMarker(marker)}
           />
         );
       })}
@@ -857,7 +1009,10 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
         <UserBearingMarker
           key={isFullscreen ? 'fs-user-bearing' : 'card-user-bearing'}
           coordinate={userCoords}
-          distanceFormatted={distanceFormatted}
+          heading={isFullscreen && deviceHeading != null
+            ? (deviceHeading - fullscreenMapHeading + 360) % 360
+            : deviceHeading}
+          isFullscreen={isFullscreen}
         />
       )}
     </>
@@ -873,7 +1028,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
         <Text style={styles.depthLegendTitle}>Profondeur</Text>
-        <Text style={styles.depthLegendToggle}>{legendExpanded ? '▴' : '▾'}</Text>
+        <OutlineIcon name={legendExpanded ? 'chevron-up-outline' : 'chevron-down-outline'} size={16} color={colors.primary} />
       </TouchableOpacity>
       {legendExpanded && (
         <View style={styles.depthLegendList}>
@@ -893,28 +1048,14 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
       {/* ── En-tête de la carte / plan ── */}
       <View style={styles.cardHeader}>
         <View style={styles.cardHeaderLeft}>
-          <Text style={styles.cardIcon}>{viewMode === 'map' ? '🗺️' : '📐'}</Text>
-          <Text style={styles.cardTitle}>
-            {viewMode === 'map' ? 'Localisation & Carte du Site' : 'Schéma & Plan Bathymétrique'}
-          </Text>
+          <OutlineIcon name="map-outline" size={23} color={colors.primary} />
+          <Text style={styles.cardTitle}>Localisation & Carte du Site</Text>
         </View>
       </View>
 
       {/* ── Container Réduit (240px) ── */}
       <View style={styles.mapContainer}>
-        {viewMode === 'map' ? (
-          /* ── Vue Carte Standard Réduite ── */
-          <>
-            {imageSource && (
-              <TouchableOpacity
-                style={styles.planBadge}
-                onPress={() => setViewMode('plan')}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.planBadgeText}>🖼️ Voir le plan</Text>
-              </TouchableOpacity>
-            )}
-
+        <>
             <MapView
               ref={cardMapRef}
               key={`card-map-${topo?.id || 'default'}`}
@@ -948,7 +1089,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
               showsMyLocationButton={false}
               followsUserLocation={false}
               showsCompass={true}
-              onPress={() => handleMapPress(false)}
+              onPress={handleMapPress}
             >
               {renderMapElements(false)}
             </MapView>
@@ -963,54 +1104,27 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
             >
               <View style={styles.overlayInfoRow}>
                 <View style={styles.overlayTitleCol}>
-                  <Text style={styles.overlayLegend} numberOfLines={1}>📍 {siteTitle}</Text>
+                  <Text style={styles.overlayLegend} numberOfLines={1}>{siteTitle}</Text>
                   {distanceFormatted && (
                     <TouchableOpacity onPress={() => handleFitBoth(false)} activeOpacity={0.75}>
                       <Text style={styles.overlayDistance}>
-                        {distanceToSite < 50 ? '⚓ Sur le site' : `🧭 À ${distanceFormatted} (Ajuster la vue)`}
+                        {distanceToSite < 50 ? 'Sur le site' : `À ${distanceFormatted} (Ajuster la vue)`}
                       </Text>
                     </TouchableOpacity>
                   )}
                 </View>
-                <TouchableOpacity onPress={() => setFullscreenMap(true)}>
-                  <Text style={styles.overlayHint}>🔍 Carte plein écran</Text>
-                </TouchableOpacity>
               </View>
             </LinearGradient>
-          </>
-        ) : (
-          /* ── Vue Plan Réduit (Image 240px) ── */
-          <>
-            <TouchableOpacity
-              style={styles.planBadge}
-              onPress={() => setViewMode('map')}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.planBadgeText}>🗺️ Voir la carte</Text>
-            </TouchableOpacity>
+        </>
+      </View>
 
-            <TouchableOpacity
-              style={styles.imagePressArea}
-              activeOpacity={0.92}
-              onPress={() => setFullscreenPlan(true)}
-            >
-              <Image source={imageSource} style={styles.topoImage} resizeMode="contain" />
-            </TouchableOpacity>
-
-            <LinearGradient
-              colors={['transparent', 'rgba(5,10,16,0.85)']}
-              style={styles.imageOverlay}
-              pointerEvents="box-none"
-            >
-              <View style={styles.overlayInfoRow}>
-                <Text style={styles.overlayLegend}>📐 {siteTitle}</Text>
-                <TouchableOpacity onPress={() => setFullscreenPlan(true)}>
-                  <Text style={styles.overlayHint}>🔍 Agrandir le plan</Text>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
-          </>
-        )}
+      <View style={styles.siteSummary}>
+        <Image source={{ uri: spot?.photos_fond_marin?.[0] || spot?.photo }} style={styles.siteSummaryImage} />
+        <View style={styles.siteSummaryText}>
+          <Text style={styles.siteSummaryTitle} numberOfLines={2}>{topo?.titre || spot?.nom}</Text>
+          <Text style={styles.siteSummarySub} numberOfLines={2}>{spot?.localite} · {spot?.profondeur_min}–{spot?.profondeur_max} m</Text>
+        </View>
+        <Ionicons name="water-outline" size={24} color={colors.primary} />
       </View>
 
       {/* ── Encadré d'information sur la zone sélectionnée (affiché en dessous de la carte hors plein écran) ── */}
@@ -1018,14 +1132,14 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
         <View style={styles.selectedZoneBox}>
           <View style={[styles.selectedZoneHeader, !selectedZone.description && { marginBottom: 0 }]}>
             <View style={styles.selectedZoneTitleRow}>
-              <Text style={styles.selectedZoneIcon}>{selectedZone.icon}</Text>
+              <OutlineIcon name={selectedZone.icon} size={20} color={colors.primary} />
               <View style={styles.selectedZoneTitleCol}>
                 <Text style={styles.selectedZoneTitle} numberOfLines={1}>
                   {selectedZone.title}
                 </Text>
                 {selectedZoneDistance && (
                   <Text style={styles.selectedZoneDistanceText}>
-                    🧭 À {selectedZoneDistance}
+                    À {selectedZoneDistance}
                   </Text>
                 )}
               </View>
@@ -1034,7 +1148,7 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
               onPress={handleCloseZone}
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
-              <Text style={styles.selectedZoneClose}>✕</Text>
+              <OutlineIcon name="close-outline" size={22} color={colors.textSecondary} />
             </TouchableOpacity>
           </View>
           {!!selectedZone.description && (
@@ -1048,26 +1162,15 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
         visible={fullscreenMap}
         transparent={false}
         animationType="slide"
-        onRequestClose={() => setFullscreenMap(false)}
+        onRequestClose={closeFullscreenMap}
+        onDismiss={() => setFullscreenMapReady(false)}
       >
         <SafeAreaView style={styles.fullscreenMapSafeArea}>
-          <View style={styles.fullscreenMapHeader}>
-            <TouchableOpacity
-              style={styles.fullscreenCloseBtn}
-              onPress={() => setFullscreenMap(false)}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.fullscreenCloseBtnText}>✕ Fermer</Text>
-            </TouchableOpacity>
-            <Text style={styles.fullscreenMapTitle} numberOfLines={1}>
-              {siteTitle}
-            </Text>
-          </View>
-
+          <StatusBar barStyle="light-content" backgroundColor="#03111F" />
           <View style={styles.fullscreenMapBody}>
             <MapView
               ref={fullscreenMapRef}
-              mapType="satellite"
+              mapType={fullscreenMapType}
               style={styles.fullscreenMap}
               initialRegion={{
                 latitude: targetCoords.latitude,
@@ -1084,59 +1187,127 @@ const TopoSiteMap = ({ topo, spot, userLocation: initialUserLocation = null }) =
               showsUserLocation={false}
               showsMyLocationButton={false}
               followsUserLocation={false}
-              showsCompass={true}
-              onPress={() => handleMapPress(true)}
+              showsCompass={false}
+              onRegionChangeComplete={(region) => {
+                setFullscreenRegion(region);
+                refreshFullscreenMapHeading();
+              }}
+              onMapReady={() => {
+                setFullscreenMapReady(true);
+                refreshFullscreenMapHeading();
+              }}
+              onPress={handleMapPress}
             >
               {renderMapElements(true)}
             </MapView>
 
-            {/* ── Légende des profondeurs en haut à droite en plein écran ── */}
-            {renderDepthLegend(true)}
+            <View style={styles.fullscreenMapHeader}>
+              <View style={styles.fullscreenTitlePill}>
+                <Text style={styles.fullscreenMapTitle} numberOfLines={1} ellipsizeMode="tail">{spot?.nom || siteTitle}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.fullscreenCloseBtn}
+                onPress={closeFullscreenMap}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Fermer la carte"
+              >
+                <OutlineIcon name="close-outline" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
 
-            {/* ── Badge de distance en plein écran ── */}
-            {distanceFormatted && (
-              <View style={styles.floatingControlsFullscreen} pointerEvents="box-none">
-                <TouchableOpacity
-                  style={styles.floatingDistanceChip}
-                  onPress={() => handleFitBoth(true)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.floatingDistanceChipText}>
-                    {distanceToSite < 50 ? '⚓ Sur le site' : `🧭 À ${distanceFormatted}`}
+            {/* Légende et commandes cartographiques */}
+            {renderDepthLegend(true)}
+            <View style={styles.fullscreenMapButtons}>
+              <TouchableOpacity
+                style={styles.fullscreenMapButton}
+                onPress={() => setFullscreenMapType((current) => current === 'satellite' ? 'standard' : 'satellite')}
+                onLongPress={() => imageSource && setFullscreenPlan(true)}
+                accessibilityLabel="Changer le fond de carte"
+              >
+                <Ionicons name="layers-outline" size={23} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.fullscreenMapButton} onPress={() => handleFitBoth(true)} accessibilityLabel="Voir ma position GPS et le repère sélectionné">
+                <OutlineIcon name="locate-outline" size={23} color={colors.primary} />
+                {userCoords && <View style={styles.mapControlGpsDot} />}
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.fullscreenMapButton} onPress={handleCenterSite} accessibilityLabel="Recentrer sur le site">
+                <OutlineIcon name="scan-outline" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {scale && (
+              <View style={[styles.fullscreenScale, { bottom: fullscreenSummaryHeight + 28 }]} pointerEvents="none">
+                <View style={[styles.fullscreenScaleLabels, { width: scale.width }]}>
+                  <Text style={styles.fullscreenScaleText}>0</Text>
+                  <Text style={styles.fullscreenScaleText}>
+                    {scale.meters >= 1000 ? `${scale.meters / 2000} km` : `${scale.meters / 2}`}
                   </Text>
-                </TouchableOpacity>
+                  <Text style={styles.fullscreenScaleText}>
+                    {scale.meters >= 1000 ? `${scale.meters / 1000} km` : `${scale.meters} m`}
+                  </Text>
+                </View>
+                <View style={[styles.fullscreenScaleLine, { width: scale.width }]} />
               </View>
             )}
 
-            {/* Bulle d'information flottante en bas de l'écran en mode plein écran */}
-            {selectedZone && (
-              <View style={styles.zoneInfoCardFullscreen}>
-                <View style={[styles.zoneInfoHeader, !selectedZone.description && { marginBottom: 0 }]}>
-                  <View style={styles.zoneInfoTitleRow}>
-                    <Text style={styles.zoneInfoIcon}>{selectedZone.icon}</Text>
-                    <View style={styles.zoneInfoTitleCol}>
-                      <Text style={styles.zoneInfoTitle} numberOfLines={1}>
-                        {selectedZone.title}
-                      </Text>
-                      {selectedZoneDistance && (
-                        <Text style={styles.zoneInfoDistanceText}>
-                          🧭 À {selectedZoneDistance}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    onPress={handleCloseZone}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Text style={styles.zoneInfoClose}>✕</Text>
-                  </TouchableOpacity>
+            <TouchableOpacity style={[styles.fullscreenCompass, { bottom: fullscreenSummaryHeight + 18 }]} onPress={() => handleFitBoth(true)} activeOpacity={0.86} accessibilityLabel="Afficher ma position et le cap du repère sélectionné">
+              <View style={styles.fullscreenCompassInner}>
+                <View style={[styles.compassDial, { transform: [{ rotate: `${-(deviceHeading ?? 0)}deg` }] }]}>
+                  <Text style={styles.compassNorth}>N</Text>
+                  <Text style={styles.compassWest}>O</Text>
+                  <Text style={styles.compassEast}>E</Text>
+                  <Text style={styles.compassSouth}>S</Text>
                 </View>
-                {!!selectedZone.description && (
-                  <Text style={styles.zoneInfoDesc}>{selectedZone.description}</Text>
+                {relativeBearing != null && (
+                  <View style={[styles.compassNeedle, { transform: [{ rotate: `${relativeBearing}deg` }] }]}>
+                    <OutlineIcon name="arrow-up-outline" size={22} color={colors.primary} />
+                  </View>
+                )}
+                <Text style={styles.compassDistance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{targetDistanceText || 'GPS'}</Text>
+                <Text style={styles.compassBearing} numberOfLines={1}>
+                  {bearingToTarget == null ? 'Position indisponible' : `${getCompassPoint(bearingToTarget)} ${Math.round(bearingToTarget)}°`}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.fullscreenSiteSummary} onLayout={(event) => {
+              const height = Math.round(event.nativeEvent.layout.height);
+              setFullscreenSummaryHeight((current) => current === height ? current : height);
+            }}>
+              <View style={styles.fullscreenHandle} />
+              <View style={styles.fullscreenSiteRow}>
+                <Image source={{ uri: spot?.photos_fond_marin?.[0] || spot?.photo }} style={styles.fullscreenSiteImage} />
+                <View style={styles.fullscreenSiteText}>
+                  <Text style={styles.fullscreenSiteTitle} numberOfLines={2}>{summaryTitle}</Text>
+                  <Text style={styles.fullscreenSiteLocation} numberOfLines={1}>{siteTitle}</Text>
+                </View>
+                {targetDistanceText && (
+                  <TouchableOpacity style={styles.fullscreenDistanceBadge} onPress={() => handleFitBoth(true)} accessibilityLabel="Voir ma position GPS et le repère sélectionné">
+                    <View style={styles.gpsBadgeLabel}><View style={styles.gpsBadgeDot} /><Text style={styles.gpsBadgeLabelText}>GPS</Text></View>
+                    <Text style={styles.fullscreenSiteDistance} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{targetDistanceText}</Text>
+                  </TouchableOpacity>
                 )}
               </View>
-            )}
+              {!!summaryDescription && (
+                <Text style={styles.fullscreenSiteDescription} numberOfLines={2}>{summaryDescription}</Text>
+              )}
+              <View style={styles.fullscreenMetrics}>
+                <View style={styles.fullscreenMetricCard}>
+                  <Ionicons name="water-outline" size={20} color={colors.primary} />
+                  <View style={styles.fullscreenMetricText}><Text style={styles.fullscreenMetricLabel}>Profondeur</Text><Text style={styles.fullscreenMetricValue} numberOfLines={1} adjustsFontSizeToFit>{summaryDepth}</Text></View>
+                </View>
+                <View style={styles.fullscreenMetricCard}>
+                  <OutlineIcon name="bar-chart-outline" size={20} color="#4ADE80" />
+                  <View style={styles.fullscreenMetricText}><Text style={styles.fullscreenMetricLabel}>Niveau du site</Text><Text style={styles.fullscreenMetricValue} numberOfLines={1} adjustsFontSizeToFit>{difficultyLabel}</Text></View>
+                </View>
+                <View style={styles.fullscreenMetricCard}>
+                  <Ionicons name="boat-outline" size={20} color="#C472F3" />
+                  <View style={styles.fullscreenMetricText}><Text style={styles.fullscreenMetricLabel}>Type</Text><Text style={styles.fullscreenMetricValue} numberOfLines={1} adjustsFontSizeToFit>{summaryType}</Text></View>
+                </View>
+              </View>
+            </View>
+
           </View>
         </SafeAreaView>
       </Modal>
@@ -1164,16 +1335,17 @@ TopoSiteMap.propTypes = {
   topo: PropTypes.object,
   spot: PropTypes.object,
   userLocation: PropTypes.object,
+  discoverRequest: PropTypes.number,
 };
 
 const makeStyles = (colors, isDark) => StyleSheet.create({
   card: {
     backgroundColor: colors.bgCard,
-    borderRadius: radius.xl || 20,
+    borderRadius: 24,
     padding: 16,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderMid,
     ...shadows.card,
   },
   cardHeader: {
@@ -1191,44 +1363,27 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     fontSize: 18,
   },
   cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 17,
+    fontWeight: '800',
     color: colors.textPrimary,
   },
   mapContainer: {
     width: '100%',
-    height: 240,
+    height: 300,
     borderRadius: radius.lg || 14,
     overflow: 'hidden',
     backgroundColor: isDark ? '#050A10' : '#E8EEF8',
     position: 'relative',
   },
-  planBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(5, 10, 16, 0.85)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.pill || 999,
-    borderWidth: 1,
-    borderColor: colors.primaryMid || 'rgba(0, 229, 255, 0.4)',
-    zIndex: 20,
-    elevation: 5,
+  siteSummary: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    backgroundColor: colors.bgElevated, borderWidth: 1, borderColor: colors.borderMid,
+    borderRadius: 18, padding: 10, marginTop: 12,
   },
-  planBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: colors.primary || '#00E5FF',
-  },
-  imagePressArea: {
-    width: '100%',
-    height: '100%',
-  },
-  topoImage: {
-    width: '100%',
-    height: '100%',
-  },
+  siteSummaryImage: { width: 66, height: 66, borderRadius: 12, backgroundColor: colors.bg },
+  siteSummaryText: { flex: 1, minWidth: 0, gap: 5 },
+  siteSummaryTitle: { fontSize: 15, fontWeight: '800', color: colors.textPrimary },
+  siteSummarySub: { fontSize: 12, color: colors.textSecondary },
   topoMap: {
     width: '100%',
     height: '100%',
@@ -1247,6 +1402,21 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
   },
+  fullscreenPoiMarker: {
+    width: 122,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullscreenPoiRing: {
+    width: 43, height: 43, borderRadius: 22, borderWidth: 2,
+    backgroundColor: '#03111F', alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#00DDF5', shadowOpacity: 0.45, shadowRadius: 8,
+  },
+  fullscreenPoiRingActive: {
+    width: 49, height: 49, borderRadius: 25, borderWidth: 3,
+    borderColor: '#FFFFFF', shadowOpacity: 0.8, shadowRadius: 12,
+  },
+  fullscreenPoiDot: { width: 7, height: 7, borderRadius: 4, marginTop: 3 },
   depthPointBadge: {
     backgroundColor: isDark ? 'rgba(5, 10, 16, 0.90)' : 'rgba(255, 255, 255, 0.95)',
     paddingHorizontal: 4,
@@ -1326,64 +1496,6 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     color: colors.textSecondary,
     lineHeight: 17,
   },
-  zoneInfoCardFullscreen: {
-    position: 'absolute',
-    bottom: 24,
-    left: 16,
-    right: 16,
-    backgroundColor: isDark ? 'rgba(5, 10, 16, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-    borderRadius: radius.md || 12,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: colors.primaryMid || 'rgba(0, 229, 255, 0.4)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 6,
-    elevation: 8,
-    zIndex: 35,
-  },
-  zoneInfoHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  zoneInfoTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    flex: 1,
-  },
-  zoneInfoIcon: {
-    fontSize: 16,
-  },
-  zoneInfoTitleCol: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  zoneInfoTitle: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: colors.textPrimary,
-  },
-  zoneInfoDistanceText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: colors.primary || '#00E5FF',
-    marginTop: 2,
-  },
-  zoneInfoClose: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: colors.textSecondary,
-    paddingHorizontal: 4,
-  },
-  zoneInfoDesc: {
-    fontSize: 11,
-    color: colors.textSecondary,
-    lineHeight: 15,
-  },
   imageOverlay: {
     position: 'absolute',
     left: 0,
@@ -1404,41 +1516,45 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     fontWeight: '600',
     color: '#FFF',
   },
-  overlayHint: {
-    fontSize: 10,
-    color: 'rgba(255,255,255,0.7)',
-  },
   fullscreenMapSafeArea: {
     flex: 1,
-    backgroundColor: isDark ? '#050A10' : '#111827',
+    backgroundColor: '#03111F',
   },
   fullscreenMapHeader: {
+    position: 'absolute', left: 0, right: 0, top: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 10,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: isDark ? 'rgba(5,10,16,0.95)' : '#1F2937',
+    paddingTop: 5,
     zIndex: 10,
   },
-  fullscreenCloseBtn: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: radius.pill || 999,
+  fullscreenTitlePill: {
+    flex: 1,
+    minWidth: 0,
+    height: 44,
+    paddingHorizontal: 14,
+    borderRadius: 22,
+    backgroundColor: 'rgba(3,17,31,0.86)',
+    borderWidth: 1,
+    borderColor: colors.borderBright,
+    justifyContent: 'center',
   },
-  fullscreenCloseBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#FFF',
+  fullscreenCloseBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(3,17,31,0.86)',
+    borderWidth: 1,
+    borderColor: colors.borderBright,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullscreenMapTitle: {
-    fontSize: 15,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
     color: '#FFF',
-    flex: 1,
-    textAlign: 'right',
-    marginLeft: 12,
+    textAlign: 'left',
   },
   fullscreenMapBody: {
     flex: 1,
@@ -1462,11 +1578,15 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     minWidth: 88,
   },
   depthLegendFullscreen: {
-    top: 14,
-    right: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    minWidth: 98,
+    top: 80,
+    left: 12,
+    right: undefined,
+    paddingHorizontal: 11,
+    paddingVertical: 9,
+    minWidth: 124,
+    borderRadius: 13,
+    backgroundColor: 'rgba(3,17,31,0.93)',
+    borderColor: colors.borderMid,
   },
   depthLegendHeader: {
     flexDirection: 'row',
@@ -1508,29 +1628,89 @@ const makeStyles = (colors, isDark) => StyleSheet.create({
     color: '#FFFFFF',
   },
 
-  // Badge de distance flottant (Plein écran)
-  floatingControlsFullscreen: {
-    position: 'absolute',
-    right: 16,
-    bottom: 40,
-    zIndex: 20,
+  fullscreenMapButtons: {
+    position: 'absolute', top: 80, right: 12, gap: 7, zIndex: 28,
   },
-  floatingDistanceChip: {
-    backgroundColor: 'rgba(11, 20, 32, 0.92)',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#00E5FF',
-    marginBottom: 4,
-    ...shadows.card,
+  fullscreenMapButton: {
+    width: 43, height: 43, borderRadius: 23, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(3,17,31,0.94)', borderWidth: 1, borderColor: colors.borderMid,
+    shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 6,
   },
-  floatingDistanceChipText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#00E5FF',
+  mapControlGpsDot: {
+    position: 'absolute', right: 7, bottom: 6, width: 7, height: 7,
+    borderRadius: 4, backgroundColor: '#258BFF', borderWidth: 1, borderColor: '#FFFFFF',
   },
-
+  fullscreenScale: {
+    position: 'absolute', left: 18, bottom: 280, zIndex: 19,
+    alignItems: 'flex-start',
+  },
+  fullscreenScaleLabels: {
+    width: 110, flexDirection: 'row', justifyContent: 'space-between', marginBottom: 3,
+  },
+  fullscreenScaleText: { fontSize: 10, fontWeight: '700', color: '#FFFFFF', textShadowColor: '#00111F', textShadowRadius: 5 },
+  fullscreenScaleLine: { height: 6, borderLeftWidth: 2, borderRightWidth: 2, borderBottomWidth: 2, borderColor: '#FFFFFF' },
+  fullscreenCompass: {
+    position: 'absolute', right: 12, bottom: 271, width: 128, height: 128,
+    borderRadius: 64, borderWidth: 3, borderColor: colors.primary,
+    backgroundColor: 'rgba(3,17,31,0.95)', zIndex: 23,
+    shadowColor: colors.primary, shadowOpacity: 0.68, shadowRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  fullscreenCompassInner: {
+    width: 110, height: 110, borderRadius: 55, borderWidth: 1,
+    borderColor: colors.borderMid, alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  compassDial: { position: 'absolute', width: 108, height: 108, alignItems: 'center' },
+  compassNorth: { position: 'absolute', top: 1, fontSize: 12, color: colors.accent, fontWeight: '900' },
+  compassWest: { position: 'absolute', left: 5, top: 47, fontSize: 11, color: colors.textSecondary, fontWeight: '800' },
+  compassEast: { position: 'absolute', right: 5, top: 47, fontSize: 11, color: colors.textSecondary, fontWeight: '800' },
+  compassSouth: { position: 'absolute', bottom: 1, fontSize: 11, color: colors.textSecondary, fontWeight: '800' },
+  compassNeedle: {
+    position: 'absolute', left: 5, top: 5, width: 100, height: 100,
+    alignItems: 'center', paddingTop: 19,
+  },
+  compassDistance: {
+    position: 'absolute', top: 50, width: 94, textAlign: 'center',
+    fontSize: 19, lineHeight: 23, color: '#FFFFFF', fontWeight: '900',
+  },
+  compassBearing: {
+    position: 'absolute', top: 76, width: 94, textAlign: 'center',
+    fontSize: 10, color: colors.primary, fontWeight: '800',
+  },
+  fullscreenSiteSummary: {
+    position: 'absolute', left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(3,17,31,0.97)', borderTopLeftRadius: 27, borderTopRightRadius: 27,
+    borderWidth: 1, borderBottomWidth: 0, borderColor: colors.borderMid,
+    paddingHorizontal: 14, paddingTop: 9, paddingBottom: 13,
+    zIndex: 22,
+  },
+  fullscreenHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.textMuted, alignSelf: 'center', marginBottom: 12 },
+  fullscreenSiteRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  fullscreenSiteImage: { width: 72, height: 72, flexShrink: 0, borderRadius: 12, backgroundColor: colors.bg },
+  fullscreenSiteText: { flex: 1, minWidth: 0, gap: 5 },
+  fullscreenSiteTitle: { fontSize: 17, fontWeight: '800', color: colors.textPrimary },
+  fullscreenSiteLocation: { fontSize: 11, color: colors.textSecondary },
+  fullscreenSiteDescription: { marginTop: 8, fontSize: 11, lineHeight: 15, color: colors.textSecondary },
+  fullscreenDistanceBadge: {
+    flexShrink: 0, width: 84, paddingHorizontal: 5, paddingVertical: 6,
+    borderRadius: 12, borderWidth: 1, borderColor: colors.primary,
+    alignItems: 'center', justifyContent: 'center', gap: 2,
+  },
+  gpsBadgeLabel: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  gpsBadgeDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#258BFF', borderWidth: 1, borderColor: '#FFFFFF' },
+  gpsBadgeLabelText: { fontSize: 9, fontWeight: '800', color: colors.textSecondary },
+  fullscreenSiteDistance: { width: 72, textAlign: 'center', fontSize: 12, fontWeight: '800', color: colors.primary },
+  fullscreenMetrics: { flexDirection: 'row', gap: 6, marginTop: 11 },
+  fullscreenMetricCard: {
+    flex: 1, minWidth: 0, minHeight: 49, flexDirection: 'row', gap: 5,
+    alignItems: 'center', paddingHorizontal: 6, paddingVertical: 6,
+    borderRadius: 11, borderWidth: 1, borderColor: colors.borderMid,
+    backgroundColor: colors.bgElevated,
+  },
+  fullscreenMetricText: { flex: 1, minWidth: 0 },
+  fullscreenMetricLabel: { fontSize: 9, color: colors.textSecondary },
+  fullscreenMetricValue: { fontSize: 10, fontWeight: '800', color: colors.primary },
   // Overlay bas colonne titre + distance
   overlayTitleCol: {
     flex: 1,

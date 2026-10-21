@@ -17,6 +17,7 @@ import {
   StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
 // Services
@@ -34,13 +35,14 @@ import FilterSheet      from './src/components/FilterSheet';
 import OnboardingScreen, { checkOnboardingDone } from './src/components/OnboardingScreen';
 import ProfileNavigator from './src/components/ProfileNavigator';
 import ARScreen from './src/screens/ARScreen';
+import OutlineIcon from './src/components/OutlineIcon';
 
 const TAB_ITEMS = [
-  { key: 'map',     icon: '◎', label: 'Explorer'  },
-  { key: 'list',    icon: '▤', label: 'Liste'      },
-  { key: 'ar',      icon: '⬡', label: 'AR'         },
-  { key: 'filter',  icon: '⧉', label: 'Filtres'   },
-  { key: 'profile', icon: '◉', label: 'Profil', isProfile: true },
+  { key: 'map', icon: 'compass-outline', label: 'Explorer' },
+  { key: 'list', icon: 'list-outline', label: 'Liste' },
+  { key: 'ar', icon: 'scan-outline', label: 'AR' },
+  { key: 'filter', icon: 'options-outline', label: 'Filtres' },
+  { key: 'profile', icon: 'person-outline', label: 'Profil' },
 ];
 
 // ── Root wraps everything in ThemeProvider ────────────────────────────────
@@ -138,7 +140,6 @@ function AppContent() {
 
   const handleCloseDetail = useCallback(() => {
     setDetailVisible(false);
-    setTimeout(() => setSelectedSpot(null), 300);
   }, []);
 
   const handleTabPress = useCallback((key, index) => {
@@ -152,6 +153,11 @@ function AppContent() {
     if (key === 'profile') { setProfileVisible(true); return; }
     setViewMode(key);
   }, [tabScales]);
+
+  const handleNavigateFromTopo = useCallback((key) => {
+    if (key === 'list') setViewMode('list');
+    if (key === 'profile') setProfileVisible(true);
+  }, []);
 
   const handleRegionChange = useCallback((r) => { regionRef.current = r; }, []);
 
@@ -233,7 +239,7 @@ function AppContent() {
       </View>
 
       {/* ── Modals ── */}
-      <DetailSheet      spot={selectedSpot} isVisible={detailVisible}  onClose={handleCloseDetail} userLocation={userLocation} />
+      <DetailSheet      spot={selectedSpot} isVisible={detailVisible}  onClose={handleCloseDetail} onDismiss={() => setSelectedSpot(null)} userLocation={userLocation} onNavigate={handleNavigateFromTopo} />
       <FilterSheet      isVisible={filterVisible}  onClose={() => setFilterVisible(false)}  onApplyFilters={handleApplyFilters} />
       <ProfileNavigator isVisible={profileVisible} onClose={() => setProfileVisible(false)} />
 
@@ -277,9 +283,7 @@ const LoadingScreen = () => {
     <View style={{ flex: 1, backgroundColor: colors.bg, justifyContent: 'center', alignItems: 'center' }}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={colors.bg} />
       <Animated.View style={{ alignItems: 'center', opacity: fadeAnim }}>
-        <Animated.Text style={{ fontSize: 64, transform: [{ scale: pulseAnim }] }}>
-          🌊
-        </Animated.Text>
+        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}><OutlineIcon name="water-outline" size={60} color={colors.primary} /></Animated.View>
         <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 28 }} />
         <Text style={{ marginTop: 14, fontSize: 14, color: colors.textSecondary, letterSpacing: 0.5 }}>
           Chargement des spots…
@@ -294,33 +298,14 @@ const TabNavButton = React.memo(({ item, active, badge, scaleAnim, onPress }) =>
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
 
-  if (item.isProfile) {
-    return (
-      <TouchableOpacity style={styles.tabButton} onPress={onPress} activeOpacity={1}>
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          <LinearGradient
-            colors={active ? colors.gradProfile : ['rgba(0,229,255,0.22)', 'rgba(123,97,255,0.22)']}
-            start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-            style={[styles.profileCircle, active && styles.profileCircleActive]}
-          >
-            <Text style={[styles.profileCircleIcon, active && styles.profileCircleIconActive]}>
-              {item.icon}
-            </Text>
-          </LinearGradient>
-        </Animated.View>
-        <Text style={[styles.tabLabel, active && styles.tabLabelProfile]}>{item.label}</Text>
-      </TouchableOpacity>
-    );
-  }
-
   return (
-    <TouchableOpacity style={styles.tabButton} onPress={onPress} activeOpacity={1}>
+    <TouchableOpacity style={styles.tabButton} onPress={onPress} activeOpacity={0.8} accessibilityRole="tab" accessibilityLabel={item.label} accessibilityState={{ selected: active }}>
       <Animated.View style={[
         styles.tabIconWrap,
         active && styles.tabIconWrapActive,
         { transform: [{ scale: scaleAnim }] },
       ]}>
-        <Text style={[styles.tabIcon, active && styles.tabIconActive]}>{item.icon}</Text>
+        <Ionicons name={item.icon} size={24} color={active ? colors.bg : colors.textMuted} />
         {badge > 0 && (
           <View style={styles.badge}>
             <Text style={styles.badgeText}>{badge}</Text>
@@ -362,12 +347,14 @@ const makeStyles = (colors) => StyleSheet.create({
   },
   bottomNav: {
     flexDirection: 'row',
-    backgroundColor: colors.bg,
+    backgroundColor: colors.bgGlass,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingBottom: Platform.OS === 'ios' ? 22 : 8,
-    paddingTop: 8,
-    paddingHorizontal: 4,
+    borderTopColor: colors.borderMid,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+    paddingTop: 12,
+    paddingHorizontal: 8,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
@@ -380,33 +367,26 @@ const makeStyles = (colors) => StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: 2,
-    gap: 4,
+    gap: 6,
   },
   tabIconWrap: {
-    width: 46,
-    height: 34,
-    borderRadius: 17,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabIconWrapActive: {
-    backgroundColor: colors.primaryDim,
+    backgroundColor: colors.primary,
     shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.55,
     shadowRadius: 12,
     elevation: 6,
   },
-  tabIcon: {
-    fontSize: 22,
-    color: colors.textMuted,
-  },
-  tabIconActive: {
-    color: colors.primary,
-  },
   tabLabel: {
-    fontSize: 10,
-    color: colors.textMuted,
+    fontSize: 11,
+    color: colors.textSecondary,
     fontWeight: '500',
     letterSpacing: 0.3,
   },
@@ -414,37 +394,6 @@ const makeStyles = (colors) => StyleSheet.create({
     color: colors.primary,
     fontWeight: '700',
   },
-  tabLabelProfile: {
-    color: colors.secondary,
-    fontWeight: '700',
-  },
-
-  // ── Profile circle button ──
-  profileCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: colors.primaryMid,
-  },
-  profileCircleActive: {
-    borderColor: 'transparent',
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.75,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  profileCircleIcon: {
-    fontSize: 22,
-    color: colors.primary,
-  },
-  profileCircleIconActive: {
-    color: '#fff',
-  },
-
   // ── Badge ──
   badge: {
     position: 'absolute',

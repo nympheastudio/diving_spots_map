@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenHeader from '../components/ScreenHeader';
 import SettingsRow  from '../components/SettingsRow';
+import OutlineIcon from '../components/OutlineIcon';
 import { useTheme } from '../context/ThemeContext';
 import { radius } from '../theme';
 
@@ -83,8 +84,8 @@ const AccountScreen = ({ onBack }) => {
         title="Mon Compte"
         onBack={onBack}
         rightAction={editing
-          ? { icon: '✓', onPress: handleSave }
-          : { icon: '✎', onPress: () => setEditing(true) }
+          ? { icon: 'checkmark-outline', onPress: handleSave }
+          : { icon: 'create-outline', onPress: () => setEditing(true) }
         }
       />
 
@@ -98,7 +99,7 @@ const AccountScreen = ({ onBack }) => {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.avatar}
             >
-              <Text style={styles.avatarIcon}>🤿</Text>
+              <OutlineIcon name="person-outline" size={38} color={colors.bg} />
             </LinearGradient>
             <View style={styles.onlineDot} />
           </View>
@@ -146,17 +147,17 @@ const AccountScreen = ({ onBack }) => {
         <Text style={styles.sectionLabel}>Statistiques</Text>
         <View style={styles.card}>
           <SettingsRow
-            icon="◎" iconColor={colors.primary}
+            icon="location-outline" iconColor={colors.primary}
             label="Spots visités" subtitle="Depuis l'inscription"
             rightSlot={<Text style={[styles.statVal, { color: colors.primary }]}>12</Text>}
           />
           <SettingsRow
-            icon="★" iconColor={colors.amber}
+            icon="star-outline" iconColor={colors.amber}
             label="Spots favoris" subtitle="Enregistrés"
             rightSlot={<Text style={[styles.statVal, { color: colors.amber }]}>3</Text>}
           />
           <SettingsRow
-            icon="↕" iconColor={colors.emerald}
+            icon="resize-outline" iconColor={colors.emerald}
             label="Profondeur max" subtitle="Record personnel"
             rightSlot={<Text style={[styles.statVal, { color: colors.emerald }]}>42m</Text>}
             showBorder={false}
@@ -177,7 +178,7 @@ const AccountScreen = ({ onBack }) => {
         <Text style={styles.sectionLabel}>Zone de danger</Text>
         <View style={styles.card}>
           <SettingsRow
-            icon="↩"
+            icon="log-out-outline"
             label="Réinitialiser les données"
             subtitle="Supprime l'historique local"
             onPress={handleReset}

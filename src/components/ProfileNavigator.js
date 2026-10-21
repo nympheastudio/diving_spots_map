@@ -8,6 +8,7 @@ import {
   StyleSheet, Platform, Animated, Dimensions, StatusBar,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import OutlineIcon from './OutlineIcon';
 
 import AccountScreen       from '../screens/AccountScreen';
 import FavoritesScreen     from '../screens/FavoritesScreen';
@@ -21,11 +22,11 @@ import { radius } from '../theme';
 const { width: SW } = Dimensions.get('window');
 
 const MENU_ITEMS = [
-  { key: 'account',       icon: '◉', label: 'Mon Compte',    sub: 'Profil & préférences'       },
-  { key: 'favorites',     icon: '★', label: 'Mes Favoris',   sub: 'Spots sauvegardés'           },
-  { key: 'notifications', icon: '◈', label: 'Notifications', sub: 'Alertes & rappels'           },
-  { key: 'settings',      icon: '◧', label: 'Paramètres',    sub: 'Unités, langue, thème'       },
-  { key: 'about',         icon: 'ℹ', label: 'À propos',      sub: 'Version · Mentions légales'  },
+  { key: 'account',       icon: 'person-circle-outline', label: 'Mon Compte',    sub: 'Profil & préférences'       },
+  { key: 'favorites',     icon: 'star-outline', label: 'Mes Favoris',   sub: 'Spots sauvegardés'           },
+  { key: 'notifications', icon: 'notifications-outline', label: 'Notifications', sub: 'Alertes & rappels'           },
+  { key: 'settings',      icon: 'settings-outline', label: 'Paramètres',    sub: 'Unités, langue, thème'       },
+  { key: 'about',         icon: 'information-circle-outline', label: 'À propos',      sub: 'Version · Mentions légales'  },
 ];
 
 const MENU_COLORS = ['primary', 'amber', 'emerald', 'secondary', 'textMuted'];
@@ -133,7 +134,7 @@ const MenuContent = ({ onNavigate, onClose }) => {
       <View style={styles.menuHeader}>
         <Text style={styles.menuTitle}>Mon Profil</Text>
         <TouchableOpacity style={styles.closeBtn} onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={styles.closeIcon}>✕</Text>
+          <OutlineIcon name="close-outline" size={22} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -147,7 +148,7 @@ const MenuContent = ({ onNavigate, onClose }) => {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.avatarGrad}
             >
-              <Text style={styles.avatarEmoji}>🤿</Text>
+              <OutlineIcon name="person-outline" size={31} color={colors.bg} />
             </LinearGradient>
             <View style={styles.onlineDot} />
           </View>
@@ -172,7 +173,7 @@ const MenuContent = ({ onNavigate, onClose }) => {
             onPress={() => onNavigate('account')}
             activeOpacity={0.75}
           >
-            <Text style={styles.editIcon}>✎</Text>
+            <OutlineIcon name="create-outline" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -197,13 +198,13 @@ const MenuContent = ({ onNavigate, onClose }) => {
                 activeOpacity={0.7}
               >
                 <View style={[styles.menuIconWrap, { backgroundColor: color + '18' }]}>
-                  <Text style={[styles.menuIcon, { color }]}>{item.icon}</Text>
+                  <OutlineIcon name={item.icon} size={23} color={color} />
                 </View>
                 <View style={styles.menuTextWrap}>
                   <Text style={styles.menuLabel}>{item.label}</Text>
                   <Text style={styles.menuSub}>{item.sub}</Text>
                 </View>
-                <Text style={styles.menuChevron}>›</Text>
+                <OutlineIcon name="chevron-forward-outline" size={19} color={colors.textMuted} />
               </TouchableOpacity>
             );
           })}
@@ -212,7 +213,7 @@ const MenuContent = ({ onNavigate, onClose }) => {
         {/* Footer */}
         <View style={styles.menuFooter}>
           <TouchableOpacity style={styles.logoutBtn} onPress={onClose} activeOpacity={0.8}>
-            <Text style={styles.logoutIcon}>↩</Text>
+            <OutlineIcon name="log-out-outline" size={19} color={colors.accent} />
             <Text style={styles.logoutText}>Déconnexion</Text>
           </TouchableOpacity>
           <Text style={styles.versionText}>Dive Explorer v2.0 · Ocean Deep Edition</Text>

@@ -9,21 +9,22 @@ import {
   DIFFICULTY_META, DIFFICULTY_META_LIGHT,
 } from '../theme';
 
-const THEME_KEY = '@dive_v2_theme';
+// Nouvelle charte : repartir sur le thème océan pour les installations déjà utilisées.
+const THEME_KEY = '@dive_v3_theme';
 
 const ThemeContext = createContext({
-  colors:         lightColors,
-  difficultyMeta: DIFFICULTY_META_LIGHT,
-  isDark:         false,
+  colors:         darkColors,
+  difficultyMeta: DIFFICULTY_META,
+  isDark:         true,
   toggleTheme:    () => {},
 });
 
 export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_KEY)
-      .then(val => { if (val === 'dark') setIsDark(true); })
+      .then(val => { if (val === 'light') setIsDark(false); })
       .catch(() => {});
   }, []);
 

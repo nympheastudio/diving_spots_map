@@ -8,8 +8,8 @@ import {
   View,
   TouchableOpacity,
   StyleSheet,
-  Text,
 } from 'react-native';
+import OutlineIcon from './OutlineIcon';
 
 const MapButtons = ({ onMyLocation, onListView }) => {
   return (
@@ -20,7 +20,7 @@ const MapButtons = ({ onMyLocation, onListView }) => {
         onPress={onMyLocation}
         activeOpacity={0.7}
       >
-        <Text style={styles.buttonText}>📍</Text>
+        <OutlineIcon name="locate-outline" size={25} color="#03111F" />
       </TouchableOpacity>
 
       {/* Bouton Vue liste */}
@@ -29,7 +29,7 @@ const MapButtons = ({ onMyLocation, onListView }) => {
         onPress={onListView}
         activeOpacity={0.7}
       >
-        <Text style={styles.buttonText}>≡</Text>
+        <OutlineIcon name="list-outline" size={25} color="#03111F" />
       </TouchableOpacity>
     </View>
   );

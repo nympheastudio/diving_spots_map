@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenHeader from '../components/ScreenHeader';
 import SettingsRow  from '../components/SettingsRow';
 import ToggleSwitch from '../components/ToggleSwitch';
+import OutlineIcon from '../components/OutlineIcon';
 import { useTheme } from '../context/ThemeContext';
 import { radius } from '../theme';
 
@@ -110,7 +111,7 @@ const SettingsScreen = ({ onBack }) => {
                 onPress={() => isDark && toggleTheme()}
                 activeOpacity={0.8}
               >
-                <Text style={styles.themeBtnIcon}>☀️</Text>
+                <OutlineIcon name="sunny-outline" size={20} color={colors.amber} />
                 <Text style={[styles.themeBtnLabel, !isDark && { color: colors.amber, fontWeight: '700' }]}>Clair</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -118,7 +119,7 @@ const SettingsScreen = ({ onBack }) => {
                 onPress={() => !isDark && toggleTheme()}
                 activeOpacity={0.8}
               >
-                <Text style={styles.themeBtnIcon}>🌙</Text>
+                <OutlineIcon name="moon-outline" size={20} color={colors.secondary} />
                 <Text style={[styles.themeBtnLabel, isDark && { color: colors.secondary, fontWeight: '700' }]}>Sombre</Text>
               </TouchableOpacity>
             </View>
@@ -174,13 +175,13 @@ const SettingsScreen = ({ onBack }) => {
         <SectionLabel>Carte</SectionLabel>
         <View style={styles.card}>
           <SettingsRow
-            icon="◎" iconColor={colors.primary}
+            icon="layers-outline" iconColor={colors.primary}
             label="Regrouper les marqueurs"
             subtitle="Clustering automatique"
             rightSlot={<Toggle k="mapClusters" />}
           />
           <SettingsRow
-            icon="↕" iconColor={colors.emerald}
+            icon="resize-outline" iconColor={colors.emerald}
             label="Étiquettes de profondeur"
             subtitle="Afficher sur les marqueurs"
             rightSlot={<Toggle k="depthLabels" color={colors.emerald} />}
@@ -192,13 +193,13 @@ const SettingsScreen = ({ onBack }) => {
         <SectionLabel>Confidentialité</SectionLabel>
         <View style={styles.card}>
           <SettingsRow
-            icon="📍" iconColor={colors.secondary}
+            icon="location-outline" iconColor={colors.secondary}
             label="Partager ma position"
             subtitle="Pour les suggestions de proximité"
             rightSlot={<Toggle k="shareLocation" color={colors.secondary} />}
           />
           <SettingsRow
-            icon="◧" iconColor={colors.textMuted}
+            icon="analytics-outline" iconColor={colors.textMuted}
             label="Statistiques d'utilisation"
             subtitle="Aide à améliorer l'app"
             rightSlot={<Toggle k="analytics" color={colors.textMuted} />}
@@ -210,7 +211,7 @@ const SettingsScreen = ({ onBack }) => {
         <SectionLabel>Données</SectionLabel>
         <View style={styles.card}>
           <SettingsRow
-            icon="🗑" label="Vider le cache"
+            icon="trash-outline" label="Vider le cache"
             subtitle="Libère de l'espace stockage"
             onPress={handleClearCache}
             danger

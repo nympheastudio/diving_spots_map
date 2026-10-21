@@ -18,6 +18,7 @@ import { Magnetometer, DeviceMotion } from 'expo-sensors';
 import * as Location from 'expo-location';
 import { getDistance } from 'geolib';
 import { useTheme } from '../context/ThemeContext';
+import OutlineIcon from '../components/OutlineIcon';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
 const H_FOV = 60; // horizontal field of view (degrees)
@@ -215,7 +216,7 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
   if (!permission?.granted) {
     return (
       <View style={styles.permissionContainer}>
-        <Text style={styles.permissionIcon}>📷</Text>
+        <OutlineIcon name="camera-outline" size={56} color={colors.primary} />
         <Text style={styles.permissionTitle}>Caméra requise</Text>
         <Text style={styles.permissionText}>
           Autorisez l'accès à la caméra pour utiliser la vue en réalité augmentée
@@ -241,7 +242,7 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonIcon}>✕</Text>
+            <OutlineIcon name="close-outline" size={25} color="#FFFFFF" />
           </TouchableOpacity>
           <View style={styles.headerCenter}>
             <Text style={styles.headerTitle}>Vue AR</Text>
@@ -276,7 +277,7 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
                 selectedSpot?.id === spot.id && styles.markerDotSelected,
               ]}
             >
-              <Text style={styles.markerIcon}>🤿</Text>
+              <OutlineIcon name="water-outline" size={24} color="#FFFFFF" />
             </View>
             <View style={styles.markerLabel}>
               <Text style={styles.markerName} numberOfLines={1}>
@@ -293,12 +294,10 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
             <View style={styles.infoCardHeader}>
               <Text style={styles.infoCardTitle}>{selectedSpot.nom}</Text>
               <TouchableOpacity onPress={() => setSelectedSpot(null)}>
-                <Text style={styles.infoCardClose}>✕</Text>
+                <OutlineIcon name="close-outline" size={22} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
-            <Text style={styles.infoCardLocation}>
-              📍 {selectedSpot.localite}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><OutlineIcon name="location-outline" size={16} color={colors.textSecondary} /><Text style={styles.infoCardLocation}>{selectedSpot.localite}</Text></View>
             <View style={styles.infoCardDetails}>
               <InfoPill
                 label="Profondeur"
@@ -317,9 +316,7 @@ export default function ARScreen({ spots = [], userLocation, onClose, onSpotPres
               />
             </View>
             {selectedSpot.type_site && (
-              <Text style={styles.infoCardType}>
-                🏷 {selectedSpot.type_site}
-              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><OutlineIcon name="pricetag-outline" size={16} color={colors.primary} /><Text style={styles.infoCardType}>{selectedSpot.type_site}</Text></View>
             )}
             <TouchableOpacity style={styles.infoCardButton} onPress={handleInfoPress}>
               <Text style={styles.infoCardButtonText}>Voir les détails</Text>

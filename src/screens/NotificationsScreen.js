@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ScreenHeader  from '../components/ScreenHeader';
 import SettingsRow   from '../components/SettingsRow';
 import ToggleSwitch  from '../components/ToggleSwitch';
+import OutlineIcon from '../components/OutlineIcon';
 import { useTheme } from '../context/ThemeContext';
 
 const NOTIF_KEY = '@dive_v2_notif_settings';
@@ -24,9 +25,9 @@ const DEFAULT_SETTINGS = {
 };
 
 const MOCK_NOTIFS = [
-  { id: 1, icon: '🌊', title: 'Nouveau spot ajouté', body: 'Grotte Cosquer — Cassis',            time: 'Il y a 2h',  color: '#00E5FF' },
-  { id: 2, icon: '☀️', title: 'Météo idéale demain',  body: 'Conditions parfaites à Marseille',  time: 'Il y a 5h',  color: '#FFB020' },
-  { id: 3, icon: '⭐', title: 'Résumé hebdomadaire',  body: '3 nouveaux spots près de vous',     time: 'Hier',       color: '#7B61FF' },
+  { id: 1, icon: 'water-outline', title: 'Nouveau spot ajouté', body: 'Grotte Cosquer — Cassis',            time: 'Il y a 2h',  color: '#00E5FF' },
+  { id: 2, icon: 'sunny-outline', title: 'Météo idéale demain',  body: 'Conditions parfaites à Marseille',  time: 'Il y a 5h',  color: '#FFB020' },
+  { id: 3, icon: 'star-outline', title: 'Résumé hebdomadaire',  body: '3 nouveaux spots près de vous',     time: 'Hier',       color: '#7B61FF' },
 ];
 
 const NotificationsScreen = ({ onBack }) => {
@@ -67,7 +68,7 @@ const NotificationsScreen = ({ onBack }) => {
         <Text style={styles.sectionLabel}>Général</Text>
         <View style={styles.card}>
           <SettingsRow
-            icon="◈" iconColor={colors.primary}
+            icon="notifications-outline" iconColor={colors.primary}
             label="Activer les notifications"
             subtitle="Recevoir des alertes et mises à jour"
             rightSlot={<Toggle k="pushEnabled" />}
@@ -79,31 +80,31 @@ const NotificationsScreen = ({ onBack }) => {
         <Text style={styles.sectionLabel}>Types d'alertes</Text>
         <View style={styles.card}>
           <SettingsRow
-            icon="🌊" iconColor={colors.primary}
+            icon="water-outline" iconColor={colors.primary}
             label="Nouveaux spots"
             subtitle="Quand un spot est ajouté"
             rightSlot={<Toggle k="newSpots" />}
           />
           <SettingsRow
-            icon="📍" iconColor={colors.secondary}
+            icon="location-outline" iconColor={colors.secondary}
             label="Spots à proximité"
             subtitle="Dans un rayon de 50km"
             rightSlot={<Toggle k="nearbySpots" color={colors.secondary} />}
           />
           <SettingsRow
-            icon="☀️" iconColor={colors.amber}
+            icon="sunny-outline" iconColor={colors.amber}
             label="Alertes météo"
             subtitle="Conditions de plongée optimales"
             rightSlot={<Toggle k="weatherAlerts" color={colors.amber} />}
           />
           <SettingsRow
-            icon="📅" iconColor={colors.emerald}
+            icon="calendar-outline" iconColor={colors.emerald}
             label="Résumé hebdomadaire"
             subtitle="Récap chaque lundi matin"
             rightSlot={<Toggle k="weeklyDigest" color={colors.emerald} />}
           />
           <SettingsRow
-            icon="🌿" iconColor={colors.accent}
+            icon="leaf-outline" iconColor={colors.accent}
             label="Conseils saisonniers"
             subtitle="Meilleure saison pour chaque spot"
             rightSlot={<Toggle k="seasonalTips" color={colors.accent} />}
@@ -117,7 +118,7 @@ const NotificationsScreen = ({ onBack }) => {
           {MOCK_NOTIFS.map((n, i) => (
             <View key={n.id} style={[styles.notifItem, i === MOCK_NOTIFS.length - 1 && styles.notifItemLast]}>
               <View style={[styles.notifIconWrap, { backgroundColor: n.color + '18' }]}>
-                <Text style={styles.notifEmoji}>{n.icon}</Text>
+                <OutlineIcon name={n.icon} size={21} color={n.color} />
               </View>
               <View style={styles.notifBody}>
                 <Text style={styles.notifTitle}>{n.title}</Text>

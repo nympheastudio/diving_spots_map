@@ -12,6 +12,7 @@ import ScreenHeader  from '../components/ScreenHeader';
 import DivingDataService from '../services/DivingDataService';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
+import OutlineIcon from '../components/OutlineIcon';
 
 export const FAVORITES_KEY = '@dive_v2_favorites';
 
@@ -48,9 +49,7 @@ const EmptyState = () => {
 
   return (
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12, padding: 32 }}>
-      <Animated.Text style={{ fontSize: 64, color: colors.amber, transform: [{ scale: pulseAnim }] }}>
-        ★
-      </Animated.Text>
+      <Animated.View style={{ transform: [{ scale: pulseAnim }] }}><OutlineIcon name="star-outline" size={58} color={colors.amber} /></Animated.View>
       <Text style={{ fontSize: 20, fontWeight: '700', color: colors.textPrimary }}>Aucun favori</Text>
       <Text style={{ fontSize: 15, color: colors.textMuted, textAlign: 'center', lineHeight: 22 }}>
         {'Explorez la carte et appuyez sur\nl\'étoile pour sauvegarder un spot'}
@@ -75,15 +74,15 @@ const SpotCard = ({ spot, onPress, onRemove }) => {
       </View>
 
       <TouchableOpacity style={styles.removeBtn} onPress={() => onRemove(spot.id)}>
-        <Text style={styles.removeIcon}>✕</Text>
+        <OutlineIcon name="close-outline" size={19} color={colors.textPrimary} />
       </TouchableOpacity>
 
       <View style={styles.cardBody}>
         <Text style={styles.cardTitle} numberOfLines={1}>{spot.nom}</Text>
-        <Text style={styles.cardLoc}>📍 {spot.localite}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><OutlineIcon name="location-outline" size={15} color={colors.textSecondary} /><Text style={styles.cardLoc}>{spot.localite}</Text></View>
         <View style={styles.metricsRow}>
           <MetricPill label={`${spot.profondeur_min}–${spot.profondeur_max}m`} />
-          <MetricPill label={`👁 ${spot.visibilite}m`} />
+          <MetricPill label={`${spot.visibilite}m`} icon="eye-outline" />
           <MetricPill label={spot.type_site} />
         </View>
       </View>
@@ -91,12 +90,12 @@ const SpotCard = ({ spot, onPress, onRemove }) => {
   );
 };
 
-const MetricPill = ({ label }) => {
+const MetricPill = ({ label, icon }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.metricPill}>
-      <Text style={styles.metricText} numberOfLines={1}>{label}</Text>
+      {icon && <OutlineIcon name={icon} size={14} color={colors.primary} />}<Text style={styles.metricText} numberOfLines={1}>{label}</Text>
     </View>
   );
 };

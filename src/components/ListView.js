@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { orderByDistance } from 'geolib';
 import { useTheme } from '../context/ThemeContext';
+import OutlineIcon from './OutlineIcon';
 import { radius, shadows } from '../theme';
 
 const withCacheBust = (uri, seed) => {
@@ -37,6 +38,7 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
 
   const renderSpotItem = useCallback(({ item }) => {
     const diff = difficultyMeta[item.difficulte] || difficultyMeta.Intermediate;
+    const spotCount = Array.isArray(item.topos) ? item.topos.length : 0;
     let distanceText = '';
     if (userLocation?.latitude && item.distance) {
       distanceText = `${(item.distance / 1000).toFixed(1)} km`;
@@ -44,12 +46,10 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
 
     return (
       <TouchableOpacity style={styles.card} onPress={() => onSpotPress?.(item)} activeOpacity={0.85}>
-        <Image source={{ uri: withCacheBust(item.photo, `list-${item.id}`) }} style={styles.cardImage} resizeMode="cover" />
-        <View style={styles.cardOverlay} />
-
-        <View style={[styles.diffPill, { backgroundColor: diff.bg }]}>
-          <View style={[styles.diffDot, { backgroundColor: diff.color }]} />
-          <Text style={[styles.diffText, { color: diff.color }]}>{diff.label}</Text>
+        <Image source={{ uri: withCacheBust(item.photos_fond_marin?.[0] || item.photo, `list-${item.id}`) }} style={styles.cardImage} resizeMode="cover" />
+        <View style={[styles.diffPill, { backgroundColor: diff.badgeBg }]}>
+          <View style={styles.diffDot} />
+          <Text style={styles.diffText}>{diff.label}</Text>
         </View>
 
         {distanceText !== '' && (
@@ -59,12 +59,17 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
         )}
 
         <View style={styles.cardBottom}>
-          <Text style={styles.cardTitle} numberOfLines={1}>{item.nom}</Text>
-          <Text style={styles.cardLocation}>📍 {item.localite}</Text>
+          <Text style={styles.cardTitle} numberOfLines={2}>
+            {item.nom} <Text style={styles.cardSpotCount}>({spotCount} spot{spotCount > 1 ? 's' : ''})</Text>
+          </Text>
+          <View style={styles.cardLocationRow}>
+            <OutlineIcon name="location-outline" size={15} color={colors.textSecondary} />
+            <Text style={styles.cardLocation}>{item.localite}</Text>
+          </View>
           <View style={styles.metricsRow}>
-            <MetricPill icon="↕" value={`${item.profondeur_min}–${item.profondeur_max}m`} />
-            <MetricPill icon="👁" value={`${item.visibilite}m`} />
-            <MetricPill icon="⚓" value={item.type_site} />
+            <MetricPill icon="resize-outline" value={`${item.profondeur_min}–${item.profondeur_max}m`} />
+            <MetricPill icon="eye-outline" value={`${item.visibilite}m`} />
+            <MetricPill icon="boat-outline" value={item.type_site} />
           </View>
         </View>
       </TouchableOpacity>
@@ -74,7 +79,7 @@ const ListView = ({ spots = [], userLocation = null, onSpotPress }) => {
   if (!sortedSpots.length) {
     return (
       <View style={styles.emptyState}>
-        <Text style={styles.emptyIcon}>🤿</Text>
+        <OutlineIcon name="water-outline" size={48} color={colors.primary} />
         <Text style={styles.emptyTitle}>Aucun spot trouvé</Text>
         <Text style={styles.emptySub}>Ajustez vos filtres</Text>
       </View>
@@ -101,7 +106,7 @@ const MetricPill = React.memo(({ icon, value }) => {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.metricPill}>
-      <Text style={styles.metricIcon}>{icon}</Text>
+      <OutlineIcon name={icon} size={14} color={colors.primary} />
       <Text style={styles.metricVal} numberOfLines={1}>{value}</Text>
     </View>
   );
@@ -111,43 +116,40 @@ const makeStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
   list: {
     paddingTop: 72,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     paddingBottom: 24,
-    gap: 14,
+    gap: 10,
   },
 
   card: {
-    borderRadius: radius.lg, overflow: 'hidden',
+    borderRadius: 18, overflow: 'hidden',
     backgroundColor: colors.bgCard,
-    borderWidth: 1, borderColor: colors.border,
+    borderWidth: 1, borderColor: colors.borderMid,
     ...shadows.card,
   },
-  cardImage: { width: '100%', height: 180, backgroundColor: colors.bgElevated },
-  cardOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    top: 0, height: 180,
-    backgroundColor: 'transparent',
-  },
+  cardImage: { width: '100%', height: 130, backgroundColor: colors.bgElevated },
 
   diffPill: {
-    position: 'absolute', top: 12, left: 12,
+    position: 'absolute', top: 9, left: 9,
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill,
   },
-  diffDot: { width: 6, height: 6, borderRadius: 3 },
-  diffText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
+  diffDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFFFFF' },
+  diffText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.2, color: '#FFFFFF' },
 
   distanceBadge: {
-    position: 'absolute', top: 12, right: 12,
+    position: 'absolute', top: 9, right: 9,
     backgroundColor: colors.bgGlass,
     borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5,
     borderWidth: 1, borderColor: colors.borderMid,
   },
   distanceText: { fontSize: 11, fontWeight: '700', color: colors.primary },
 
-  cardBottom: { padding: 14, gap: 4 },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: colors.textPrimary, letterSpacing: 0.1 },
-  cardLocation: { fontSize: 12, color: colors.textSecondary, marginBottom: 8 },
+  cardBottom: { paddingHorizontal: 12, paddingTop: 9, paddingBottom: 11, gap: 3 },
+  cardTitle: { fontSize: 17, lineHeight: 21, fontWeight: '800', color: colors.textPrimary, letterSpacing: 0.1 },
+  cardSpotCount: { fontSize: 13, fontWeight: '600', color: colors.textSecondary },
+  cardLocationRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 3 },
+  cardLocation: { fontSize: 12, color: colors.textSecondary },
 
   metricsRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
   metricPill: {

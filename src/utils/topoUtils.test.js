@@ -12,7 +12,29 @@ import {
   smoothAngle,
   formatDistance,
   getStraightLineDistance,
+  getBearingToPoint,
+  getRelativeBearing,
 } from './topoUtils';
+
+describe('navigation vers un repère sélectionné', () => {
+  const user = { latitude: 43, longitude: 5 };
+
+  it('calcule le cap du point sélectionné et change quand la cible change', () => {
+    expect(getBearingToPoint(user, { latitude: 44, longitude: 5 })).toBeCloseTo(0, 5);
+    expect(getBearingToPoint(user, { latitude: 43, longitude: 6 })).toBeCloseTo(89.66, 0);
+  });
+
+  it('oriente la cible par rapport au téléphone, y compris au passage du nord', () => {
+    expect(getRelativeBearing(10, 350)).toBe(20);
+    expect(getRelativeBearing(350, 10)).toBe(340);
+    expect(getRelativeBearing(90, 90)).toBe(0);
+  });
+
+  it('ne crée pas de cap sans position ou orientation valide', () => {
+    expect(getBearingToPoint(null, user)).toBeNull();
+    expect(getRelativeBearing(90, null)).toBeNull();
+  });
+});
 
 // =============================================================================
 // DEPTH_COLOR_SCALE & getDepthStyle

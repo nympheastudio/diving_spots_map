@@ -5,6 +5,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import OutlineIcon from './OutlineIcon';
 import { radius } from '../theme';
 
 const SettingsRow = ({
@@ -32,12 +33,7 @@ const SettingsRow = ({
           styles.iconWrap,
           { backgroundColor: danger ? colors.accentDim : (iconColor || colors.primary) + '18' },
         ]}>
-          <Text style={[
-            styles.icon,
-            { color: danger ? colors.accent : (iconColor || colors.primary) },
-          ]}>
-            {icon}
-          </Text>
+          <OutlineIcon name={icon} size={21} color={danger ? colors.accent : (iconColor || colors.primary)} />
         </View>
       )}
 

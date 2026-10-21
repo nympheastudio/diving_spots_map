@@ -9,22 +9,23 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import ScreenHeader from '../components/ScreenHeader';
+import OutlineIcon from '../components/OutlineIcon';
 import { useTheme } from '../context/ThemeContext';
 import { radius } from '../theme';
 
 const FEATURES = [
-  { icon: '◎', label: '200+ spots cartographiés en Méditerranée',   color: null },
-  { icon: '⧉', label: 'Filtres avancés : niveau, profondeur, type', color: null },
-  { icon: '📍', label: 'Géolocalisation et spots à proximité',       color: null },
-  { icon: '★', label: 'Favoris et historique de plongées',          color: null },
-  { icon: '🌊', label: 'Données faune, flore et conditions',        color: null },
+  { icon: 'map-outline', label: '200+ spots cartographiés en Méditerranée',   color: null },
+  { icon: 'options-outline', label: 'Filtres avancés : niveau, profondeur, type', color: null },
+  { icon: 'location-outline', label: 'Géolocalisation et spots à proximité',       color: null },
+  { icon: 'star-outline', label: 'Favoris et historique de plongées',          color: null },
+  { icon: 'water-outline', label: 'Données faune, flore et conditions',        color: null },
 ];
 
 const LINKS = [
-  { icon: '🌐', label: 'Site web',                   url: 'https://diveexplorer.app' },
-  { icon: '🔒', label: 'Politique de confidentialité', url: 'https://diveexplorer.app/privacy' },
-  { icon: '📜', label: "Conditions d'utilisation",   url: 'https://diveexplorer.app/terms' },
-  { icon: '📧', label: 'Contact & support',           url: 'mailto:hello@diveexplorer.app' },
+  { icon: 'globe-outline', label: 'Site web',                   url: 'https://diveexplorer.app' },
+  { icon: 'lock-closed-outline', label: 'Politique de confidentialité', url: 'https://diveexplorer.app/privacy' },
+  { icon: 'document-text-outline', label: "Conditions d'utilisation",   url: 'https://diveexplorer.app/terms' },
+  { icon: 'mail-outline', label: 'Contact & support',           url: 'mailto:hello@diveexplorer.app' },
 ];
 
 const FEATURE_COLORS = ['primary', 'secondary', 'emerald', 'amber', 'accent'];
@@ -59,7 +60,7 @@ const AboutScreen = ({ onBack }) => {
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
               style={styles.logoCircle}
             >
-              <Text style={styles.logoIcon}>🤿</Text>
+              <OutlineIcon name="water-outline" size={42} color={colors.bg} />
             </LinearGradient>
           </Animated.View>
           <Text style={styles.appName}>Dive Explorer</Text>
@@ -82,7 +83,7 @@ const AboutScreen = ({ onBack }) => {
             return (
               <View key={i} style={[styles.featureRow, i === FEATURES.length - 1 && styles.featureRowLast]}>
                 <View style={[styles.featureIcon, { backgroundColor: color + '18' }]}>
-                  <Text style={[styles.featureEmoji, { color }]}>{f.icon}</Text>
+                  <OutlineIcon name={f.icon} size={20} color={color} />
                 </View>
                 <Text style={styles.featureLabel}>{f.label}</Text>
               </View>
@@ -110,16 +111,16 @@ const AboutScreen = ({ onBack }) => {
               onPress={() => Linking.openURL(l.url).catch(() => {})}
               activeOpacity={0.7}
             >
-              <Text style={styles.linkEmoji}>{l.icon}</Text>
+              <OutlineIcon name={l.icon} size={20} color={colors.primary} />
               <Text style={styles.linkLabel}>{l.label}</Text>
-              <Text style={styles.linkArrow}>›</Text>
+              <OutlineIcon name="chevron-forward-outline" size={19} color={colors.textMuted} />
             </TouchableOpacity>
           ))}
         </View>
 
         {/* ── Footer ── */}
         <View style={styles.footer}>
-          <Text style={styles.footerLine}>Fait avec 🤿 à Marseille</Text>
+          <Text style={styles.footerLine}>Conçu à Marseille pour les plongeurs</Text>
           <Text style={styles.footerSub}>© 2026 Dive Explorer · Tous droits réservés</Text>
           <Text style={styles.footerSub}>Données : OpenStreetMap · Wikimedia Commons</Text>
           <Text style={styles.footerSub}>Photos sous-marines : Wikimedia Commons (CC BY-SA 4.0, CC0) – détail des auteurs sur la page de chaque fichier</Text>

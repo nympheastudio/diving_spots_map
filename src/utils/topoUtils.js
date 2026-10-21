@@ -180,6 +180,23 @@ export const calculateDistanceKm = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
+/** Cap absolu vers un repère, compté dans le sens horaire depuis le nord. */
+export const getBearingToPoint = (from, to) => {
+  if (![from?.latitude, from?.longitude, to?.latitude, to?.longitude].every(Number.isFinite)) return null;
+  const lat1 = from.latitude * Math.PI / 180;
+  const lat2 = to.latitude * Math.PI / 180;
+  const deltaLng = (to.longitude - from.longitude) * Math.PI / 180;
+  const y = Math.sin(deltaLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(deltaLng);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+};
+
+/** Angle du repère par rapport à la direction vers laquelle pointe le téléphone. */
+export const getRelativeBearing = (bearing, heading) => {
+  if (!Number.isFinite(bearing) || !Number.isFinite(heading)) return null;
+  return (bearing - heading + 360) % 360;
+};
+
 /**
  * Lissage angulaire adaptatif circulaire (gere le passage 359->0).
  * Identique a l'implementation de TopoSiteMap.js.

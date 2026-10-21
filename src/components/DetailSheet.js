@@ -22,10 +22,12 @@ import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 import { toggleFavorite, isFavorite } from '../screens/FavoritesScreen';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import DiveSiteTopoModal from './DiveSiteTopoModal';
+import OutlineIcon from './OutlineIcon';
 
 const { width: SW, height: SH } = Dimensions.get('window');
-const HERO_H = SH * 0.42;
+const HERO_H = SH * 0.38;
 
 const withCacheBust = (uri, seed) => {
   if (!uri || !/^https?:/.test(uri)) return uri;
@@ -33,7 +35,7 @@ const withCacheBust = (uri, seed) => {
   return `${uri}${sep}v=${seed}`;
 };
 
-const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
+const DetailSheet = ({ spot, isVisible, onClose, onDismiss, userLocation, onNavigate }) => {
   const { colors, difficultyMeta } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [activeTab, setActiveTab] = useState('info');
@@ -41,6 +43,9 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
   const [lightboxVisible, setLightboxVisible] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [topoVisible, setTopoVisible] = useState(false);
+  const pendingNavigation = useRef(null);
+  const contentScrollRef = useRef(null);
+  const tabsPositionRef = useRef(0);
   const [fav, setFav] = useState(false);
   const favScale = useRef(new Animated.Value(1)).current;
 
@@ -61,7 +66,7 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
 
   if (!spot) return null;
 
-  const allPhotos = [spot.photo, ...(spot.photos_fond_marin || [])]
+  const allPhotos = [spot.photos_fond_marin?.[0], spot.photo, ...(spot.photos_fond_marin || [])]
     .filter((u, i, a) => u && a.indexOf(u) === i)
     .map((uri, idx) => withCacheBust(uri, `detail-${spot.id}-${idx}`));
 
@@ -82,38 +87,47 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
     Linking.openURL(url).catch(() => Alert.alert('Erreur', "Impossible d'ouvrir la carte"));
   };
 
+  const handleSelectTab = (key) => {
+    setActiveTab(key);
+    contentScrollRef.current?.scrollTo({ y: tabsPositionRef.current, animated: true });
+  };
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'info':
         return (
           <View>
-            <Text style={styles.sectionTitle}>Conditions</Text>
-            <InfoRow label="Profondeur" value={`${spot.profondeur_min} – ${spot.profondeur_max} m`} />
-            <InfoRow label="Visibilité" value={`${spot.visibilite} m`} />
-            <InfoRow label="Courant" value={spot.courant} />
-            <InfoRow label="Difficulté" value={spot.difficulte} accent={diff.color} />
-            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Infos pratiques</Text>
-            <InfoRow label="Type de site" value={spot.type_site} />
-            <InfoRow label="Localité" value={`${spot.localite} ${spot.code_postal}`} />
-            <InfoRow label="Meilleure saison" value={spot.meilleure_saison} />
-            <InfoRow label="Accès" value={spot.conditions_acces} />
-            <InfoRow label="Capacité" value={`${spot.capacite_plongeurs} plongeurs max`} />
+            <View style={styles.infoCard}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><OutlineIcon name="document-text-outline" size={21} color={colors.primary} /><Text style={styles.sectionTitle}>Conditions</Text></View>
+              <InfoRow label="Profondeur" value={`${spot.profondeur_min} – ${spot.profondeur_max} m`} icon="arrow-down-outline" />
+              <InfoRow label="Visibilité" value={`${spot.visibilite} m`} icon="eye-outline" />
+              <InfoRow label="Courant" value={spot.courant} icon="water-outline" />
+              <InfoRow label="Difficulté" value={diff.label} accent={diff.color} icon="bar-chart-outline" />
+            </View>
+            <View style={[styles.infoCard, { marginTop: 14 }]}>
+              <Text style={styles.sectionTitle}>Infos pratiques</Text>
+              <InfoRow label="Type de site" value={spot.type_site} icon="boat-outline" />
+              <InfoRow label="Localité" value={`${spot.localite} ${spot.code_postal}`} icon="location-outline" />
+              <InfoRow label="Meilleure saison" value={spot.meilleure_saison} icon="sunny-outline" />
+              <InfoRow label="Accès" value={spot.conditions_acces} icon="navigate-outline" />
+              <InfoRow label="Capacité" value={`${spot.capacite_plongeurs} plongeurs max`} icon="people-outline" />
+            </View>
           </View>
         );
       case 'faune':
         return (
           <View>
-            <Text style={styles.sectionTitle}>🐠 Faune</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><OutlineIcon name="fish-outline" size={21} color={colors.primary} /><Text style={styles.sectionTitle}>Faune</Text></View>
             <View style={styles.tagsWrap}>
               {spot.faune?.map((a, i) => <Tag key={i} label={a} color={colors.primary} />)}
             </View>
-            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>🌿 Flore</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24 }}><OutlineIcon name="leaf-outline" size={21} color={colors.emerald} /><Text style={styles.sectionTitle}>Flore</Text></View>
             <View style={styles.tagsWrap}>
               {spot.flore?.map((f, i) => <Tag key={i} label={f} color={colors.emerald} />)}
             </View>
             {spot.photos_fond_marin?.length > 0 && (
               <>
-                <Text style={[styles.sectionTitle, { marginTop: 24 }]}>📸 Sous-marin</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24 }}><OutlineIcon name="camera-outline" size={21} color={colors.primary} /><Text style={styles.sectionTitle}>Sous-marin</Text></View>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.galleryScroll}>
                   {spot.photos_fond_marin.map((uri, i) => {
                     const galleryUri = withCacheBust(uri, `gallery-${spot.id}-${i}`);
@@ -133,7 +147,7 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
           <View>
             <Text style={styles.sectionTitle}>À propos</Text>
             <Text style={styles.descText}>{spot.description}</Text>
-            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>📍 Coordonnées GPS</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 24 }}><OutlineIcon name="location-outline" size={21} color={colors.primary} /><Text style={styles.sectionTitle}>Coordonnées GPS</Text></View>
             <View style={styles.gpsCard}>
               <View style={styles.gpsRow}>
                 <Text style={styles.gpsKey}>Lat</Text>
@@ -151,8 +165,19 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
   };
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose}>
+    <Modal visible={isVisible} animationType="slide" transparent={false} onRequestClose={onClose} onDismiss={() => {
+      const next = pendingNavigation.current;
+      pendingNavigation.current = null;
+      onDismiss?.();
+      if (next) onNavigate?.(next);
+    }}>
       <View style={styles.container}>
+        <ScrollView
+          ref={contentScrollRef}
+          style={styles.pageScroll}
+          contentContainerStyle={styles.pageScrollContent}
+          showsVerticalScrollIndicator={false}
+        >
 
         {/* ── Hero carousel ── */}
         <View style={styles.heroWrap}>
@@ -167,10 +192,23 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
             ))}
           </ScrollView>
 
-          <View style={styles.heroGradient} pointerEvents="none" />
+          <LinearGradient colors={colors.gradHero} locations={[0, 0.48, 1]} style={styles.heroGradient} pointerEvents="none" />
 
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
-            <View style={styles.closeBtnInner}><Text style={styles.closeBtnIcon}>✕</Text></View>
+            <View style={styles.closeBtnInner}><OutlineIcon name="close-outline" size={24} color="#FFFFFF" /></View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.favTopBtn}
+            onPress={handleToggleFav}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+          >
+            <View style={[styles.closeBtnInner, fav && styles.favTopBtnActive]}>
+              <Animated.View style={{ transform: [{ scale: favScale }] }}>
+                <Ionicons name={fav ? 'star' : 'star-outline'} size={24} color="#FFFFFF" />
+              </Animated.View>
+            </View>
           </TouchableOpacity>
 
           {allPhotos.length > 1 && (
@@ -182,93 +220,59 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
           )}
 
           <View style={styles.heroBottom}>
-            <View style={[styles.diffBadge, { backgroundColor: diff.bg }]}>
-              <View style={[styles.diffDot, { backgroundColor: diff.color }]} />
-              <Text style={[styles.diffBadgeText, { color: diff.color }]}>{diff.label}</Text>
+            <View style={[styles.diffBadge, { backgroundColor: diff.badgeBg }]}>
+              <View style={styles.diffDot} />
+              <Text style={styles.diffBadgeText}>{diff.label}</Text>
             </View>
             <Text style={styles.heroTitle} numberOfLines={2}>{spot.nom}</Text>
-            <Text style={styles.heroSub}>📍 {spot.localite}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><OutlineIcon name="location-outline" size={17} color="#BFD3EA" /><Text style={styles.heroSub}>{spot.localite}</Text></View>
           </View>
         </View>
 
         {/* ── Quick stats ── */}
         <View style={styles.statsRow}>
-          <StatItem icon="⬇" label="Max" value={`${spot.profondeur_max}m`} color={colors.primary} styles={styles} />
+          <StatItem icon="arrow-down-outline" label="Max" value={`${spot.profondeur_max}m`} color={colors.primary} styles={styles} />
           <View style={styles.statDiv} />
-          <StatItem icon="👁" label="Visib." value={`${spot.visibilite}m`} color={colors.emerald} styles={styles} />
+          <StatItem icon="eye-outline" label="Visib." value={`${spot.visibilite}m`} color={colors.emerald} styles={styles} />
           <View style={styles.statDiv} />
-          <StatItem icon="🌊" label="Courant" value={spot.courant} color={colors.amber} styles={styles} />
+          <StatItem icon="water-outline" label="Courant" value={spot.courant} color={colors.amber} styles={styles} />
         </View>
 
-        {/* ── Bouton d'action dédié : Plan de plongée & Briefing (uniquement si topo disponible) ── */}
-        {Boolean(spot.topos && spot.topos.length > 0) && (
-          <View style={styles.topoActionWrap}>
-            <TouchableOpacity
-              style={styles.topoActionBtn}
-              onPress={() => setTopoVisible(true)}
-              activeOpacity={0.88}
-            >
-              <LinearGradient
-                colors={colors.gradPrimary}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.topoActionGrad}
-              >
-                <View style={styles.topoActionLeft}>
-                  <View style={styles.topoActionIconBadge}>
-                    <Text style={styles.topoActionIcon}>🗺️</Text>
-                  </View>
-                  <View style={styles.topoActionTexts}>
-                    <View style={styles.topoActionHeaderRow}>
-                      <Text style={styles.topoActionTitle}>Plan de plongée</Text>
-                      <View style={styles.topoBadgeAvailable}>
-                        <Text style={styles.topoBadgeAvailableText}>DISPONIBLE</Text>
-                      </View>
-                    </View>
-                    <Text style={styles.topoActionSub}>Topo bathymétrique • Épaves & Parcours</Text>
-                  </View>
-                </View>
-                <View style={styles.topoActionArrow}>
-                  <Text style={styles.topoActionArrowText}>➔</Text>
-                </View>
-              </LinearGradient>
-            </TouchableOpacity>
-          </View>
-        )}
-
         {/* ── Tabs ── */}
-        <View style={styles.tabsRow}>
-          {[['info', 'Infos'], ['faune', 'Faune & Flore'], ['description', 'Description']].map(([key, label]) => (
-            <TouchableOpacity key={key} style={styles.tab} onPress={() => setActiveTab(key)} activeOpacity={0.75}>
-              <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{label}</Text>
-              {activeTab === key && <View style={styles.tabUnderline} />}
-            </TouchableOpacity>
-          ))}
+        <View style={styles.tabsSticky} onLayout={(event) => { tabsPositionRef.current = event.nativeEvent.layout.y; }}>
+          <View style={styles.tabsRow}>
+            {[['info', 'Infos'], ['faune', 'Faune & Flore'], ['description', 'Description']].map(([key, label]) => (
+              <TouchableOpacity key={key} style={styles.tab} onPress={() => handleSelectTab(key)} activeOpacity={0.75}>
+                <Text style={[styles.tabText, activeTab === key && styles.tabTextActive]}>{label}</Text>
+                {activeTab === key && <View style={styles.tabUnderline} />}
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* ── Contenu ── */}
-        <View style={styles.scrollWrap}>
-          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            {renderTabContent()}
-          </ScrollView>
+        <View style={styles.scrollContent}>
+          {renderTabContent()}
+        </View>
+        </ScrollView>
 
-          <View style={styles.ctaRow}>
-            <TouchableOpacity style={styles.ctaSecondary} onPress={handleOpenMaps} activeOpacity={0.85}>
-              <Text style={styles.ctaSecondaryText}>📍 Itinéraire</Text>
-            </TouchableOpacity>
+        <View style={styles.ctaRow}>
+          <TouchableOpacity style={styles.ctaSecondary} onPress={handleOpenMaps} activeOpacity={0.85}>
+            <OutlineIcon name="navigate-outline" size={20} color={colors.primary} />
+            <Text style={styles.ctaSecondaryText}>Itinéraire</Text>
+          </TouchableOpacity>
+          {Boolean(spot.topos?.length) && (
             <TouchableOpacity
-              style={[styles.ctaFav, fav && styles.ctaFavActive]}
-              onPress={handleToggleFav}
-              activeOpacity={0.85}
+              style={styles.ctaPlan}
+              onPress={() => setTopoVisible(true)}
+              activeOpacity={0.88}
             >
-              <Animated.Text style={[styles.ctaFavIcon, fav && styles.ctaFavIconActive, { transform: [{ scale: favScale }] }]}>
-                {fav ? '★' : '☆'}
-              </Animated.Text>
-              <Text style={[styles.ctaFavText, fav && styles.ctaFavTextActive]}>
-                {fav ? 'Sauvegardé' : 'Favoris'}
-              </Text>
+              <LinearGradient colors={colors.gradPrimary} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.ctaPlanGrad}>
+                <Text style={styles.ctaPlanText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>Plan de plongée</Text>
+                <OutlineIcon name="arrow-forward-outline" size={20} color="#03111F" />
+              </LinearGradient>
             </TouchableOpacity>
-          </View>
+          )}
         </View>
       </View>
 
@@ -276,7 +280,7 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
       <Modal visible={lightboxVisible} transparent animationType="fade" onRequestClose={() => setLightboxVisible(false)} statusBarTranslucent>
         <View style={styles.lbOverlay}>
           <TouchableOpacity style={styles.lbClose} onPress={() => setLightboxVisible(false)}>
-            <Text style={styles.lbCloseText}>✕</Text>
+            <OutlineIcon name="close-outline" size={27} color="#FFFFFF" />
           </TouchableOpacity>
           <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}
             contentOffset={{ x: lightboxIndex * SW, y: 0 }}
@@ -298,18 +302,25 @@ const DetailSheet = ({ spot, isVisible, onClose, userLocation }) => {
         isVisible={topoVisible}
         onClose={() => setTopoVisible(false)}
         userLocation={userLocation}
+        onNavigate={(key) => {
+          pendingNavigation.current = key;
+          onClose();
+        }}
       />
     </Modal>
   );
 };
 
 // Sub-components receive styles as prop to avoid re-calling makeStyles
-const InfoRow = ({ label, value, accent }) => {
+const InfoRow = ({ label, value, accent, icon }) => {
   const { colors } = useTheme();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
     <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>{label}</Text>
+      <View style={styles.infoLabelWrap}>
+        {icon && <Ionicons name={icon} size={19} color={colors.primary} />}
+        <Text style={styles.infoLabel}>{label}</Text>
+      </View>
       <Text style={[styles.infoValue, accent && { color: accent }]}>{value}</Text>
     </View>
   );
@@ -323,7 +334,7 @@ const Tag = ({ label, color }) => (
 
 const StatItem = ({ icon, label, value, color, styles }) => (
   <View style={styles.statItem}>
-    <Text style={[styles.statIcon, { color }]}>{icon}</Text>
+    <OutlineIcon name={icon} size={24} color={color} />
     <Text style={styles.statLabel}>{label}</Text>
     <Text style={[styles.statValue, { color }]}>{value}</Text>
   </View>
@@ -331,20 +342,24 @@ const StatItem = ({ icon, label, value, color, styles }) => (
 
 const makeStyles = (colors) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.bg },
+  pageScroll: { flex: 1 },
+  pageScrollContent: { paddingBottom: 108 },
 
   heroWrap: { height: HERO_H, position: 'relative', backgroundColor: colors.bgCard },
   heroImage: { width: SW, height: HERO_H, backgroundColor: colors.bgCard },
   heroGradient: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    height: HERO_H * 0.65, backgroundColor: 'transparent',
+    height: HERO_H * 0.72,
   },
   closeBtn: { position: 'absolute', top: 48, right: 16, zIndex: 10 },
+  favTopBtn: { position: 'absolute', top: 48, left: 16, zIndex: 10 },
   closeBtnInner: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(8,12,20,0.55)',
-    borderWidth: 1, borderColor: colors.borderMid,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: 'rgba(3,17,31,0.86)',
+    borderWidth: 1, borderColor: colors.borderBright,
     alignItems: 'center', justifyContent: 'center',
   },
+  favTopBtnActive: { backgroundColor: '#C66A00', borderColor: '#FFB020' },
   closeBtnIcon: { color: '#EEF2FF', fontSize: 14, fontWeight: '700' },
   dotsRow: {
     position: 'absolute', bottom: 80, left: 0, right: 0,
@@ -354,57 +369,67 @@ const makeStyles = (colors) => StyleSheet.create({
   dotActive: { width: 18, backgroundColor: colors.primary, borderRadius: 3 },
   heroBottom: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    padding: 16, paddingBottom: 12, gap: 4,
-    backgroundColor: 'rgba(8,12,20,0.82)',
+    padding: 20, paddingBottom: 18, gap: 5,
   },
   diffBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4,
     borderRadius: radius.pill, marginBottom: 4,
   },
-  diffDot: { width: 6, height: 6, borderRadius: 3 },
-  diffBadgeText: { fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
-  heroTitle: { fontSize: 22, fontWeight: '800', color: '#EEF2FF', letterSpacing: -0.3, lineHeight: 28 },
-  heroSub: { fontSize: 13, color: 'rgba(238,242,255,0.60)' },
+  diffDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#FFFFFF' },
+  diffBadgeText: { fontSize: 11, fontWeight: '800', letterSpacing: 0.3, color: '#FFFFFF' },
+  heroTitle: { fontSize: 28, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5, lineHeight: 32 },
+  heroSub: { fontSize: 15, color: '#BFD3EA' },
 
   statsRow: {
     flexDirection: 'row',
     backgroundColor: colors.bgElevated,
-    paddingVertical: 12, paddingHorizontal: 20,
-    borderBottomWidth: 1, borderBottomColor: colors.border,
+    paddingVertical: 13, paddingHorizontal: 12,
+    marginHorizontal: 14, marginTop: 10, marginBottom: 8,
+    borderWidth: 1, borderColor: colors.borderMid,
+    borderRadius: 18,
   },
-  statItem: { flex: 1, alignItems: 'center', gap: 2 },
-  statIcon: { fontSize: 16, marginBottom: 2 },
-  statLabel: { fontSize: 9, color: colors.textMuted, letterSpacing: 0.5, textTransform: 'uppercase' },
-  statValue: { fontSize: 12, fontWeight: '700' },
-  statDiv: { width: 1, backgroundColor: colors.border, marginVertical: 4 },
+  statItem: { flex: 1, alignItems: 'center', gap: 3 },
+  statIcon: { fontSize: 20, marginBottom: 2 },
+  statLabel: { fontSize: 10, color: colors.textSecondary, letterSpacing: 0.5, textTransform: 'uppercase' },
+  statValue: { fontSize: 15, fontWeight: '800' },
+  statDiv: { width: 1, backgroundColor: colors.borderMid, marginVertical: 8 },
 
+  tabsSticky: {
+    backgroundColor: colors.bg, paddingHorizontal: 14, paddingTop: 8, paddingBottom: 8,
+  },
   tabsRow: {
     flexDirection: 'row',
     backgroundColor: colors.bgElevated,
-    borderBottomWidth: 1, borderBottomColor: colors.border,
+    borderWidth: 1, borderColor: colors.border,
+    borderRadius: 18,
   },
   tab: { flex: 1, paddingVertical: 14, alignItems: 'center', position: 'relative' },
-  tabText: { fontSize: 12, fontWeight: '600', color: colors.textMuted, letterSpacing: 0.2 },
+  tabText: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, letterSpacing: 0.2 },
   tabTextActive: { color: colors.primary, fontWeight: '700' },
   tabUnderline: {
     position: 'absolute', bottom: 0, left: '20%', right: '20%',
-    height: 2, backgroundColor: colors.primary, borderRadius: 1,
+    height: 3, backgroundColor: colors.primary, borderRadius: 2,
   },
 
-  scrollWrap: { flex: 1, position: 'relative' },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 110 },
+  scrollContent: { minHeight: SH * 0.7, paddingHorizontal: 14, paddingTop: 16, paddingBottom: 24 },
+
+  infoCard: {
+    backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.borderMid,
+    borderRadius: 22, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4,
+  },
 
   sectionTitle: {
-    fontSize: 13, fontWeight: '700', color: colors.textMuted,
-    letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12,
+    fontSize: 17, fontWeight: '800', color: colors.textPrimary,
+    letterSpacing: 0, marginBottom: 8,
   },
   infoRow: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border,
   },
+  infoLabelWrap: { flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 },
   infoLabel: { fontSize: 14, color: colors.textSecondary },
-  infoValue: { fontSize: 14, fontWeight: '600', color: colors.textPrimary, maxWidth: '55%', textAlign: 'right' },
+  infoValue: { fontSize: 14, fontWeight: '700', color: colors.textPrimary, maxWidth: '52%', textAlign: 'right' },
 
   tagsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
 
@@ -426,27 +451,25 @@ const makeStyles = (colors) => StyleSheet.create({
     marginRight: 10, backgroundColor: colors.bgCard,
   },
 
-  ctaRow: { position: 'absolute', bottom: 20, left: 16, right: 16, flexDirection: 'row', gap: 10 },
+  ctaRow: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 10,
+    paddingBottom: Platform.OS === 'ios' ? 30 : 14,
+    backgroundColor: colors.bg, borderTopWidth: 1, borderTopColor: colors.borderMid,
+  },
   ctaSecondary: {
-    flex: 1, paddingVertical: 14, borderRadius: radius.lg,
-    borderWidth: 1.5, borderColor: colors.primary,
-    alignItems: 'center', backgroundColor: colors.primaryDim,
+    flex: 0.82, height: 52, borderRadius: radius.lg,
+    borderWidth: 1, borderColor: colors.borderMid,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: colors.bgElevated,
   },
   ctaSecondaryText: { fontSize: 14, fontWeight: '700', color: colors.primary },
-  ctaFav: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7,
-    paddingVertical: 14, borderRadius: radius.lg,
-    borderWidth: 1.5, borderColor: colors.amber, backgroundColor: colors.amberDim,
+  ctaPlan: { flex: 1.38, height: 52, borderRadius: radius.lg, overflow: 'hidden' },
+  ctaPlanGrad: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 7, paddingHorizontal: 10,
   },
-  ctaFavActive: {
-    backgroundColor: colors.amber, borderColor: colors.amber,
-    shadowColor: colors.amber, shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.45, shadowRadius: 12, elevation: 8,
-  },
-  ctaFavIcon: { fontSize: 18, color: colors.amber },
-  ctaFavIconActive: { color: colors.bg },
-  ctaFavText: { fontSize: 14, fontWeight: '700', color: colors.amber },
-  ctaFavTextActive: { color: colors.bg },
+  ctaPlanText: { fontSize: 15, fontWeight: '800', color: '#03111F', flexShrink: 1 },
 
   // Lightbox (always dark)
   lbOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.97)', justifyContent: 'center' },
@@ -461,94 +484,15 @@ const makeStyles = (colors) => StyleSheet.create({
   lbImage: { width: SW, height: SH * 0.75 },
   lbCounter: { position: 'absolute', bottom: 48, alignSelf: 'center', color: 'rgba(255,255,255,0.55)', fontSize: 13, fontWeight: '600' },
 
-  // Bouton d'action dédié : Plan topo & briefing
-  topoActionWrap: {
-    paddingHorizontal: 16,
-    marginTop: 10,
-    marginBottom: 4,
-  },
-  topoActionBtn: {
-    borderRadius: radius.lg || 14,
-    overflow: 'hidden',
-    ...shadows.card,
-  },
-  topoActionGrad: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  topoActionLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  topoActionIconBadge: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  topoActionIcon: {
-    fontSize: 20,
-  },
-  topoActionTexts: {
-    flex: 1,
-  },
-  topoActionHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  topoActionTitle: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: -0.2,
-  },
-  topoBadgeAvailable: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  topoBadgeAvailableText: {
-    fontSize: 9,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
-  },
-  topoActionSub: {
-    fontSize: 11,
-    color: 'rgba(255,255,255,0.85)',
-    marginTop: 2,
-    fontWeight: '500',
-  },
-  topoActionArrow: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  topoActionArrowText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '800',
-  },
 });
 
 DetailSheet.propTypes = {
   spot: PropTypes.object,
   isVisible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  onDismiss: PropTypes.func,
   userLocation: PropTypes.object,
+  onNavigate: PropTypes.func,
 };
 
 export default DetailSheet;

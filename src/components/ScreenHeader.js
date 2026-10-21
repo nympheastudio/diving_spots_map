@@ -5,6 +5,7 @@
 import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
+import OutlineIcon from './OutlineIcon';
 import { radius } from '../theme';
 
 const ScreenHeader = ({ title, onBack, rightAction }) => {
@@ -18,7 +19,7 @@ const ScreenHeader = ({ title, onBack, rightAction }) => {
         onPress={onBack}
         hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
       >
-        <Text style={styles.backIcon}>‹</Text>
+        <OutlineIcon name="chevron-back-outline" size={24} color={colors.textPrimary} />
       </TouchableOpacity>
 
       <Text style={styles.title} numberOfLines={1}>{title}</Text>
@@ -29,7 +30,7 @@ const ScreenHeader = ({ title, onBack, rightAction }) => {
           onPress={rightAction.onPress}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Text style={styles.rightIcon}>{rightAction.icon}</Text>
+          <OutlineIcon name={rightAction.icon} size={21} color={colors.primary} />
         </TouchableOpacity>
       ) : (
         <View style={styles.placeholder} />

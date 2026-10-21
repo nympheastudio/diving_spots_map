@@ -5,11 +5,6 @@ export default {
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
-    splash: {
-      image: './assets/splash.png',
-      resizeMode: 'contain',
-      backgroundColor: '#ffffff',
-    },
     ios: {
       supportsTablet: true,
       bundleIdentifier: 'com.nicolasdiving.divingspots',
@@ -40,6 +35,15 @@ export default {
       'expo-localization',
       'expo-web-browser',
       [
+        'expo-splash-screen',
+        {
+          image: './assets/splash.png',
+          resizeMode: 'contain',
+          backgroundColor: '#ffffff',
+        },
+      ],
+      'expo-status-bar',
+      [
         'expo-location',
         {
           locationAlwaysAndWhenInUsePermission:
@@ -62,9 +66,9 @@ export default {
       ],
     ],
     scheme: 'divingspots',
-    userInterfaceStyle: 'light',
+    userInterfaceStyle: 'dark',
     platforms: ['ios', 'android', 'web'],
-    runtimeVersion: '1.0.0',
+    runtimeVersion: 'sdk57-1.0.0',
     updates: {
       url: 'https://ota.appli.ovh/manifest',
       enabled: true,

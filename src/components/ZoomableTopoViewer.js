@@ -18,6 +18,7 @@ import {
   SafeAreaView,
   Animated,
 } from 'react-native';
+import OutlineIcon from './OutlineIcon';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 
@@ -223,7 +224,7 @@ const ZoomableTopoViewer = ({ source, title, onClose }) => {
             <Text style={viewerStyles.subtitle}>Pincez pour zoomer • Glissez pour déplacer</Text>
           </View>
           <TouchableOpacity style={viewerStyles.closeBtn} onPress={onClose} activeOpacity={0.7}>
-            <Text style={viewerStyles.closeText}>✕</Text>
+            <OutlineIcon name="close-outline" size={24} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
 
@@ -297,7 +298,7 @@ const ZoomableTopoViewer = ({ source, title, onClose }) => {
               onPress={() => applyZoom(1)}
               activeOpacity={0.7}
             >
-              <Text style={viewerStyles.resetBtnText}>↺ 100%</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}><OutlineIcon name="refresh-outline" size={17} color="#FFFFFF" /><Text style={viewerStyles.resetBtnText}>100%</Text></View>
             </TouchableOpacity>
           )}
         </View>

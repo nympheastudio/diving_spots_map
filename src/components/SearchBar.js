@@ -16,6 +16,7 @@ import {
   Animated,
 } from 'react-native';
 import DivingDataService from '../services/DivingDataService';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { radius, shadows } from '../theme';
 
@@ -71,7 +72,7 @@ const SearchBar = ({ onSpotSelect }) => {
     const diff = difficultyMeta[item.difficulte] || difficultyMeta.Intermediate;
     return (
       <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item)} activeOpacity={0.75}>
-        <Image source={{ uri: item.photo }} style={styles.thumb} resizeMode="cover" />
+        <Image source={{ uri: item.photos_fond_marin?.[0] || item.photo }} style={styles.thumb} resizeMode="cover" />
         <View style={styles.resultBody}>
           <Text style={styles.resultName} numberOfLines={1}>{item.nom}</Text>
           <Text style={styles.resultSub}>{item.localite}</Text>
@@ -86,7 +87,7 @@ const SearchBar = ({ onSpotSelect }) => {
   return (
     <View style={styles.wrapper}>
       <View style={styles.pill}>
-        <Text style={styles.searchIcon}>⌕</Text>
+        <Ionicons name="search-outline" size={24} color={colors.primary} />
         <TextInput
           style={styles.input}
           placeholder="Spot, ville, type…"
@@ -100,7 +101,7 @@ const SearchBar = ({ onSpotSelect }) => {
           ? <ActivityIndicator size="small" color={colors.primary} style={styles.right} />
           : query.length > 0 && (
             <TouchableOpacity onPress={handleClear} style={styles.right} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <View style={styles.clearBtn}><Text style={styles.clearIcon}>✕</Text></View>
+              <View style={styles.clearBtn}><Ionicons name="close-outline" size={17} color={colors.textSecondary} /></View>
             </TouchableOpacity>
           )
         }
@@ -130,7 +131,7 @@ const SearchBar = ({ onSpotSelect }) => {
 
 const makeStyles = (colors) => StyleSheet.create({
   wrapper: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     zIndex: 200,
   },
 
@@ -140,10 +141,10 @@ const makeStyles = (colors) => StyleSheet.create({
     backgroundColor: colors.bgGlass,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.borderMid,
-    paddingHorizontal: 14,
-    height: 48,
-    gap: 8,
+    borderColor: colors.borderBright,
+    paddingHorizontal: 18,
+    height: 56,
+    gap: 12,
     ...shadows.card,
   },
   searchIcon: {
